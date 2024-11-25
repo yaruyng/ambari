@@ -499,7 +499,8 @@ hive_metastore_heapsize = config["configurations"]["hive-env"][
 ]
 
 java64_home = config["ambariLevelParams"]["java_home"]
-java_exec = format("{java64_home}/bin/java")
+ambari_java_home = config["ambariLevelParams"]["ambari_java_home"]
+ambari_java_exec = format("{ambari_java_home}/bin/java")
 java_version = expect("/ambariLevelParams/java_version", int)
 
 ##### MYSQL

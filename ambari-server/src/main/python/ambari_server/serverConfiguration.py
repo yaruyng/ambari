@@ -24,7 +24,7 @@ import os
 import re
 import shutil
 import stat
-import string
+from enum import Enum
 import sys
 import tempfile
 import getpass
@@ -103,6 +103,12 @@ STACK_JAVA_HOME_PROPERTY = "stack.java.home"
 STACK_JDK_NAME_PROPERTY = "stack.jdk.name"
 STACK_JCE_NAME_PROPERTY = "stack.jce.name"
 STACK_JAVA_VERSION = "stack.java.version"
+
+# ambari JDK
+AMBARI_JAVA_HOME_PROPERTY = "ambari.java.home"
+AMBARI_JDK_NAME_PROPERTY = "ambari.jdk.name"
+AMBARI_JCE_NAME_PROPERTY = "ambari.jce.name"
+AMBARI_JAVA_VERSION = "ambari.java.version"
 
 
 # TODO property used incorrectly in local case, it was meant to be dbms name, not postgres database name,
@@ -197,6 +203,12 @@ CHECK_AMBARI_KRB_JAAS_CONFIGURATION_PROPERTY = "kerberos.check.jaas.configuratio
 
 # JDK
 JDK_RELEASES = "java.releases"
+
+
+class JavaHomeType(Enum):
+  GLOBAL = JAVA_HOME_PROPERTY
+  AMBARI = AMBARI_JAVA_HOME_PROPERTY
+
 
 if on_powerpc():
   JDK_RELEASES += ".ppc64le"
@@ -1727,13 +1739,12 @@ class JDKRelease:
   pass
 
 
-def get_JAVA_HOME():
+def get_JAVA_HOME(java_home_type=JavaHomeType.AMBARI):
   properties = get_ambari_properties()
   if properties == -1:
     print_error_msg("Error getting ambari properties")
     return None
-
-  java_home = properties[JAVA_HOME_PROPERTY]
+  java_home = properties[java_home_type.value]
 
   if (not 0 == len(java_home)) and (os.path.exists(java_home)):
     return java_home
@@ -1756,8 +1767,8 @@ def validate_jdk(jdk_path):
 #
 # Finds the available JDKs.
 #
-def find_jdk():
-  jdkPath = get_JAVA_HOME()
+def find_jdk(java_home_type=JavaHomeType.AMBARI):
+  jdkPath = get_JAVA_HOME(java_home_type)
   if jdkPath:
     if validate_jdk(jdkPath):
       return jdkPath
@@ -1780,8 +1791,8 @@ def find_jdk():
   return
 
 
-def get_java_exe_path():
-  jdkPath = find_jdk()
+def get_java_exe_path(java_home_type=JavaHomeType.AMBARI):
+  jdkPath = find_jdk(java_home_type)
   if jdkPath:
     java_exe = os.path.join(jdkPath, configDefaults.JAVA_EXE_SUBPATH)
     return java_exe

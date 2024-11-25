@@ -762,6 +762,12 @@ def init_setup_parser_options(parser):
     help="Use specified java_home.  Must be valid on all hosts",
   )
   other_group.add_option(
+    "--ambari-java-home",
+    dest="ambari_java_home",
+    default=None,
+    help="Use specified java_home for ambari.  Must be valid on Ambari server hosts",
+  )
+  other_group.add_option(
     "--stack-java-home",
     dest="stack_java_home",
     default=None,

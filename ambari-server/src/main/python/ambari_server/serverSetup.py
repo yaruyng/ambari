@@ -87,7 +87,9 @@ from ambari_server.serverConfiguration import (
   STACK_JCE_NAME_PROPERTY,
   STACK_JAVA_VERSION,
   GPL_LICENSE_ACCEPTED_PROPERTY,
+  AMBARI_JAVA_HOME_PROPERTY,
 )
+
 from ambari_server.serverUtils import is_server_runing
 from ambari_server.setupSecurity import adjust_directory_permissions
 from ambari_server.userInput import get_YN_input, get_validated_string_input
@@ -516,6 +518,26 @@ class JDKSetup(object):
       "JCE Policy files are required for configuring Kerberos security. If you plan to use Kerberos,"
       "please make sure JCE Unlimited Strength Jurisdiction Policy Files are valid on all hosts."
     )
+
+    if args.ambari_java_home:
+      print("start setting AMBARI_JAVA_HOME for Ambari...")
+      if not validate_jdk(args.ambari_java_home):
+        err = (
+          "Path to Ambari java home "
+          + args.ambari_java_home
+          + " or java binary file does not exist"
+        )
+        raise FatalException(1, err)
+
+      print_warning_msg(
+        "AMBARI_JAVA_HOME " + args.ambari_java_home + " must be valid on ALL hosts"
+      )
+      print_warning_msg(jcePolicyWarn)
+
+      properties.process_pair(AMBARI_JAVA_HOME_PROPERTY, args.ambari_java_home)
+      properties.removeOldProp(JDK_NAME_PROPERTY)
+      properties.removeOldProp(JCE_NAME_PROPERTY)
+      print("Setting AMBARI_JAVA_HOME for Ambari finished")
 
     if args.java_home:
       # java_home was specified among the command-line arguments. Use it as custom JDK location.
