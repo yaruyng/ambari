@@ -99,7 +99,7 @@ class Utils:
     try:
       connection = urllib.request.urlopen(req)
     except Exception as e:
-      logger.error('Error on metrics GET request: %s' % collector_uri)
+      logger.error(f'Error on metrics GET request: {collector_uri}')
       logger.error(str(e))
     # Validate json before dumping
     response_data = None
@@ -107,7 +107,7 @@ class Utils:
       try:
         response_data = json.loads(connection.read())
       except Exception as e:
-        logger.warn('Error parsing json data returned from URI: %s' % collector_uri)
+        logger.warn(f'Error parsing json data returned from URI: {collector_uri}')
         logger.debug(str(e))
 
     return response_data
@@ -166,14 +166,14 @@ class AmsMetricsProcessor:
 
     for metric in metrics:
       uri = Params.get_collector_uri(metric, host)
-      logger.info('Request URI: %s' % str(uri))
+      logger.info(f'Request URI: {str(uri)}')
       metrics_json = Utils.get_data_from_url(uri)
       if metrics_json:
         if host:
           path = os.path.join(Params.OUT_DIR, host, metric)
         else:
           path = os.path.join(Params.OUT_DIR, metric)
-        logger.info('Writing metric file: %s' % path)
+        logger.info(f'Writing metric file: {path}')
         with open(path, 'w') as file:
           file.write(json.dumps(metrics_json))
 
@@ -185,7 +185,7 @@ class AmsMetricsProcessor:
         app_metrics_metadata.append({"metricname": metric, "seriesStartTime": Params.START_TIME, "supportsAggregation": "false", "type": "UNDEFINED"})
       else:
         app_metrics_metadata.append({"metricname": metric, "seriesStartTime": Params.START_TIME, "supportsAggregation": "false"})
-    logger.debug("Adding {0} to metadata".format(metric))
+    logger.debug(f"Adding {metric} to metadata")
 
     return {Params.AMS_APP_ID : app_metrics_metadata}
 
@@ -374,9 +374,8 @@ def main():
                          'You can use it to visualize information exported by the AMS thin client')
 
   d = datetime.datetime.now()
-  time_suffix = '{0}-{1}-{2}-{3}-{4}-{5}'.format(d.year, d.month, d.day,
-                                                 d.hour, d.minute, d.second)
-  print('Time: %s' % time_suffix)
+  time_suffix = f'{d.year}-{d.month}-{d.day}-{d.hour}-{d.minute}-{d.second}'
+  print(f'Time: {time_suffix}')
 
   logfile = os.path.join('/tmp', 'ambari_metrics_export.out')
 
@@ -387,7 +386,7 @@ def main():
   parser.add_option("-v", "--verbose", dest="verbose", action="store_true",
                     default=False, help="output verbosity.")
   parser.add_option("-l", "--logfile", dest="log_file", default=logfile,
-                    metavar='FILE', help="Log file. [default: %s]" % logfile)
+                    metavar='FILE', help=f"Log file. [default: {logfile}]")
 
   export_options_group = OptionGroup(parser, "Required options for action 'export'")
   #export metrics -----------------------------------------------------
@@ -408,7 +407,7 @@ def main():
   export_options_group.add_option("-e", "--end_time", dest="end_time",
                     help="End time in milliseconds since epoch or UTC timestamp in YYYY-MM-DDTHH:mm:ssZ format.")
   export_options_group.add_option("-o", "--output-dir", dest="output_dir", default=output_dir,
-                    help="Output dir. [default: %s]" % output_dir)
+                    help=f"Output dir. [default: {output_dir}]")
   parser.add_option_group(export_options_group)
   #start Flask server -----------------------------------------------------
 

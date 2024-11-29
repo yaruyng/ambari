@@ -126,8 +126,8 @@ class PreemptiveBasicAuthHandler(urllib.request.BaseHandler):
     uri = req.get_full_url()
     user = USERNAME
     pw = PASSWORD
-    raw = "%s:%s" % (user, pw)
-    auth = 'Basic %s' % base64.b64encode(raw.encode()).decode().strip()
+    raw = f"{user}:{pw}"
+    auth = f'Basic {base64.b64encode(raw.encode()).decode().strip()}'
     req.add_unredirected_header('Authorization', auth)
     return req
 
@@ -153,15 +153,15 @@ class AmbariBlueprint:
 
     # Verify json data
     blueprint_json = json.loads(blueprint)
-    logger.debug("blueprint json: %s" % blueprint_json)
+    logger.debug(f"blueprint json: {blueprint_json}")
 
     blueprintInfo = blueprint_json.get("Blueprints")
     if not blueprintInfo:
-      raise Exception("Cannot read blueprint info from blueprint at %s" % blueprintLocation)
+      raise Exception(f"Cannot read blueprint info from blueprint at {blueprintLocation}")
 
     blueprint_name = blueprintInfo.get("blueprint_name")
     if not blueprint_name:
-      raise Exception("blueprint_name required inside Blueprints %s" % blueprintInfo)
+      raise Exception(f"blueprint_name required inside Blueprints {blueprintInfo}")
 
     hosts_json = None
 
@@ -193,7 +193,7 @@ class AmbariBlueprint:
       pass
     pass
 
-    logger.debug("host assignments json: %s" % hosts_json)
+    logger.debug(f"host assignments json: {hosts_json}")
 
     # Create blueprint
     blueprintCreateUrl = getUrl(BLUEPRINT_CREATE_URL.format(blueprint_name))
@@ -205,7 +205,7 @@ class AmbariBlueprint:
       logger.info("Blueprint %s already exists, proceeding with host "
                   "assignments." % blueprint_name)
     else:
-      logger.error("Unable to create blueprint from location %s" % blueprintLocation)
+      logger.error(f"Unable to create blueprint from location {blueprintLocation}")
       sys.exit(1)
     pass
 
@@ -226,7 +226,7 @@ class AmbariBlueprint:
     hostAssignments = '{{"blueprint":"{0}","host_groups":[{1}]}}'
     hostGroupHosts = '{{"name":"{0}","hosts":[{1}]}}'
     hosts = '{{"fqdn":"{0}"}},'
-    logger.debug("Blueprint: {0}, Masters: {1}, Slaves: {2}".format(blueprintName, masters, slaves))
+    logger.debug(f"Blueprint: {blueprintName}, Masters: {masters}, Slaves: {slaves}")
     mastersUsed = 0
     slavesUsed = 0
     hostGroupsJson = ''
@@ -356,7 +356,7 @@ class AmbariBlueprint:
         logger.info(resp)
       pass
     else:
-      logger.error("Unable to perform export operation on cluster, %s" % clusterName)
+      logger.error(f"Unable to perform export operation on cluster, {clusterName}")
 
     pass
 
@@ -367,21 +367,21 @@ class AmbariBlueprint:
     req.get_method = lambda: 'POST'
 
     try:
-      logger.info("POST request: %s" % req.get_full_url())
-      logger.debug("Payload: %s " % data)
+      logger.info(f"POST request: {req.get_full_url()}")
+      logger.debug(f"Payload: {data} ")
       resp = self.urlOpener.open(req)
       if resp:
-        logger.info("Create response: %s" % resp.getcode())
+        logger.info(f"Create response: {resp.getcode()}")
         retCode = str(resp.getcode()).strip()
         if retCode == "201" or retCode == "202":
           urlResp = resp.read()
-          logger.info("Response data: %s" % str(urlResp))
+          logger.info(f"Response data: {str(urlResp)}")
           return retCode
         pass
       pass
     except urllib.error.HTTPError as e:
       logger.error("POST request failed.")
-      logger.error('HTTPError : %s' % e.read())
+      logger.error(f'HTTPError : {e.read()}')
       if e.code == 409:
         return '409'
       pass
@@ -404,9 +404,9 @@ class AmbariBlueprint:
         resp = resp.read()
         data = json.loads(resp)
       else:
-        logger.error("Unable to get response from server, url = %s" % url)
+        logger.error(f"Unable to get response from server, url = {url}")
     except:
-      logger.error("Error reading response from server, url %s" % url)
+      logger.error(f"Error reading response from server, url {url}")
 
     return data
 
@@ -494,7 +494,7 @@ def main():
   elif options.action == "export":
     ambariBlueprint.exportBlueprint(options.cluster, options.blueprint)
   else:
-    raise Exception("Unsupported action %s" % options.action)
+    raise Exception(f"Unsupported action {options.action}")
   pass
 
 

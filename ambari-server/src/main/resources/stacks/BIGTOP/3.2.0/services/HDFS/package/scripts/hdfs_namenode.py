@@ -60,7 +60,7 @@ def wait_for_safemode_off(hdfs_binary, afterwait_sleep=0, execute_kinit=False, r
 
   sleep_minutes = int(sleep_seconds * retries / 60)
 
-  Logger.info("Waiting up to {0} minutes for the NameNode to leave Safemode...".format(sleep_minutes))
+  Logger.info(f"Waiting up to {sleep_minutes} minutes for the NameNode to leave Safemode...")
 
   if params.security_enabled and execute_kinit:
     kinit_command = format("{params.kinit_path_local} -kt {params.hdfs_user_keytab} {params.hdfs_principal_name}")
@@ -101,7 +101,7 @@ def namenode(action=None, hdfs_binary=None, do_format=True, upgrade_type=None,
     # set up failover /  secure zookeper ACLs, this feature is supported from HDP 2.6 ownwards
     set_up_zkfc_security(params)
   elif action == "start":
-    Logger.info("Called service {0} with upgrade_type: {1}".format(action, str(upgrade_type)))
+    Logger.info(f"Called service {action} with upgrade_type: {str(upgrade_type)}")
     setup_ranger_hdfs(upgrade_type=upgrade_type)
     import params
 
@@ -147,7 +147,7 @@ def namenode(action=None, hdfs_binary=None, do_format=True, upgrade_type=None,
         options = "-rollingUpgrade downgrade"
     elif upgrade_type == constants.UPGRADE_TYPE_NON_ROLLING:
       is_previous_image_dir = is_previous_fs_image()
-      Logger.info("Previous file system image dir present is {0}".format(str(is_previous_image_dir)))
+      Logger.info(f"Previous file system image dir present is {str(is_previous_image_dir)}")
 
       if params.upgrade_direction == Direction.UPGRADE:
         options = "-rollingUpgrade started"
@@ -164,7 +164,7 @@ def namenode(action=None, hdfs_binary=None, do_format=True, upgrade_type=None,
         Logger.info("The NameNode upgrade marker file {0} does not exist, yet an upgrade is currently suspended. "
                     "Assuming that the upgrade of NameNode has not occurred yet.".format(namenode_upgrade.get_upgrade_in_progress_marker()))
 
-    Logger.info("Options for start command are: {0}".format(options))
+    Logger.info(f"Options for start command are: {options}")
 
     service(
       action="start",
@@ -271,8 +271,8 @@ def namenode(action=None, hdfs_binary=None, do_format=True, upgrade_type=None,
     #TODO: Replace with format_namenode()
     namenode_format_marker = os.path.join(params.hadoop_conf_dir,"NN_FORMATTED")
     if not os.path.exists(namenode_format_marker):
-      hadoop_cmd = "cmd /C %s" % (os.path.join(params.hadoop_home, "bin", "hadoop.cmd"))
-      Execute("%s namenode -format" % (hadoop_cmd), logoutput=True)
+      hadoop_cmd = f"cmd /C {os.path.join(params.hadoop_home, 'bin', 'hadoop.cmd')}"
+      Execute(f"{hadoop_cmd} namenode -format", logoutput=True)
       open(namenode_format_marker, 'a').close()
     Service(params.namenode_win_service_name, action=action)
   elif action == "stop":
@@ -545,7 +545,7 @@ def bootstrap_standby_namenode(params, use_path=False):
     elif is_namenode_bootstrapped(params):
       # Once out of INITIAL_START phase bootstrap only if we couldnt bootstrap during cluster deployment
       return True
-    Logger.info("Boostrapping standby namenode: %s" % (bootstrap_cmd))
+    Logger.info(f"Boostrapping standby namenode: {bootstrap_cmd}")
     for i in range(iterations):
       Logger.info('Try %d out of %d' % (i+1, iterations))
       code, out = shell.call(bootstrap_cmd, logoutput=False, user=params.hdfs_user)
@@ -560,7 +560,7 @@ def bootstrap_standby_namenode(params, use_path=False):
       else:
         Logger.warning('Bootstrap standby namenode failed with %d error code. Will retry' % (code))
   except Exception as ex:
-    Logger.error('Bootstrap standby namenode threw an exception. Reason %s' %(str(ex)))
+    Logger.error(f'Bootstrap standby namenode threw an exception. Reason {str(ex)}')
   if bootstrapped:
     for mark_dir in mark_dirs:
       Directory(mark_dir,

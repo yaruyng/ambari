@@ -161,7 +161,7 @@ def get_uid(user, return_existing=False):
     service_env_str = str(service_env[0])
     uid = params.config['configurations'][service_env_str][user_str]
     if len(service_env) > 1:
-      Logger.warning("Multiple values found for %s, using %s"  % (user_str, uid))
+      Logger.warning(f"Multiple values found for {user_str}, using {uid}")
     return uid
   else:
     if return_existing:
@@ -180,7 +180,7 @@ def get_uid(user, return_existing=False):
 def setup_hadoop_env():
   import params
   stackversion = params.stack_version_unformatted
-  Logger.info("FS Type: {0}".format(params.dfs_type))
+  Logger.info(f"FS Type: {params.dfs_type}")
   if params.has_hdfs_clients or stackversion.find('Gluster') >= 0 or params.dfs_type == 'HCFS':
     if params.security_enabled:
       tc_owner = "root"

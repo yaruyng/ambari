@@ -59,7 +59,7 @@ def get_pg_hba_init_files():
   elif OSCheck.is_suse_family():
     return '/etc/init.d/postgresql'
   else:
-    raise Exception("Unsupported OS family '{0}'".format(OSCheck.get_os_family()))
+    raise Exception(f"Unsupported OS family '{OSCheck.get_os_family()}'")
 
 
   # ToDo: move that function to common-functions
@@ -113,7 +113,7 @@ def save_pid(pid, pidfile):
   """
   try:
     pfile = open(pidfile, "w")
-    pfile.write("%s\n" % pid)
+    pfile.write(f"{pid}\n")
   except IOError as e:
     logger.error("Failed to write PID to " + pidfile + " due to " + str(e))
     pass
@@ -140,7 +140,7 @@ def save_main_pid_ex(pids, pidfile, exclude_list=[], skip_daemonize=False):
       pfile = open(pidfile, "w")
       for item in pids:
         if pid_exists(item["pid"]) and (item["exe"] not in exclude_list):
-          pfile.write("%s\n" % item["pid"])
+          pfile.write(f"{item['pid']}\n")
           pid_saved = item["pid"]
           logger.info("Ambari server started with PID " + str(item["pid"]))
         if pid_exists(item["pid"]) and (item["exe"] in exclude_list) and not skip_daemonize:
@@ -272,7 +272,7 @@ def get_postgre_hba_dir(OS_FAMILY):
 
     pg_hba_init_basename = os.path.basename(get_pg_hba_init_files())
     # Get postgres_data location (default: /var/lib/pgsql/data)
-    cmd = "alias basename='echo {0}; true' ; alias exit=return; source {1} status &>/dev/null; echo $PGDATA".format(pg_hba_init_basename, get_pg_hba_init_files())
+    cmd = f"alias basename='echo {pg_hba_init_basename}; true' ; alias exit=return; source {get_pg_hba_init_files()} status &>/dev/null; echo $PGDATA"
     p = subprocess.Popen(cmd,
                          stdout=subprocess.PIPE,
                          stdin=subprocess.PIPE,

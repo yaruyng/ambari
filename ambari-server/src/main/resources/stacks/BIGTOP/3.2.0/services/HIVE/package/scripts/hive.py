@@ -54,7 +54,7 @@ def hive(name=None):
 
   # We should change configurations for client as well as for server.
   # The reason is that stale-configs are service-level, not component.
-  Logger.info("Directories to fill with configs: %s" % str(params.hive_conf_dirs_list))
+  Logger.info(f"Directories to fill with configs: {str(params.hive_conf_dirs_list)}")
   for conf_dir in params.hive_conf_dirs_list:
     fill_conf_dir(conf_dir)
 

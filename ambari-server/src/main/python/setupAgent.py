@@ -355,7 +355,7 @@ def run_setup(argv=None):
         if (not retcode["exitstatus"] == 0):
           return retcode
       else:
-        return {"exitstatus": 2, "log": "Ambari repo file not found: {0}".format(ambari_repo_file)}
+        return {"exitstatus": 2, "log": f"Ambari repo file not found: {ambari_repo_file}"}
         pass
   elif retcode["exitstatus"] == 1:
     if retcode["log"] != None and retcode["log"] != "" and retcode["log"][0].strip() != "":
@@ -368,7 +368,7 @@ def run_setup(argv=None):
       logmessage = "Desired version ("+projectVersion+") of ambari-agent package is not available."
       ambari_repo_file = get_ambari_repo_file_full_name()
       if not os.path.exists(ambari_repo_file):
-        logmessage = logmessage + " " + "Ambari repo file not found: {0}".format(ambari_repo_file)
+        logmessage = logmessage + " " + f"Ambari repo file not found: {ambari_repo_file}"
       return {"exitstatus": retcode["exitstatus"], "log": logmessage}
       pass
   else:

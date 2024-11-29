@@ -238,7 +238,7 @@ class RangerRecommender(service_advisor.ServiceAdvisor):
       else:
 
         ranger_admin_host = ranger_admin_hosts[0]
-        policymgr_external_url = "%s://%s:%s" % (protocol, ranger_admin_host, port)
+        policymgr_external_url = f"{protocol}://{ranger_admin_host}:{port}"
 
       putRangerAdminProperty('policymgr_external_url', policymgr_external_url)
 
@@ -343,7 +343,7 @@ class RangerRecommender(service_advisor.ServiceAdvisor):
       if requiredServices[index]['service_name'] in servicesList:
         component_config_type = requiredServices[index]['config_type']
         component_name = requiredServices[index]['service_name']
-        component_config_property = 'ranger.plugin.{0}.policy.rest.url'.format(component_name.lower())
+        component_config_property = f'ranger.plugin.{component_name.lower()}.policy.rest.url'
         if requiredServices[index]['service_name'] == 'RANGER_KMS':
           component_config_property = 'ranger.plugin.kms.policy.rest.url'
         putRangerSecurityProperty = self.putProperty(configurations, component_config_type, services)
@@ -416,7 +416,7 @@ class RangerRecommender(service_advisor.ServiceAdvisor):
       zookeeper_host_port = self.getZKHostPortString(services)
       ranger_audit_zk_port = ''
       if zookeeper_host_port:
-        ranger_audit_zk_port = '{0}/{1}'.format(zookeeper_host_port, 'ranger_audits')
+        ranger_audit_zk_port = f'{zookeeper_host_port}/ranger_audits'
         putRangerAdminProperty('ranger.audit.solr.zookeepers', ranger_audit_zk_port)
     else:
       putRangerAdminProperty('ranger.audit.solr.zookeepers', 'NONE')
@@ -426,7 +426,7 @@ class RangerRecommender(service_advisor.ServiceAdvisor):
     if include_hdfs:
       if 'core-site' in services['configurations'] and ('fs.defaultFS' in services['configurations']['core-site']['properties']):
         default_fs = services['configurations']['core-site']['properties']['fs.defaultFS']
-        putRangerEnvProperty('xasecure.audit.destination.hdfs.dir', '{0}/{1}/{2}'.format(default_fs,'ranger','audit'))
+        putRangerEnvProperty('xasecure.audit.destination.hdfs.dir', f'{default_fs}/ranger/audit')
 
     # Recommend Ranger supported service's audit properties
     ranger_services = [
@@ -482,7 +482,7 @@ class RangerRecommender(service_advisor.ServiceAdvisor):
         knox_host = knox_hosts[0]
       if 'gateway-site' in services['configurations'] and 'gateway.port' in services['configurations']["gateway-site"]["properties"]:
         knox_port = services['configurations']["gateway-site"]["properties"]['gateway.port']
-      putRangerAdminProperty('ranger.sso.providerurl', 'https://{0}:{1}/gateway/knoxsso/api/v1/websso'.format(knox_host, knox_port))
+      putRangerAdminProperty('ranger.sso.providerurl', f'https://{knox_host}:{knox_port}/gateway/knoxsso/api/v1/websso')
 
     required_services = [
       {'service_name': 'HDFS', 'config_type': 'ranger-hdfs-security'},
@@ -527,7 +527,7 @@ class RangerRecommender(service_advisor.ServiceAdvisor):
         if application_properties and 'atlas.server.http.port' in application_properties:
           atlas_port = application_properties['atlas.server.http.port']
 
-      atlas_rest_endpoint = '{0}://{1}:{2}'.format(protocol, atlas_host, atlas_port)
+      atlas_rest_endpoint = f'{protocol}://{atlas_host}:{atlas_port}'
 
       putTagsyncSiteProperty('ranger.tagsync.source.atlas', 'true')
       putTagsyncSiteProperty('ranger.tagsync.source.atlasrest.endpoint', atlas_rest_endpoint)
@@ -568,10 +568,10 @@ class RangerRecommender(service_advisor.ServiceAdvisor):
       if 'infra-solr-env' in services['configurations'] and \
         ('infra_solr_znode' in services['configurations']['infra-solr-env']['properties']):
         infra_solr_znode = services['configurations']['infra-solr-env']['properties']['infra_solr_znode']
-        ranger_audit_zk_port = '{0}{1}'.format(zookeeper_host_port, infra_solr_znode)
+        ranger_audit_zk_port = f'{zookeeper_host_port}{infra_solr_znode}'
       putRangerAdminProperty('ranger.audit.solr.zookeepers', ranger_audit_zk_port)
     elif zookeeper_host_port and is_solr_cloud_enabled and is_external_solr_cloud_enabled:
-      ranger_audit_zk_port = '{0}/{1}'.format(zookeeper_host_port, 'ranger_audits')
+      ranger_audit_zk_port = f'{zookeeper_host_port}/ranger_audits'
       putRangerAdminProperty('ranger.audit.solr.zookeepers', ranger_audit_zk_port)
     else:
       putRangerAdminProperty('ranger.audit.solr.zookeepers', 'NONE')
@@ -651,7 +651,7 @@ class RangerRecommender(service_advisor.ServiceAdvisor):
           xasecure_audit_destination_hdfs = services['configurations']['ranger-env']['properties']['xasecure.audit.destination.hdfs']
 
         if 'core-site' in services['configurations'] and ('fs.defaultFS' in services['configurations']['core-site']['properties']):
-          xasecure_audit_destination_hdfs_dir = '{0}/{1}/{2}'.format(services['configurations']['core-site']['properties']['fs.defaultFS'] ,'ranger','audit')
+          xasecure_audit_destination_hdfs_dir = f"{services['configurations']['core-site']['properties']['fs.defaultFS']}/ranger/audit"
 
         if 'xasecure.audit.destination.solr' in configurations['ranger-env']['properties']:
           xasecure_audit_destination_solr = configurations['ranger-env']['properties']['xasecure.audit.destination.solr']

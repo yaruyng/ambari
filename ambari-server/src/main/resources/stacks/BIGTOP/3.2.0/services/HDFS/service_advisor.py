@@ -192,7 +192,7 @@ class HDFSRecommender(service_advisor.ServiceAdvisor):
     putHDFSSitePropertyAttributes = self.putPropertyAttribute(configurations, "hdfs-site")
 
     totalAvailableRam = clusterData['totalAvailableRam']
-    self.logger.info("Class: %s, Method: %s. Total Available Ram: %s" % (self.__class__.__name__, inspect.stack()[0][3], str(totalAvailableRam)))
+    self.logger.info(f"Class: {self.__class__.__name__}, Method: {inspect.stack()[0][3]}. Total Available Ram: {str(totalAvailableRam)}")
     putHDFSProperty('namenode_heapsize', max(int(totalAvailableRam / 2), 1024))
     putHDFSProperty = self.putProperty(configurations, "hadoop-env", services)
     putHDFSProperty('namenode_opt_newsize', max(int(totalAvailableRam / 8), 128))
@@ -206,8 +206,8 @@ class HDFSRecommender(service_advisor.ServiceAdvisor):
       nameServices = hdfsSiteProperties['dfs.internal.nameservices']
     if nameServices is None and hdfsSiteProperties and 'dfs.nameservices' in hdfsSiteProperties:
       nameServices = hdfsSiteProperties['dfs.nameservices']
-    if nameServices and "dfs.ha.namenodes.%s" % nameServices in hdfsSiteProperties:
-      namenodes = hdfsSiteProperties["dfs.ha.namenodes.%s" % nameServices]
+    if nameServices and f"dfs.ha.namenodes.{nameServices}" in hdfsSiteProperties:
+      namenodes = hdfsSiteProperties[f"dfs.ha.namenodes.{nameServices}"]
       if len(namenodes.split(',')) > 1:
         putHDFSSitePropertyAttributes("dfs.namenode.rpc-address", "delete", "true")
 
@@ -576,7 +576,7 @@ class HDFSValidator(service_advisor.ServiceAdvisor):
     item = {"level": "ERROR|WARN", "message": "value"}
     '''
     validationItems.append({"config-name": "my_config_property_name",
-                            "item": self.getErrorItem("My custom message in method %s" % inspect.stack()[0][3])})
+                            "item": self.getErrorItem(f"My custom message in method {inspect.stack()[0][3]}")})
     return self.toConfigurationValidationProblems(validationItems, "hadoop-env")
 
   def validateHDFSConfigurationsFromHDP206(self, properties, recommendedDefaults, configurations, services, hosts):
@@ -614,7 +614,7 @@ class HDFSValidator(service_advisor.ServiceAdvisor):
         break
 
     if len(warnings) > 0:
-      return self.getWarnItem("cluster-env/one_dir_per_partition is enabled but there are multiple data directories on the same mount. Affected hosts: {0}".format(", ".join(sorted(warnings))))
+      return self.getWarnItem(f"cluster-env/one_dir_per_partition is enabled but there are multiple data directories on the same mount. Affected hosts: {', '.join(sorted(warnings))}")
 
     return None
 
@@ -680,8 +680,8 @@ class HDFSValidator(service_advisor.ServiceAdvisor):
     if "HDFS" in servicesList:
       ambari_user = self.getAmbariUser(services)
       props = (
-        "hadoop.proxyuser.{0}.hosts".format(ambari_user),
-        "hadoop.proxyuser.{0}.groups".format(ambari_user)
+        f"hadoop.proxyuser.{ambari_user}.hosts",
+        f"hadoop.proxyuser.{ambari_user}.groups"
       )
       for prop in props:
         validationItems.append({"config-name": prop, "item": self.validatorNotEmpty(properties, prop)})
@@ -819,7 +819,7 @@ class HDFSValidator(service_advisor.ServiceAdvisor):
       if data_transfer_protection_value is not None:
         if data_transfer_protection_value not in VALID_TRANSFER_PROTECTION_VALUES:
           validationItems.append({"config-name": data_transfer_protection, "item": self.getWarnItem(
-                                      "Invalid property value: {0}. Valid values are {1}.".format(data_transfer_protection_value, VALID_TRANSFER_PROTECTION_VALUES)
+                                      f"Invalid property value: {data_transfer_protection_value}. Valid values are {VALID_TRANSFER_PROTECTION_VALUES}."
                                   )})
     return self.toConfigurationValidationProblems(validationItems, "hdfs-site")
 

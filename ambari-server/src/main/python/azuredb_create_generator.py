@@ -76,7 +76,7 @@ tables = set()
 deletes = []
 for table in inserts:
   if table not in tables:
-    deletes.append("  DELETE {0};".format(table))
+    deletes.append(f"  DELETE {table};")
     tables.add(table)
 deletes.reverse()
 delete_sql = "\n".join(deletes)

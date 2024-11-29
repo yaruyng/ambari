@@ -59,7 +59,7 @@ def setup_ranger_kafka():
         else:
           Logger.info('Ranger KMS is not ssl enabled, skipping ssl-client for hdfs audits.')
       except Exception as err:
-        Logger.exception("Audit directory creation in HDFS for KAFKA Ranger plugin failed with error:\n{0}".format(err))
+        Logger.exception(f"Audit directory creation in HDFS for KAFKA Ranger plugin failed with error:\n{err}")
 
     setup_ranger_plugin('kafka-broker', params.service_name, params.previous_jdbc_jar,
                         params.downloaded_custom_connector, params.driver_curl_source,

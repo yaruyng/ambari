@@ -62,14 +62,14 @@ def perform_grafana_get_call(url, server):
         ssl_version=Script.get_force_https_protocol_value()
       )
 
-      userAndPass = b64encode('{0}:{1}'.format(server.user, server.password).encode()).decode()
-      headers = { 'Authorization' : 'Basic %s' %  userAndPass }
+      userAndPass = b64encode(f'{server.user}:{server.password}'.encode()).decode()
+      headers = { 'Authorization' : f'Basic {userAndPass}' }
 
-      Logger.info("Connecting (GET) to %s:%s%s" % (server.host, server.port, url))
+      Logger.info(f"Connecting (GET) to {server.host}:{server.port}{url}")
 
       conn.request("GET", url, headers = headers)
       response = conn.getresponse()
-      Logger.info("Http response: %s %s" % (response.status, response.reason))
+      Logger.info(f"Http response: {response.status} {response.reason}")
       break
     except (http.client.HTTPException, socket.error) as ex:
       if i < params.grafana_connect_attempts - 1:
@@ -78,7 +78,7 @@ def perform_grafana_get_call(url, server):
         time.sleep(params.grafana_connect_retry_delay)
         continue
       else:
-        raise Fail("Ambari Metrics Grafana update failed due to: %s" % str(ex))
+        raise Fail(f"Ambari Metrics Grafana update failed due to: {str(ex)}")
       pass
 
   return response
@@ -88,9 +88,9 @@ def perform_grafana_put_call(url, id, payload, server):
 
   response = None
   data = None
-  userAndPass = b64encode('{0}:{1}'.format(server.user, server.password).encode()).decode()
+  userAndPass = b64encode(f'{server.user}:{server.password}'.encode()).decode()
   headers = {"Content-Type": "application/json",
-             'Authorization' : 'Basic %s' %  userAndPass }
+             'Authorization' : f'Basic {userAndPass}' }
   grafana_https_enabled = server.protocol.lower() == 'https'
 
   ca_certs = None
@@ -109,7 +109,7 @@ def perform_grafana_put_call(url, id, payload, server):
       conn.request("PUT", url + "/" + str(id), payload, headers)
       response = conn.getresponse()
       data = response.read()
-      Logger.info("Http data: %s" % data)
+      Logger.info(f"Http data: {data}")
       conn.close()
       break
     except (http.client.HTTPException, socket.error) as ex:
@@ -119,7 +119,7 @@ def perform_grafana_put_call(url, id, payload, server):
         time.sleep(params.grafana_connect_retry_delay)
         continue
       else:
-        raise Fail("Ambari Metrics Grafana update failed due to: %s" % str(ex))
+        raise Fail(f"Ambari Metrics Grafana update failed due to: {str(ex)}")
       pass
 
   return (response, data)
@@ -129,10 +129,10 @@ def perform_grafana_post_call(url, payload, server):
 
   response = None
   data = None
-  userAndPass = b64encode('{0}:{1}'.format(server.user, server.password).encode()).decode()
-  Logger.debug('POST payload: %s' % payload)
+  userAndPass = b64encode(f'{server.user}:{server.password}'.encode()).decode()
+  Logger.debug(f'POST payload: {payload}')
   headers = {"Content-Type": "application/json", "Content-Length" : len(payload),
-             'Authorization' : 'Basic %s' %  userAndPass}
+             'Authorization' : f'Basic {userAndPass}'}
   grafana_https_enabled = server.protocol.lower() == 'https'
 
   ca_certs = None
@@ -141,7 +141,7 @@ def perform_grafana_post_call(url, payload, server):
 
   for i in range(0, params.grafana_connect_attempts):
     try:
-      Logger.info("Connecting (POST) to %s:%s%s" % (server.host, server.port, url))
+      Logger.info(f"Connecting (POST) to {server.host}:{server.port}{url}")
       conn = network.get_http_connection(
         server.host,
         int(server.port),
@@ -152,7 +152,7 @@ def perform_grafana_post_call(url, payload, server):
       conn.request("POST", url, payload, headers)
 
       response = conn.getresponse()
-      Logger.info("Http response: %s %s" % (response.status, response.reason))
+      Logger.info(f"Http response: {response.status} {response.reason}")
       if response.status == 401: #Intermittent error thrown from Grafana
         if i < params.grafana_connect_attempts - 1:
           Logger.info("Connection to Grafana failed. Next retry in %s seconds."
@@ -160,7 +160,7 @@ def perform_grafana_post_call(url, payload, server):
           time.sleep(params.grafana_connect_retry_delay)
           continue
       data = response.read()
-      Logger.info("Http data: %s" % data)
+      Logger.info(f"Http data: {data}")
       conn.close()
       break
     except (http.client.HTTPException, socket.error) as ex:
@@ -170,7 +170,7 @@ def perform_grafana_post_call(url, payload, server):
         time.sleep(params.grafana_connect_retry_delay)
         continue
       else:
-        raise Fail("Ambari Metrics Grafana update failed due to: %s" % str(ex))
+        raise Fail(f"Ambari Metrics Grafana update failed due to: {str(ex)}")
       pass
 
   return (response, data)
@@ -194,14 +194,14 @@ def perform_grafana_delete_call(url, server):
         ssl_version=Script.get_force_https_protocol_value()
       )
 
-      userAndPass = b64encode('{0}:{1}'.format(server.user, server.password).encode()).decode()
-      headers = { 'Authorization' : 'Basic %s' %  userAndPass }
+      userAndPass = b64encode(f'{server.user}:{server.password}'.encode()).decode()
+      headers = { 'Authorization' : f'Basic {userAndPass}' }
 
-      Logger.info("Connecting (DELETE) to %s:%s%s" % (server.host, server.port, url))
+      Logger.info(f"Connecting (DELETE) to {server.host}:{server.port}{url}")
 
       conn.request("DELETE", url, headers = headers)
       response = conn.getresponse()
-      Logger.info("Http response: %s %s" % (response.status, response.reason))
+      Logger.info(f"Http response: {response.status} {response.reason}")
       break
     except (http.client.HTTPException, socket.error) as ex:
       if i < params.grafana_connect_attempts - 1:
@@ -210,7 +210,7 @@ def perform_grafana_delete_call(url, server):
         time.sleep(params.grafana_connect_retry_delay)
         continue
       else:
-        raise Fail("Ambari Metrics Grafana update failed due to: %s" % str(ex))
+        raise Fail(f"Ambari Metrics Grafana update failed due to: {str(ex)}")
       pass
 
   return response
@@ -302,7 +302,7 @@ def create_ams_datasource():
     if host in results:
       if results[host].status == SUCCESS:
         new_datasource_host = host
-        Logger.info("Found working collector on host %s" % new_datasource_host)
+        Logger.info(f"Found working collector on host {new_datasource_host}")
         break
       else:
         Logger.warning(results[host].result)
@@ -311,7 +311,7 @@ def create_ams_datasource():
     Logger.warning("All metric collectors are unavailable. Will use random collector as datasource host.")
     new_datasource_host = params.metric_collector_host
 
-  Logger.info("New datasource host will be %s" % new_datasource_host)
+  Logger.info(f"New datasource host will be {new_datasource_host}")
 
   ams_datasource_json = Template('metrics_grafana_datasource.json.j2',
                             ams_datasource_name=METRICS_GRAFANA_DATASOURCE_NAME, ams_datasource_host=new_datasource_host).get_content()
@@ -344,12 +344,12 @@ def create_ams_datasource():
         if datasource_type == new_datasource_type:
           Logger.info("Grafana datasource type validation succeeded.")
         else:
-          Logger.info("Grafana datasource type validation failed. Old type = %s, New type = %s" % (datasource_type, new_datasource_type))
+          Logger.info(f"Grafana datasource type validation failed. Old type = {datasource_type}, New type = {new_datasource_type}")
           update_datasource = True
 
         if update_datasource: # Metrics datasource present, but collector host is wrong or the datasource type is outdated.
           datasource_id = datasources_json[i]["id"]
-          Logger.info("Updating datasource, id = %s" % datasource_id)
+          Logger.info(f"Updating datasource, id = {datasource_id}")
 
           (response, data) = perform_grafana_put_call(GRAFANA_DATASOURCE_URL, datasource_id,
                                                       ams_datasource_json, server)
@@ -373,7 +373,7 @@ def create_ams_datasource():
   if not create_datasource:
     return
   else:
-    Logger.info("Generating datasource:\n%s" % ams_datasource_json)
+    Logger.info(f"Generating datasource:\n{ams_datasource_json}")
 
     (response, data) = perform_grafana_post_call(GRAFANA_DATASOURCE_URL, ams_datasource_json, server)
 
@@ -402,7 +402,7 @@ def create_ams_dashboards():
 
   dashboard_files = params.get_grafana_dashboard_defs()
   version = params.get_ambari_version()
-  Logger.info("Checking dashboards to update for Ambari version : %s" % version)
+  Logger.info(f"Checking dashboards to update for Ambari version : {version}")
   # Friendly representation of dashboard
   Dashboard = namedtuple('Dashboard', ['uri', 'id', 'title', 'tags'])
 
@@ -433,7 +433,7 @@ def create_ams_dashboards():
                  (GRAFANA_SEARCH_BUILTIN_DASHBOARDS, response.status, response.reason, response.read()))
     return
 
-  Logger.debug('Dashboard definitions found = %s' % str(dashboard_files))
+  Logger.debug(f'Dashboard definitions found = {str(dashboard_files)}')
 
   if dashboard_files:
     for dashboard_file in dashboard_files:
@@ -441,7 +441,7 @@ def create_ams_dashboards():
         with open(dashboard_file, 'r') as file:
           dashboard_def = json.load(file)
       except Exception as e:
-        Logger.error('Unable to load dashboard json file %s' % dashboard_file)
+        Logger.error(f'Unable to load dashboard json file {dashboard_file}')
         Logger.error(str(e))
         continue
 
@@ -487,12 +487,12 @@ def create_ams_dashboards():
           (response, data) = perform_grafana_post_call(GRAFANA_DASHBOARDS_URL, paylaod, server)
 
           if response and response.status == 200:
-            Logger.info("Dashboard created successfully.\n %s" % str(data))
+            Logger.info(f"Dashboard created successfully.\n {str(data)}")
           else:
-            Logger.error("Failed creating dashboard: %s" % dashboard_def['title'])
+            Logger.error(f"Failed creating dashboard: {dashboard_def['title']}")
           pass
         else:
-          Logger.info('No update needed for dashboard = %s' % dashboard_def['title'])
+          Logger.info(f"No update needed for dashboard = {dashboard_def['title']}")
       pass
     pass
 

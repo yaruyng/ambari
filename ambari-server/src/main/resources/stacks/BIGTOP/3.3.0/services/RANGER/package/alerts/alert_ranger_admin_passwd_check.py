@@ -73,8 +73,8 @@ def execute(configurations={}, parameters={}, host_name=None):
     ranger_link = configurations[RANGER_ADMIN_URL]
     if ranger_link.endswith('/'):
       ranger_link = ranger_link[:-1]
-    ranger_auth_link = '{0}/{1}'.format(ranger_link, 'service/public/api/repository/count')
-    ranger_get_user = '{0}/{1}'.format(ranger_link, 'service/xusers/users')
+    ranger_auth_link = f'{ranger_link}/service/public/api/repository/count'
+    ranger_get_user = f'{ranger_link}/service/xusers/users'
 
   if ADMIN_USERNAME in configurations:
     admin_username = configurations[ADMIN_USERNAME]
@@ -106,19 +106,19 @@ def execute(configurations={}, parameters={}, host_name=None):
           user_http_code = check_ranger_login(ranger_auth_link, ranger_admin_username, ranger_admin_password)
           if user_http_code == 200:
             result_code = 'OK'
-            label = 'Login Successful for users {0} and {1}'.format(admin_username, ranger_admin_username)
+            label = f'Login Successful for users {admin_username} and {ranger_admin_username}'
           elif user_http_code == 401:
             result_code = 'CRITICAL'
-            label = 'User:{0} credentials on Ambari UI are not in sync with Ranger'.format(ranger_admin_username)
+            label = f'User:{ranger_admin_username} credentials on Ambari UI are not in sync with Ranger'
           else:
             result_code = 'WARNING'
             label = 'Ranger Admin service is not reachable, please restart the service'
         else:
           result_code = 'OK'
-          label = 'Login Successful for user: {0}. User:{1} user not yet synced with Ranger'.format(admin_username, ranger_admin_username)
+          label = f'Login Successful for user: {admin_username}. User:{ranger_admin_username} user not yet synced with Ranger'
       elif admin_http_code == 401:
         result_code = 'CRITICAL'
-        label = 'User:{0} credentials on Ambari UI are not in sync with Ranger'.format(admin_username)
+        label = f'User:{admin_username} credentials on Ambari UI are not in sync with Ranger'
       else:
         result_code = 'WARNING'
         label = 'Ranger Admin service is not reachable, please restart the service'
@@ -139,22 +139,22 @@ def check_ranger_login(ranger_auth_link, username, password):
   return response code
   """
   try:
-    usernamepassword = '{0}:{1}'.format(username, password)
+    usernamepassword = f'{username}:{password}'
     base_64_string = base64.b64encode(usernamepassword.encode()).decode().replace('\n', '')
     request = urllib.request.Request(ranger_auth_link)
     request.add_header("Content-Type", "application/json")
     request.add_header("Accept", "application/json")
-    request.add_header("Authorization", "Basic {0}".format(base_64_string))
+    request.add_header("Authorization", f"Basic {base_64_string}")
     result = urllib.request.urlopen(request, timeout=20)
     response_code = result.getcode()
     if response_code == 200:
       response = json.loads(result.read())
     return response_code
   except urllib.error.HTTPError as e:
-    logger.exception("Error during Ranger service authentication. Http status code - {0}. {1}".format(e.code, e.read()))
+    logger.exception(f"Error during Ranger service authentication. Http status code - {e.code}. {e.read()}")
     return e.code
   except urllib.error.URLError as e:
-    logger.exception("Error during Ranger service authentication. {0}".format(e.reason))
+    logger.exception(f"Error during Ranger service authentication. {e.reason}")
     return None
   except Exception as e:
     return 401
@@ -168,13 +168,13 @@ def get_ranger_user(ranger_get_user, username, password, user):
   return Boolean if user exist or not
   """
   try:
-    url = '{0}?name={1}'.format(ranger_get_user, user)
-    usernamepassword = '{0}:{1}'.format(username, password)
+    url = f'{ranger_get_user}?name={user}'
+    usernamepassword = f'{username}:{password}'
     base_64_string = base64.b64encode(usernamepassword.encode()).decode().replace('\n', '')
     request = urllib.request.Request(url)
     request.add_header("Content-Type", "application/json")
     request.add_header("Accept", "application/json")
-    request.add_header("Authorization", "Basic {0}".format(base_64_string))
+    request.add_header("Authorization", f"Basic {base_64_string}")
     result = urllib.request.urlopen(request, timeout=20)
     response_code = result.getcode()
     response = json.loads(result.read())
@@ -185,10 +185,10 @@ def get_ranger_user(ranger_get_user, username, password, user):
     else:
       return False
   except urllib.error.HTTPError as e:
-    logger.exception("Error getting user from Ranger service. Http status code - {0}. {1}".format(e.code, e.read()))
+    logger.exception(f"Error getting user from Ranger service. Http status code - {e.code}. {e.read()}")
     return False
   except urllib.error.URLError as e:
-    logger.exception("Error getting user from Ranger service. {0}".format(e.reason))
+    logger.exception(f"Error getting user from Ranger service. {e.reason}")
     return False
   except Exception as e:
     return False

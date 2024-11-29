@@ -72,7 +72,7 @@ class TestServerUtils(TestCase):
       CLIENT_API_PORT_PROPERTY: None
     })
     result = get_ambari_server_api_base(properties)
-    self.assertEqual(result, 'https://{0}:8443/api/v1/'.format(fqdn))
+    self.assertEqual(result, f'https://{fqdn}:8443/api/v1/')
 
 
   def test_get_ambari_admin_credentials_from_cli_options(self):

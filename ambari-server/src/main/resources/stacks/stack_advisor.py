@@ -706,7 +706,7 @@ class DefaultStackAdvisor(StackAdvisor):
     class_name = service["StackServices"]["advisor_name"] if "advisor_name" in service["StackServices"] else None
     path = service["StackServices"]["advisor_path"] if "advisor_path" in service["StackServices"] else None
 
-    class_name_pattern = re.compile("%s.*?ServiceAdvisor" % service_name, re.IGNORECASE)
+    class_name_pattern = re.compile(f"{service_name}.*?ServiceAdvisor", re.IGNORECASE)
 
     if path is not None and os.path.exists(path) and class_name is not None:
       try:
@@ -724,13 +724,13 @@ class DefaultStackAdvisor(StackAdvisor):
                 break
 
           if hasattr(service_advisor, best_class_name):
-            self.logger.info("ServiceAdvisor implementation for service {0} was loaded".format(service_name))
+            self.logger.info(f"ServiceAdvisor implementation for service {service_name} was loaded")
             return getattr(service_advisor, best_class_name)()
           else:
             self.logger.error("Failed to load or create ServiceAdvisor implementation for service {0}: " \
                   "Expecting class name {1} but it was not found.".format(service_name, best_class_name))
       except Exception as e:
-        self.logger.exception("Failed to load or create ServiceAdvisor implementation for service {0}".format(service_name))
+        self.logger.exception(f"Failed to load or create ServiceAdvisor implementation for service {service_name}")
 
     return None
 
@@ -954,7 +954,7 @@ class DefaultStackAdvisor(StackAdvisor):
     index = 0
     for key in hostsComponentsMap.keys():
       index += 1
-      host_group_name = "host-group-{0}".format(index)
+      host_group_name = f"host-group-{index}"
       host_groups.insert(0, { "name": host_group_name, "components": hostsComponentsMap[key] } )
       bindings.insert(0, {"name": host_group_name, "hosts": [{"fqdn": key}]})
 
@@ -1201,7 +1201,7 @@ class DefaultStackAdvisor(StackAdvisor):
                     items.append({ "type": 'host-component', "level": 'ERROR', "message": message,
                                    "component-name": component["StackServiceComponents"]["component_name"]})
                 elif scope == "cluster" and not dependentComponentHosts:
-                  message = "{0} requires {1} to be present in the cluster.".format(componentDisplayName, dependentComponentDisplayName)
+                  message = f"{componentDisplayName} requires {dependentComponentDisplayName} to be present in the cluster."
                   items.append({ "type": 'host-component', "level": 'ERROR', "message": message, "component-name": component["StackServiceComponents"]["component_name"]})
     return items
 
@@ -1510,13 +1510,13 @@ class DefaultStackAdvisor(StackAdvisor):
               userValue = convertToNumber(configurations[configName]["properties"][propertyName])
               maxValue = convertToNumber(recommendedDefaults[configName]["property_attributes"][propertyName]["maximum"])
               if userValue > maxValue:
-                validationItems.extend([{"config-name": propertyName, "item": self.getWarnItem("Value is greater than the recommended maximum of {0} ".format(maxValue))}])
+                validationItems.extend([{"config-name": propertyName, "item": self.getWarnItem(f"Value is greater than the recommended maximum of {maxValue} ")}])
             if "minimum" in recommendedDefaults[configName]["property_attributes"][propertyName] and \
                     propertyName in recommendedDefaults[configName]["properties"]:
               userValue = convertToNumber(configurations[configName]["properties"][propertyName])
               minValue = convertToNumber(recommendedDefaults[configName]["property_attributes"][propertyName]["minimum"])
               if userValue < minValue:
-                validationItems.extend([{"config-name": propertyName, "item": self.getWarnItem("Value is less than the recommended minimum of {0} ".format(minValue))}])
+                validationItems.extend([{"config-name": propertyName, "item": self.getWarnItem(f"Value is less than the recommended minimum of {minValue} ")}])
       items.extend(self.toConfigurationValidationProblems(validationItems, configName))
     pass
 
@@ -1550,9 +1550,9 @@ class DefaultStackAdvisor(StackAdvisor):
         siteProperties = self.getSiteProperties(configurations, configType)
         if siteProperties is not None:
           siteRecommendations = recommendedDefaults[configType]["properties"]
-          self.logger.info("SiteName: %s, method: %s" % (configType, method.__name__))
-          self.logger.info("Site properties: %s" % str(siteProperties))
-          self.logger.info("Recommendations: %s" % str(siteRecommendations))
+          self.logger.info(f"SiteName: {configType}, method: {method.__name__}")
+          self.logger.info(f"Site properties: {str(siteProperties)}")
+          self.logger.info(f"Recommendations: {str(siteRecommendations)}")
           validationItems = method(siteProperties, siteRecommendations, configurations, services, hosts)
           items.extend(validationItems)
     return items
@@ -1566,8 +1566,8 @@ class DefaultStackAdvisor(StackAdvisor):
       siteProperties = self.getSiteProperties(configurations, siteName)
       if siteProperties is not None:
         siteRecommendations = recommendedDefaults[siteName]["properties"]
-        self.logger.info("SiteName: %s, method: %s" % (siteName, method.__name__))
-        self.logger.info("Recommendations: %s" % str(siteRecommendations))
+        self.logger.info(f"SiteName: {siteName}, method: {method.__name__}")
+        self.logger.info(f"Recommendations: {str(siteRecommendations)}")
         return method(siteProperties, siteRecommendations, configurations, services, hosts)
     return []
 
@@ -2663,9 +2663,9 @@ class DefaultStackAdvisor(StackAdvisor):
     validationItems = []
     users = self.getHadoopProxyUsers(services, hosts, configurations)
     for user_name, user_properties in users.items():
-      props = ["hadoop.proxyuser.{0}.hosts".format(user_name)]
+      props = [f"hadoop.proxyuser.{user_name}.hosts"]
       if "propertyGroups" in user_properties:
-        props.append("hadoop.proxyuser.{0}.groups".format(user_name))
+        props.append(f"hadoop.proxyuser.{user_name}.groups")
 
       for prop in props:
         validationItems.append({"config-name": prop, "item": self.validatorNotEmpty(properties, prop)})
@@ -2733,7 +2733,7 @@ class DefaultStackAdvisor(StackAdvisor):
     }
 
   def _getHadoopProxyUsersForService(self, serviceName, serviceUserComponents, services, hosts, configurations):
-    self.logger.info("Calculating Hadoop Proxy User recommendations for {0} service.".format(serviceName))
+    self.logger.info(f"Calculating Hadoop Proxy User recommendations for {serviceName} service.")
     servicesList = self.get_services_list(services)
     resultUsers = {}
 
@@ -2765,7 +2765,7 @@ class DefaultStackAdvisor(StackAdvisor):
                   componentHostNames.add(componentHostName)
 
             componentHostNamesString = ",".join(sorted(componentHostNames))
-            self.logger.info("Host List for [service='{0}'; user='{1}'; components='{2}']: {3}".format(serviceName, user, ','.join(hostSelector), componentHostNamesString))
+            self.logger.info(f"Host List for [service='{serviceName}'; user='{user}'; components='{','.join(hostSelector)}']: {componentHostNamesString}")
 
           if not proxyPropertyName in proxyUsers:
             proxyUsers[proxyPropertyName] = componentHostNamesString
@@ -2790,27 +2790,27 @@ class DefaultStackAdvisor(StackAdvisor):
     if "HIVE" in servicesList:
       hive_user = get_from_dict(services, ("configurations", "hive-env", "properties", "hive_user"), default_value=None)
       if hive_user and get_from_dict(users, (hive_user, "propertyHosts"), default_value=None):
-        services["forced-configurations"].append({"type" : "core-site", "name" : "hadoop.proxyuser.{0}.hosts".format(hive_user)})
+        services["forced-configurations"].append({"type" : "core-site", "name" : f"hadoop.proxyuser.{hive_user}.hosts"})
 
     for user_name, user_properties in users.items():
 
       # Add properties "hadoop.proxyuser.*.hosts", "hadoop.proxyuser.*.groups" to core-site for all users
       self.put_proxyuser_value(user_name, user_properties["propertyHosts"], services=services, configurations=configurations, put_function=putCoreSiteProperty)
-      self.logger.info("Updated hadoop.proxyuser.{0}.hosts as : {1}".format(user_name, user_properties["propertyHosts"]))
+      self.logger.info(f"Updated hadoop.proxyuser.{user_name}.hosts as : {user_properties['propertyHosts']}")
       if "propertyGroups" in user_properties:
         self.put_proxyuser_value(user_name, user_properties["propertyGroups"], is_groups=True, services=services, configurations=configurations, put_function=putCoreSiteProperty)
 
       # Remove old properties if user was renamed
       userOldValue = self.getOldValue(services, user_properties["config"], user_properties["propertyName"])
       if userOldValue is not None and userOldValue != user_name:
-        putCoreSitePropertyAttribute("hadoop.proxyuser.{0}.hosts".format(userOldValue), 'delete', 'true')
-        services["forced-configurations"].append({"type" : "core-site", "name" : "hadoop.proxyuser.{0}.hosts".format(userOldValue)})
-        services["forced-configurations"].append({"type" : "core-site", "name" : "hadoop.proxyuser.{0}.hosts".format(user_name)})
+        putCoreSitePropertyAttribute(f"hadoop.proxyuser.{userOldValue}.hosts", 'delete', 'true')
+        services["forced-configurations"].append({"type" : "core-site", "name" : f"hadoop.proxyuser.{userOldValue}.hosts"})
+        services["forced-configurations"].append({"type" : "core-site", "name" : f"hadoop.proxyuser.{user_name}.hosts"})
 
         if "propertyGroups" in user_properties:
-          putCoreSitePropertyAttribute("hadoop.proxyuser.{0}.groups".format(userOldValue), 'delete', 'true')
-          services["forced-configurations"].append({"type" : "core-site", "name" : "hadoop.proxyuser.{0}.groups".format(userOldValue)})
-          services["forced-configurations"].append({"type" : "core-site", "name" : "hadoop.proxyuser.{0}.groups".format(user_name)})
+          putCoreSitePropertyAttribute(f"hadoop.proxyuser.{userOldValue}.groups", 'delete', 'true')
+          services["forced-configurations"].append({"type" : "core-site", "name" : f"hadoop.proxyuser.{userOldValue}.groups"})
+          services["forced-configurations"].append({"type" : "core-site", "name" : f"hadoop.proxyuser.{user_name}.groups"})
 
     self.recommendAmbariProxyUsersForHDFS(services, configurations, servicesList, putCoreSiteProperty, putCoreSitePropertyAttribute)
 
@@ -2822,8 +2822,8 @@ class DefaultStackAdvisor(StackAdvisor):
       self.put_proxyuser_value(ambari_user, "*", is_groups=True, services=services, configurations=configurations, put_function=putCoreSiteProperty)
       old_ambari_user = self.getOldAmbariUser(services)
       if old_ambari_user is not None:
-        putCoreSitePropertyAttribute("hadoop.proxyuser.{0}.hosts".format(old_ambari_user), 'delete', 'true')
-        putCoreSitePropertyAttribute("hadoop.proxyuser.{0}.groups".format(old_ambari_user), 'delete', 'true')
+        putCoreSitePropertyAttribute(f"hadoop.proxyuser.{old_ambari_user}.hosts", 'delete', 'true')
+        putCoreSitePropertyAttribute(f"hadoop.proxyuser.{old_ambari_user}.groups", 'delete', 'true')
 
   def getAmbariUser(self, services):
     ambari_user = services['ambari-server-properties']['ambari-server.user']
@@ -2892,9 +2892,9 @@ class DefaultStackAdvisor(StackAdvisor):
       result_value = ",".join(sorted([val for val in result_values_set if val]))
 
     if is_groups:
-      property_name = "hadoop.proxyuser.{0}.groups".format(user_name)
+      property_name = f"hadoop.proxyuser.{user_name}.groups"
     else:
-      property_name = "hadoop.proxyuser.{0}.hosts".format(user_name)
+      property_name = f"hadoop.proxyuser.{user_name}.hosts"
 
     put_function(property_name, result_value)
 
@@ -2914,9 +2914,9 @@ class DefaultStackAdvisor(StackAdvisor):
     else:
       coreSite = {}
     if groups:
-      property_name = "hadoop.proxyuser.{0}.groups".format(user_name)
+      property_name = f"hadoop.proxyuser.{user_name}.groups"
     else:
-      property_name = "hadoop.proxyuser.{0}.hosts".format(user_name)
+      property_name = f"hadoop.proxyuser.{user_name}.hosts"
     if property_name in coreSite:
       property_value = coreSite[property_name]
       if property_value == "*":
@@ -3016,7 +3016,7 @@ class DefaultStackAdvisor(StackAdvisor):
     if defaultValue is None:
       return None
     if value < defaultValue:
-      return self.getWarnItem("Value is less than the recommended default of {0}".format(defaultValue))
+      return self.getWarnItem(f"Value is less than the recommended default of {defaultValue}")
     return None
 
   def validatorGreaterThenDefaultValue(self, properties, recommendedDefaults, propertyName):
@@ -3034,22 +3034,22 @@ class DefaultStackAdvisor(StackAdvisor):
     if defaultValue is None:
       return None
     if value > defaultValue:
-      return self.getWarnItem("Value is greater than the recommended default of {0}".format(defaultValue))
+      return self.getWarnItem(f"Value is greater than the recommended default of {defaultValue}")
     return None
 
   def validatorEqualsPropertyItem(self, properties1, propertyName1,
                                   properties2, propertyName2,
                                   emptyAllowed=False):
     if not propertyName1 in properties1:
-      return self.getErrorItem("Value should be set for %s" % propertyName1)
+      return self.getErrorItem(f"Value should be set for {propertyName1}")
     if not propertyName2 in properties2:
-      return self.getErrorItem("Value should be set for %s" % propertyName2)
+      return self.getErrorItem(f"Value should be set for {propertyName2}")
     value1 = properties1.get(propertyName1)
     if value1 is None and not emptyAllowed:
-      return self.getErrorItem("Empty value for %s" % propertyName1)
+      return self.getErrorItem(f"Empty value for {propertyName1}")
     value2 = properties2.get(propertyName2)
     if value2 is None and not emptyAllowed:
-      return self.getErrorItem("Empty value for %s" % propertyName2)
+      return self.getErrorItem(f"Empty value for {propertyName2}")
     if value1 != value2:
       return self.getWarnItem("It is recommended to set equal values "
                               "for properties {0} and {1}".format(propertyName1, propertyName2))
@@ -3059,10 +3059,10 @@ class DefaultStackAdvisor(StackAdvisor):
   def validatorEqualsToRecommendedItem(self, properties, recommendedDefaults,
                                        propertyName):
     if not propertyName in properties:
-      return self.getErrorItem("Value should be set for %s" % propertyName)
+      return self.getErrorItem(f"Value should be set for {propertyName}")
     value = properties.get(propertyName)
     if not propertyName in recommendedDefaults:
-      return self.getErrorItem("Value should be recommended for %s" % propertyName)
+      return self.getErrorItem(f"Value should be recommended for {propertyName}")
     recommendedValue = recommendedDefaults.get(propertyName)
     if value != recommendedValue:
       return self.getWarnItem("It is recommended to set value {0} "
@@ -3071,10 +3071,10 @@ class DefaultStackAdvisor(StackAdvisor):
 
   def validatorNotEmpty(self, properties, propertyName):
     if not propertyName in properties:
-      return self.getErrorItem("Value should be set for {0}".format(propertyName))
+      return self.getErrorItem(f"Value should be set for {propertyName}")
     value = properties.get(propertyName)
     if not value:
-      return self.getWarnItem("Empty value for {0}".format(propertyName))
+      return self.getWarnItem(f"Empty value for {propertyName}")
     return None
 
   def validatorNotRootFs(self, properties, recommendedDefaults, propertyName, hostInfo):
@@ -3091,7 +3091,7 @@ class DefaultStackAdvisor(StackAdvisor):
     mountPoint = DefaultStackAdvisor.getMountPointForDir(dir, mountPoints)
 
     if "/" == mountPoint and self.getPreferredMountPoints(hostInfo)[0] != mountPoint:
-      return self.getWarnItem("It is not recommended to use root partition for {0}".format(propertyName))
+      return self.getWarnItem(f"It is not recommended to use root partition for {propertyName}")
 
     return None
 
@@ -3113,10 +3113,10 @@ class DefaultStackAdvisor(StackAdvisor):
     mountPoint = DefaultStackAdvisor.getMountPointForDir(dir, list(mountPoints.keys()))
 
     if not mountPoints:
-      return self.getErrorItem("No disk info found on host %s" % hostInfo["host_name"])
+      return self.getErrorItem(f"No disk info found on host {hostInfo['host_name']}")
 
     if mountPoint is None:
-      return self.getErrorItem("No mount point in directory %s. Mount points: %s" % (dir, ', '.join(list(mountPoints.keys()))))
+      return self.getErrorItem(f"No mount point in directory {dir}. Mount points: {', '.join(list(mountPoints.keys()))}")
 
     if mountPoints[mountPoint] < reqiuredDiskSpace:
       msg = "Ambari Metrics disk space requirements not met. \n" \

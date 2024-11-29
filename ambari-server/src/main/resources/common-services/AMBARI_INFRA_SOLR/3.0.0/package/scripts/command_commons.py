@@ -319,7 +319,7 @@ def create_command(command):
   """
   Create hdfs command. Append kinit to the command if required.
   """
-  kinit_cmd = "{0} -kt {1} {2};".format(kinit_path_local, params.infra_solr_kerberos_keytab, params.infra_solr_kerberos_principal) if params.security_enabled else ""
+  kinit_cmd = f"{kinit_path_local} -kt {params.infra_solr_kerberos_keytab} {params.infra_solr_kerberos_principal};" if params.security_enabled else ""
   return kinit_cmd + command
 
 def execute_commad(command):
@@ -332,7 +332,7 @@ def move_hdfs_folder(source_dir, target_dir):
   cmd=create_command(format('hdfs dfs -mv {source_dir} {target_dir}'))
   returncode, stdout = execute_commad(cmd)
   if returncode:
-    raise Exception("Unable to move HDFS dir '{0}' to '{1}' (return code: {2})".format(source_dir, target_dir, str(returncode)))
+    raise Exception(f"Unable to move HDFS dir '{source_dir}' to '{target_dir}' (return code: {str(returncode)})")
   return stdout.strip()
 
 def check_hdfs_folder_exists(hdfs_dir):

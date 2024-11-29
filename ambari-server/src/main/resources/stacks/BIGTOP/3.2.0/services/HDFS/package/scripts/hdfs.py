@@ -178,7 +178,7 @@ class ConfigStatusParser():
         if line.startswith('SUCCESS: Changed property'):
             self.reconfig_successful = True
 
-        Logger.info('[reconfig] %s' % (line))
+        Logger.info(f'[reconfig] {line}')
 
 @OsFamilyFuncImpl(os_family=OsFamilyImpl.DEFAULT)
 def reconfig(componentName, componentAddress):

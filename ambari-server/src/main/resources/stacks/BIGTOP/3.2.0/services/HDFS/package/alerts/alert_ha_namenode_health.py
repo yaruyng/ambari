@@ -84,7 +84,7 @@ def execute(configurations={}, parameters={}, host_name=None):
 
   # hdfs-site is required
   if not HDFS_SITE_KEY in configurations:
-    return (RESULT_STATE_UNKNOWN, ['{0} is a required parameter for the script'.format(HDFS_SITE_KEY)])
+    return (RESULT_STATE_UNKNOWN, [f'{HDFS_SITE_KEY} is a required parameter for the script'])
   
   if SMOKEUSER_KEY in configurations:
     smokeuser = configurations[SMOKEUSER_KEY]
@@ -126,7 +126,7 @@ def execute(configurations={}, parameters={}, host_name=None):
   # look for dfs.ha.namenodes.foo
   nn_unique_ids_key = 'dfs.ha.namenodes.' + name_service
   if not nn_unique_ids_key in hdfs_site:
-    return (RESULT_STATE_UNKNOWN, ['Unable to find unique namenode alias key {0}'.format(nn_unique_ids_key)])
+    return (RESULT_STATE_UNKNOWN, [f'Unable to find unique namenode alias key {nn_unique_ids_key}'])
 
   namenode_http_fragment = NAMENODE_HTTP_FRAGMENT
   jmx_uri_fragment = "http://{0}/jmx?qry=Hadoop:service=NameNode,name=*"

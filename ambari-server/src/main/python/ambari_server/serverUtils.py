@@ -57,7 +57,7 @@ def is_server_runing():
     pid = f.readline().strip()
 
     if not pid.isdigit():
-      err = "'%s' is incorrect PID value. %s is corrupt. Removing" % (pid, pid_file_path)
+      err = f"'{pid}' is incorrect PID value. {pid_file_path} is corrupt. Removing"
       f.close()
       run_os_command("rm -f " + pid_file_path)
       raise NonFatalException(err)
@@ -113,8 +113,7 @@ def refresh_stack_hash(properties):
                                                        verbose=get_verbose()))
     resource_files_keeper.perform_housekeeping()
   except KeeperException as ex:
-    msg = "Can not organize resource files at {0}: {1}".format(
-      resources_location, str(ex))
+    msg = f"Can not organize resource files at {resources_location}: {str(ex)}"
     raise FatalException(-1, msg)
 
 
@@ -142,7 +141,7 @@ def get_ambari_server_api_base(properties):
     api_port_prop = properties.get_property(SSL_API_PORT)
     if api_port_prop is not None:
       api_port = api_port_prop
-  return '{0}://{1}:{2!s}/api/v1/'.format(api_protocol, api_host, api_port)
+  return f'{api_protocol}://{api_host}:{api_port!s}/api/v1/'
 
 
 def get_ambari_admin_username_password_pair(options):
@@ -176,7 +175,7 @@ def get_cluster_name(properties, admin_login, admin_password):
     items = json_data['items']
     if len(items) > 0:
       cluster_name = items[0]['Clusters']['cluster_name']
-      print_info_msg('Found cluster name: %s' % cluster_name)
+      print_info_msg(f'Found cluster name: {cluster_name}')
 
   return cluster_name
 
@@ -192,9 +191,9 @@ def get_json_via_rest_api(properties, admin_login, admin_password, entry_point):
   :return: HTTP status, JSON data
   """
   url = get_ambari_server_api_base(properties) + entry_point
-  admin_auth = base64.encodebytes(('%s:%s' % (admin_login, admin_password)).encode()).decode().replace('\n', '')
+  admin_auth = base64.encodebytes(f'{admin_login}:{admin_password}'.encode()).decode().replace('\n', '')
   request = urllib.request.Request(url)
-  request.add_header('Authorization', 'Basic %s' % admin_auth)
+  request.add_header('Authorization', f'Basic {admin_auth}')
   request.add_header('X-Requested-By', 'ambari')
   request.get_method = lambda: 'GET'
 
@@ -204,7 +203,7 @@ def get_json_via_rest_api(properties, admin_login, admin_password, entry_point):
     response_status_code = response.getcode()
     json_data = None
     print_info_msg(
-      "Received HTTP %s while fetching information from Ambari's REST API" % response_status_code)
+      f"Received HTTP {response_status_code} while fetching information from Ambari's REST API")
     if response_status_code == 200:
       json_data = json.loads(response.read())
       if (get_debug_mode()):
@@ -215,9 +214,9 @@ def get_json_via_rest_api(properties, admin_login, admin_password, entry_point):
 def perform_changes_via_rest_api(properties, admin_login, admin_password, url_postfix, get_method,
                                  request_data=None):
   url = get_ambari_server_api_base(properties) + url_postfix
-  admin_auth = base64.encodebytes(('%s:%s' % (admin_login, admin_password)).encode()).decode().replace('\n', '')
+  admin_auth = base64.encodebytes(f'{admin_login}:{admin_password}'.encode()).decode().replace('\n', '')
   request = urllib.request.Request(url)
-  request.add_header('Authorization', 'Basic %s' % admin_auth)
+  request.add_header('Authorization', f'Basic {admin_auth}')
   request.add_header('X-Requested-By', 'ambari')
   if request_data is not None:
     request.data=json.dumps(request_data)
@@ -302,7 +301,7 @@ def eligible(service_info, is_sso_integration):
     return service_info['ldap_integration_supported']
 
 def get_eligible_services(properties, admin_login, admin_password, cluster_name, entry_point, service_qualifier):
-  print_info_msg("Fetching %s enabled services" % service_qualifier)
+  print_info_msg(f"Fetching {service_qualifier} enabled services")
 
   safe_cluster_name = urllib.parse.quote(cluster_name)
 
@@ -314,9 +313,9 @@ def get_eligible_services(properties, admin_login, admin_password, cluster_name,
     services = [item['ServiceInfo']['service_name'] for item in json_data['items'] if eligible(item['ServiceInfo'], 'SSO' ==  service_qualifier)]
 
     if len(services) > 0:
-      print_info_msg('Found %s enabled services: %s' % (service_qualifier, ', '.join(services)))
+      print_info_msg(f"Found {service_qualifier} enabled services: {', '.join(services)}")
     else:
-      print_info_msg('No %s enabled services were found' % service_qualifier)
+      print_info_msg(f'No {service_qualifier} enabled services were found')
 
   return services
 

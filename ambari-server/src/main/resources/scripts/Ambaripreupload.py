@@ -57,7 +57,7 @@ with Environment() as env:
       tmpfile = tempfile.NamedTemporaryFile()
       out = None
       with open(tmpfile.name, 'r+') as file:
-        get_stack_version_cmd = '/usr/bin/hdp-select status %s > %s' % ('hadoop-mapreduce-historyserver', tmpfile.name)
+        get_stack_version_cmd = f'/usr/bin/hdp-select status hadoop-mapreduce-historyserver > {tmpfile.name}'
         code, stdoutdata = shell.call(get_stack_version_cmd)
         out = file.read()
       pass
@@ -70,7 +70,7 @@ with Environment() as env:
       stack_version = matches[0] if matches and len(matches) > 0 else None
 
       if not stack_version:
-        Logger.error("Could not parse HDP version from output of hdp-select: %s" % str(out))
+        Logger.error(f"Could not parse HDP version from output of hdp-select: {str(out)}")
         return 1
     else:
       stack_version = options.hdp_version
@@ -90,14 +90,14 @@ with Environment() as env:
   (options, args) = parser.parse_args()
 
   if not os.path.exists(options.sql_driver_path):
-    Logger.error("SQL driver file {} does not exist".format(options.sql_driver_path))
+    Logger.error(f"SQL driver file {options.sql_driver_path} does not exist")
     if os.path.exists(DEFAULT_SQL_DRIVER_PATH):
-      Logger.warning("Fallback to SQL driver {}".format(DEFAULT_SQL_DRIVER_PATH))
+      Logger.warning(f"Fallback to SQL driver {DEFAULT_SQL_DRIVER_PATH}")
       options.sql_driver_path = DEFAULT_SQL_DRIVER_PATH
     else:
       sys.exit(1)
 
-  Logger.info("Using SQL driver from {}".format(options.sql_driver_path))
+  Logger.info(f"Using SQL driver from {options.sql_driver_path}")
   sql_driver_filename = os.path.basename(options.sql_driver_path)
 
   # See if hdfs path prefix is provided on the command line. If yes, use that value, if no
@@ -237,7 +237,7 @@ with Environment() as env:
     component_tar_source_file, component_tar_destination_folder = source, dest
 
     if not os.path.exists(component_tar_source_file):
-      Logger.warning("Could not find file: %s" % str(component_tar_source_file))
+      Logger.warning(f"Could not find file: {str(component_tar_source_file)}")
       return 1
 
     file_name = os.path.basename(component_tar_source_file)
@@ -296,7 +296,7 @@ with Environment() as env:
     if spark_deps_full_path and os.path.exists(spark_deps_full_path[0]):
       copy_tarballs_to_hdfs(spark_deps_full_path[0], hdfs_path_prefix+'/apps/zeppelin/', params.hdfs_user, 'zeppelin', 'zeppelin')
     else:
-      Logger.info('zeppelin-spark-dependencies not found at %s.' % file_pattern)
+      Logger.info(f'zeppelin-spark-dependencies not found at {file_pattern}.')
 
   def putCreatedHdfsResourcesToIgnore(env):
     if not 'hdfs_files' in env.config:
@@ -314,7 +314,7 @@ with Environment() as env:
       fp.write(file_content)
 
   def putSQLDriverToOozieShared():
-    params.HdfsResource(hdfs_path_prefix + '/user/oozie/share/lib/sqoop/{0}'.format(sql_driver_filename),
+    params.HdfsResource(hdfs_path_prefix + f'/user/oozie/share/lib/sqoop/{sql_driver_filename}',
                         owner='hdfs', type='file', action=['create_on_execute'], mode=0o644, source=options.sql_driver_path)
 
   def create_yarn_service_tarball():
@@ -510,7 +510,7 @@ with Environment() as env:
   Logger.info("Completed tarball copy.")
 
   if not options.upgrade:
-    Logger.info("Executing stack-selector-tool for stack {0} ...".format(stack_version))
+    Logger.info(f"Executing stack-selector-tool for stack {stack_version} ...")
     Execute(
       ('/usr/bin/hdp-select', 'set', 'all', stack_version),
       sudo = True

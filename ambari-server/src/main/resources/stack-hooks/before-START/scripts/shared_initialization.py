@@ -190,7 +190,7 @@ def create_microsoft_r_dir():
                           mode=0o777)
       params.HdfsResource(None, action="execute")
     except Exception as exception:
-      Logger.warning("Could not check the existence of {0} on DFS while starting {1}, exception: {2}".format(directory, params.current_service, str(exception)))
+      Logger.warning(f"Could not check the existence of {directory} on DFS while starting {params.current_service}, exception: {str(exception)}")
 
 def setup_unlimited_key_jce_policy():
   """
@@ -248,15 +248,15 @@ def __setup_unlimited_key_jce_policy(custom_java_home, custom_jdk_name, custom_j
       jce_zip_source = format("{ambari_server_resources_url}/{custom_jce_name}")
       java_security_dir = format("{custom_java_home}/jre/lib/security")
 
-      Logger.debug("Downloading the unlimited key JCE policy files from {0} to {1}.".format(jce_zip_source, jce_zip_target))
+      Logger.debug(f"Downloading the unlimited key JCE policy files from {jce_zip_source} to {jce_zip_target}.")
       Directory(params.artifact_dir, create_parents=True)
       File(jce_zip_target, content=DownloadSource(jce_zip_source))
 
-      Logger.debug("Removing existing JCE policy JAR files: {0}.".format(java_security_dir))
+      Logger.debug(f"Removing existing JCE policy JAR files: {java_security_dir}.")
       File(format("{java_security_dir}/US_export_policy.jar"), action="delete")
       File(format("{java_security_dir}/local_policy.jar"), action="delete")
 
-      Logger.debug("Unzipping the unlimited key JCE policy files from {0} into {1}.".format(jce_zip_target, java_security_dir))
+      Logger.debug(f"Unzipping the unlimited key JCE policy files from {jce_zip_target} into {java_security_dir}.")
       extract_cmd = ("unzip", "-o", "-j", "-q", jce_zip_target, "-d", java_security_dir)
       Execute(extract_cmd,
               only_if=format("test -e {java_security_dir} && test -f {jce_zip_target}"),

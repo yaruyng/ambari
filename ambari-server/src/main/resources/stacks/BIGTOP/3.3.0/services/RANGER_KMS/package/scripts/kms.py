@@ -47,9 +47,9 @@ import socket
 def password_validation(password, key):
   import params
   if password.strip() == "":
-    raise Fail("Blank password is not allowed for {0} property. Please enter valid password.".format(key))
+    raise Fail(f"Blank password is not allowed for {key} property. Please enter valid password.")
   if re.search("[\\\`'\"]",password):
-    raise Fail("{0} password contains one of the unsupported special characters like \" ' \ `".format(key))
+    raise Fail(f"{key} password contains one of the unsupported special characters like \" ' \\ `")
   else:
     Logger.info("Password validated")
 
@@ -584,7 +584,7 @@ def enable_kms_plugin():
         )
         params.HdfsResource(None, action="execute")
       except Exception as err:
-        Logger.exception("Audit directory creation in HDFS for RANGER KMS Ranger plugin failed with error:\n{0}".format(err))
+        Logger.exception(f"Audit directory creation in HDFS for RANGER KMS Ranger plugin failed with error:\n{err}")
 
     if params.xa_audit_hdfs_is_enabled and len(params.namenode_host) > 1:
       Logger.info('Audit to Hdfs enabled in NameNode HA environment, creating hdfs-site.xml')
@@ -662,7 +662,7 @@ def create_repo(url, data, usernamepassword):
       "Content-Type": "application/json"
     }
     request = urllib.request.Request(base_url, data.encode(), headers)
-    request.add_header("Authorization", "Basic {0}".format(base64string))
+    request.add_header("Authorization", f"Basic {base64string}")
     result = urllib.request.urlopen(request, timeout=20)
     response_code = result.getcode()
     response = json.loads(json.JSONEncoder().encode(result.read()))
@@ -674,11 +674,11 @@ def create_repo(url, data, usernamepassword):
       return False
   except urllib.error.URLError as e:
     if isinstance(e, urllib.error.HTTPError):
-      raise Fail("Error creating service. Http status code - {0}. \n {1}".format(e.code, e.read()))
+      raise Fail(f"Error creating service. Http status code - {e.code}. \n {e.read()}")
     else:
-      raise Fail("Error creating service. Reason - {0}.".format(e.reason))
+      raise Fail(f"Error creating service. Reason - {e.reason}.")
   except socket.timeout as e:
-    raise Fail("Error creating service. Reason - {0}".format(e))
+    raise Fail(f"Error creating service. Reason - {e}")
 
 @safe_retry(times=5, sleep_time=8, backoff_factor=1.5, err_class=Fail, return_on_fail=False)
 def get_repo(url, name, usernamepassword):
@@ -688,7 +688,7 @@ def get_repo(url, name, usernamepassword):
     base64string = base64.b64encode(usernamepassword.encode()).decode().replace('\n', '')
     request.add_header("Content-Type", "application/json")
     request.add_header("Accept", "application/json")
-    request.add_header("Authorization", "Basic {0}".format(base64string))
+    request.add_header("Authorization", f"Basic {base64string}")
     result = urllib.request.urlopen(request, timeout=20)
     response_code = result.getcode()
     response = json.loads(result.read())
@@ -705,11 +705,11 @@ def get_repo(url, name, usernamepassword):
       return False
   except urllib.error.URLError as e:
     if isinstance(e, urllib.error.HTTPError):
-      raise Fail("Error getting {0} service. Http status code - {1}. \n {2}".format(name, e.code, e.read()))
+      raise Fail(f"Error getting {name} service. Http status code - {e.code}. \n {e.read()}")
     else:
-      raise Fail("Error getting {0} service. Reason - {1}.".format(name, e.reason))
+      raise Fail(f"Error getting {name} service. Reason - {e.reason}.")
   except socket.timeout as e:
-    raise Fail("Error creating service. Reason - {0}".format(e))
+    raise Fail(f"Error creating service. Reason - {e}")
 
 def check_ranger_service_support_kerberos(user, keytab, principal):
   import params
@@ -723,7 +723,7 @@ def check_ranger_service_support_kerberos(user, keytab, principal):
   if response_code is not None and response_code[0] == 200:
     get_repo_name_response = ranger_adm_obj.get_repository_by_name_curl(user, keytab, principal, params.repo_name, 'kms', 'true', is_keyadmin = True)
     if get_repo_name_response is not None:
-      Logger.info('KMS repository {0} exist'.format(get_repo_name_response['name']))
+      Logger.info(f"KMS repository {get_repo_name_response['name']} exist")
       return True
     else:
       create_repo_response = ranger_adm_obj.create_repository_curl(user, keytab, principal, params.repo_name, json.dumps(params.kms_ranger_plugin_repo), None, is_keyadmin = True)

@@ -76,7 +76,7 @@ REGEX_HOSTNAME_PORT = "^(.*:[0-9]{1,5}$)"
 REGEX_TRUE_FALSE = "^(true|false)?$"
 REGEX_SKIP_CONVERT = "^(skip|convert)?$"
 REGEX_REFERRAL = "^(follow|ignore)?$"
-REGEX_LDAP_TYPE = "^({})?$".format("|".join(LDAP_TYPES))
+REGEX_LDAP_TYPE = f"^({'|'.join(LDAP_TYPES)})?$"
 REGEX_ANYTHING = ".*"
 LDAP_TO_PAM_MIGRATION_HELPER_CMD = "{0} -cp {1} " + \
                                    "org.apache.ambari.server.security.authentication.LdapToPamMigrationHelper" + \
@@ -153,7 +153,7 @@ def adjust_directory_permissions(ambari_user):
   properties = get_ambari_properties()
 
   bootstrap_dir = os.path.abspath(get_value_from_properties(properties, BOOTSTRAP_DIR_PROPERTY))
-  print_info_msg("Cleaning bootstrap directory ({0}) contents...".format(bootstrap_dir))
+  print_info_msg(f"Cleaning bootstrap directory ({bootstrap_dir}) contents...")
 
   if os.path.exists(bootstrap_dir):
     shutil.rmtree(bootstrap_dir) #Ignore the non-existent dir error
@@ -162,7 +162,7 @@ def adjust_directory_permissions(ambari_user):
     try:
       os.makedirs(bootstrap_dir)
     except Exception as ex:
-      print_warning_msg("Failed recreating the bootstrap directory: {0}".format(str(ex)))
+      print_warning_msg(f"Failed recreating the bootstrap directory: {str(ex)}")
       pass
   else:
     print_warning_msg("Bootstrap directory lingering around after 5s. Unable to complete the cleanup.")
@@ -217,14 +217,14 @@ def adjust_directory_permissions(ambari_user):
     mod = pack[1]
     user = pack[2].format(ambari_user)
     recursive = pack[3]
-    print_info_msg("Setting file permissions: {0} {1} {2} {3}".format(file, mod, user, recursive))
+    print_info_msg(f"Setting file permissions: {file} {mod} {user} {recursive}")
     set_file_permissions(file, mod, user, recursive)
 
   for pack in configDefaults.NR_CHANGE_OWNERSHIP_LIST:
     path = pack[0]
     user = pack[1].format(ambari_user)
     recursive = pack[2]
-    print_info_msg("Changing ownership: {0} {1} {2}".format(path, user, recursive))
+    print_info_msg(f"Changing ownership: {path} {user} {recursive}")
     change_owner(path, user, recursive)
 
 def configure_ldap_password(ldap_manager_password_option, interactive_mode):
@@ -305,9 +305,9 @@ def get_ldap_property_from_db(properties, admin_login, admin_password, property_
 def get_ldap_properties_from_db(properties, admin_login, admin_password):
   ldap_properties = None
   url = get_ambari_server_api_base(properties) + SETUP_LDAP_CONFIG_URL
-  admin_auth = base64.b64encode('{}:{}'.format(admin_login, admin_password).encode()).decode().replace('\n', '')
+  admin_auth = base64.b64encode(f'{admin_login}:{admin_password}'.encode()).decode().replace('\n', '')
   request = urllib.request.Request(url)
-  request.add_header('Authorization', 'Basic %s' % admin_auth)
+  request.add_header('Authorization', f'Basic {admin_auth}')
   request.add_header('X-Requested-By', 'ambari')
   request.get_method = lambda: 'GET'
   request_in_progress = True
@@ -339,10 +339,10 @@ def get_ldap_properties_from_db(properties, admin_login, admin_password):
       if e.code == 404:
         sys.stdout.write(' No configuration.')
         return None
-      err = 'Error while fetching LDAP configuration. Error details: %s' % e
+      err = f'Error while fetching LDAP configuration. Error details: {e}'
       raise FatalException(1, err)
     except Exception as e:
-      err = 'Error while fetching LDAP configuration. Error details: %s' % e
+      err = f'Error while fetching LDAP configuration. Error details: {e}'
       raise FatalException(1, err)
 
   return ldap_properties
@@ -396,9 +396,9 @@ def sync_ldap(options):
     raise FatalException(1, err)
 
   url = get_ambari_server_api_base(properties) + SERVER_API_LDAP_URL
-  admin_auth = base64.encodebytes(('%s:%s' % (admin_login, admin_password)).encode()).decode().replace('\n', '')
+  admin_auth = base64.encodebytes(f'{admin_login}:{admin_password}'.encode()).decode().replace('\n', '')
   request = urllib.request.Request(url)
-  request.add_header('Authorization', 'Basic %s' % admin_auth)
+  request.add_header('Authorization', f'Basic {admin_auth}')
   request.add_header('X-Requested-By', 'ambari')
 
   if ldap_sync_options.ldap_sync_all:
@@ -434,7 +434,7 @@ def sync_ldap(options):
   try:
     response = urllib.request.urlopen(request, context=get_ssl_context(properties))
   except Exception as e:
-    err = 'Sync event creation failed. Error details: %s' % e
+    err = f'Sync event creation failed. Error details: {e}'
     raise FatalException(1, err)
 
   response_status_code = response.getcode()
@@ -445,7 +445,7 @@ def sync_ldap(options):
 
   url = response_body['resources'][0]['href']
   request = urllib.request.Request(url)
-  request.add_header('Authorization', 'Basic %s' % admin_auth)
+  request.add_header('Authorization', f'Basic {admin_auth}')
   request.add_header('X-Requested-By', 'ambari')
   body = [{"LDAP":{"synced_groups":"*","synced_users":"*"}}]
   request.data=json.dumps(body)
@@ -460,7 +460,7 @@ def sync_ldap(options):
       response = urllib.request.urlopen(request, context=get_ssl_context(properties))
     except Exception as e:
       request_in_progress = False
-      err = 'Sync event check failed. Error details: %s' % e
+      err = f'Sync event check failed. Error details: {e}'
       raise FatalException(1, err)
 
     response_status_code = response.getcode()
@@ -476,9 +476,9 @@ def sync_ldap(options):
       print('\n\nCompleted LDAP Sync.')
       print('Summary:')
       for principal_type, summary in sync_info['summary'].items():
-        print('  {0}:'.format(principal_type))
+        print(f'  {principal_type}:')
         for action, amount in summary.items():
-          print('    {0} = {1!s}'.format(action, amount))
+          print(f'    {action} = {amount!s}')
       request_in_progress = False
     else:
       time.sleep(1)
@@ -635,7 +635,7 @@ def setup_master_key(masterKeyFile, options, properties, resetKey):
       print_info_msg("Deleting master key file at location: " + str(
         masterKeyFile))
     except Exception as e:
-      print('ERROR: Could not remove master key file. %s' % e)
+      print(f'ERROR: Could not remove master key file. {e}')
   # Blow up the credential store made with previous key, if any
   store_file = get_credential_store_location(properties)
   if os.path.exists(store_file):
@@ -803,7 +803,7 @@ def should_query_ldap_type(ldap_property_list_reqd):
   return False
 
 def query_ldap_type(ldap_type_option):
-  return get_validated_string_input("Please select the type of LDAP you want to use [{}]({}):".format("/".join(LDAP_TYPES), LDAP_GENERIC),
+  return get_validated_string_input(f"Please select the type of LDAP you want to use [{'/'.join(LDAP_TYPES)}]({LDAP_GENERIC}):",
                                     LDAP_GENERIC,
                                     REGEX_LDAP_TYPE,
                                     "Please enter one of the followings '{}'!".format("', '".join(LDAP_TYPES)),
@@ -903,7 +903,7 @@ def setup_ldap(options):
       ts_password = None
 
       if ldaps:
-        disable_endpoint_identification = get_validated_string_input("Disable endpoint identification during SSL handshake [true/false] ({0}): ".format(disable_endpoint_identification_default),
+        disable_endpoint_identification = get_validated_string_input(f"Disable endpoint identification during SSL handshake [true/false] ({disable_endpoint_identification_default}): ",
                                                                      disable_endpoint_identification_default,
                                                                      REGEX_TRUE_FALSE, "Invalid characters in the input!", False, allowEmpty=True,
                                                                      answer=options.ldap_sync_disable_endpoint_identification) if interactive_mode else options.ldap_sync_disable_endpoint_identification
@@ -920,7 +920,7 @@ def setup_ldap(options):
                                           format(truststore_default),
                                           truststore_set) if interactive_mode else None
         if custom_trust_store:
-          ts_type = get_validated_string_input("TrustStore type [jks/jceks/pkcs12] {0}:".format(get_prompt_default(ssl_truststore_type_default)),
+          ts_type = get_validated_string_input(f"TrustStore type [jks/jceks/pkcs12] {get_prompt_default(ssl_truststore_type_default)}:",
             ssl_truststore_type_default, "^(jks|jceks|pkcs12)?$", "Wrong type", False, answer=options.trust_store_type) if interactive_mode else options.trust_store_type
           ts_path = None
           while True:
@@ -959,21 +959,21 @@ def setup_ldap(options):
   print('=' * 20)
   for property in ldap_property_list_reqd:
     if property.prop_name in ldap_property_value_map:
-      print("%s %s" % (property.get_prompt_text(ldap_type), ldap_property_value_map[property.prop_name]))
+      print(f"{property.get_prompt_text(ldap_type)} {ldap_property_value_map[property.prop_name]}")
 
   for property in ldap_property_list_opt:
     if property in ldap_property_value_map:
       if property not in ldap_property_list_passwords:
-        print("%s: %s" % (property, ldap_property_value_map[property]))
+        print(f"{property}: {ldap_property_value_map[property]}")
       else:
-        print("%s: %s" % (property, BLIND_PASSWORD))
+        print(f"{property}: {BLIND_PASSWORD}")
 
   for property in ldap_property_list_opt:
     if property in ldap_property_values_in_ambari_properties:
       if property not in ldap_property_list_passwords:
-        print("%s: %s" % (property, ldap_property_values_in_ambari_properties[property]))
+        print(f"{property}: {ldap_property_values_in_ambari_properties[property]}")
       else:
-        print("%s: %s" % (property, BLIND_PASSWORD))
+        print(f"{property}: {BLIND_PASSWORD}")
 
   save_settings = True if options.ldap_save_settings is not None else get_YN_input("Save settings [y/n] (y)? ", True)
 
@@ -1183,7 +1183,7 @@ def migrate_ldap_pam(args):
 def populate_ambari_requires_ldap(options, properties):
   if options.ldap_enabled_ambari is None:
     enabled = get_boolean_from_dictionary(properties, AMBARI_LDAP_AUTH_ENABLED, False)
-    enabled = get_YN_input("Use LDAP authentication for Ambari [y/n] ({0})? ".format('y' if enabled else 'n'), enabled)
+    enabled = get_YN_input(f"Use LDAP authentication for Ambari [y/n] ({'y' if enabled else 'n'})? ", enabled)
   else:
     enabled = 'true' == options.ldap_enabled_ambari
 
@@ -1195,17 +1195,17 @@ def populate_service_management(options, properties, ambari_properties, admin_lo
   if options.ldap_enabled_services is None:
     if options.ldap_manage_services is None:
       manage_services = get_boolean_from_dictionary(properties, LDAP_MANAGE_SERVICES, False)
-      manage_services = get_YN_input("Manage LDAP configurations for eligible services [y/n] ({0})? ".format('y' if manage_services else 'n'), manage_services)
+      manage_services = get_YN_input(f"Manage LDAP configurations for eligible services [y/n] ({'y' if manage_services else 'n'})? ", manage_services)
     else:
       manage_services = 'true' == options.ldap_manage_services
       stored_manage_services = get_boolean_from_dictionary(properties, LDAP_MANAGE_SERVICES, False)
-      print("Manage LDAP configurations for eligible services [y/n] ({0})? {1}".format('y' if stored_manage_services else 'n', 'y' if manage_services else 'n'))
+      print(f"Manage LDAP configurations for eligible services [y/n] ({'y' if stored_manage_services else 'n'})? {'y' if manage_services else 'n'}")
 
     if manage_services:
       enabled_services = get_value_from_dictionary(properties, LDAP_ENABLED_SERVICES, "").upper().split(',')
 
       all = WILDCARD_FOR_ALL_SERVICES in enabled_services
-      configure_for_all_services = get_YN_input(" Manage LDAP for all services [y/n] ({0})? ".format('y' if all else 'n'), all)
+      configure_for_all_services = get_YN_input(f" Manage LDAP for all services [y/n] ({'y' if all else 'n'})? ", all)
       if configure_for_all_services:
         services = WILDCARD_FOR_ALL_SERVICES
       else:
@@ -1219,7 +1219,7 @@ def populate_service_management(options, properties, ambari_properties, admin_lo
 
             for service in eligible_services:
               enabled = service.upper() in enabled_services
-              question = "   Manage LDAP for {0} [y/n] ({1})? ".format(service, 'y' if enabled else 'n')
+              question = f"   Manage LDAP for {service} [y/n] ({'y' if enabled else 'n'})? "
               if get_YN_input(question, enabled):
                 service_list.append(service)
 

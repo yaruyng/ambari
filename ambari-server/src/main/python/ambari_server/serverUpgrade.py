@@ -163,7 +163,7 @@ def run_schema_upgrade(args):
 
   check_gpl_license_approved(upgrade_response)
 
-  print_info_msg("Return code from schema upgrade command, retcode = {0}".format(str(retcode)), True)
+  print_info_msg(f"Return code from schema upgrade command, retcode = {str(retcode)}", True)
   if stdout:
     print_info_msg("Console output from schema upgrade command:", True)
     print_info_msg(stdout, True)
@@ -207,16 +207,16 @@ def move_user_custom_actions():
 
   custom_actions_dir_path = os.path.join(resources_dir, 'custom_actions')
   custom_actions_scripts_dir_path = os.path.join(custom_actions_dir_path, 'scripts')
-  print_info_msg('Moving *.py files from %s to %s' % (custom_actions_dir_path, custom_actions_scripts_dir_path))
+  print_info_msg(f'Moving *.py files from {custom_actions_dir_path} to {custom_actions_scripts_dir_path}')
 
   try:
     for custom_action_file_name in os.listdir(custom_actions_dir_path):
       custom_action_file_path = os.path.join(custom_actions_dir_path, custom_action_file_name)
       if os.path.isfile(custom_action_file_path) and custom_action_file_path.endswith('.py'):
-        print_info_msg('Moving %s to %s' % (custom_action_file_path, custom_actions_scripts_dir_path))
+        print_info_msg(f'Moving {custom_action_file_path} to {custom_actions_scripts_dir_path}')
         shutil.move(custom_action_file_path, custom_actions_scripts_dir_path)
   except (OSError, shutil.Error) as e:
-    err = 'Upgrade failed. Can not move *.py files from %s to %s. ' % (custom_actions_dir_path, custom_actions_scripts_dir_path) + str(e)
+    err = f'Upgrade failed. Can not move *.py files from {custom_actions_dir_path} to {custom_actions_scripts_dir_path}. ' + str(e)
     print_error_msg(err)
     raise FatalException(1, err)
 
@@ -225,13 +225,13 @@ def upgrade(args):
   if not is_root():
     err = configDefaults.MESSAGE_ERROR_UPGRADE_NOT_ROOT
     raise FatalException(4, err)
-  print_info_msg('Updating Ambari Server properties in {0} ...'.format(AMBARI_PROPERTIES_FILE), True)
+  print_info_msg(f'Updating Ambari Server properties in {AMBARI_PROPERTIES_FILE} ...', True)
   retcode = update_ambari_properties()
   if not retcode == 0:
     err = AMBARI_PROPERTIES_FILE + ' file can\'t be updated. Exiting'
     raise FatalException(retcode, err)
 
-  print_info_msg('Updating Ambari Server properties in {0} ...'.format(AMBARI_ENV_FILE), True)
+  print_info_msg(f'Updating Ambari Server properties in {AMBARI_ENV_FILE} ...', True)
   retcode = update_ambari_env()
   if not retcode == 0:
     err = AMBARI_ENV_FILE + ' file can\'t be updated. Exiting'
@@ -241,7 +241,7 @@ def upgrade(args):
   if retcode == -2:
     pass  # no changes done, let's be silent
   elif retcode == 0:
-    print_info_msg("File {0} updated.".format(AMBARI_KRB_JAAS_LOGIN_FILE), True)
+    print_info_msg(f"File {AMBARI_KRB_JAAS_LOGIN_FILE} updated.", True)
   elif not retcode == 0:
     err = AMBARI_KRB_JAAS_LOGIN_FILE + ' file can\'t be updated. Exiting'
     raise FatalException(retcode, err)
@@ -261,7 +261,7 @@ def upgrade(args):
 
   retcode = run_schema_upgrade(args)
   if not retcode == 0:
-    print_error_msg("Ambari server upgrade failed. Please look at {0}, for more details.".format(configDefaults.SERVER_LOG_FILE))
+    print_error_msg(f"Ambari server upgrade failed. Please look at {configDefaults.SERVER_LOG_FILE}, for more details.")
     raise FatalException(11, 'Schema upgrade failed.')
 
   user = read_ambari_user()
@@ -318,7 +318,7 @@ def upgrade(args):
 
   json_url = get_json_url_from_repo_file()
   if json_url:
-    print("Ambari repo file contains latest json url {0}, updating stacks repoinfos with it...".format(json_url))
+    print(f"Ambari repo file contains latest json url {json_url}, updating stacks repoinfos with it...")
     properties = get_ambari_properties()
     stack_root = get_stack_location(properties)
     update_latest_in_repoinfos_for_stacks(stack_root, json_url)
@@ -370,10 +370,10 @@ def set_current(options):
     raise FatalException(1, "Failed to read properties file.")
 
   base_url = get_ambari_server_api_base(properties)
-  url = base_url + "clusters/{0}/stack_versions".format(finalize_options.cluster_name)
-  admin_auth = base64.encodebytes(('%s:%s' % (admin_login, admin_password)).encode()).decode().replace('\n', '')
+  url = base_url + f"clusters/{finalize_options.cluster_name}/stack_versions"
+  admin_auth = base64.encodebytes(f'{admin_login}:{admin_password}'.encode()).decode().replace('\n', '')
   request = urllib.request.Request(url)
-  request.add_header('Authorization', 'Basic %s' % admin_auth)
+  request.add_header('Authorization', f'Basic {admin_auth}')
   request.add_header('X-Requested-By', 'ambari')
 
   data = {
@@ -399,7 +399,7 @@ def set_current(options):
       code, content)
     raise FatalException(1, err)
   except Exception as e:
-    err = 'Setting current version failed. Error details: %s' % e
+    err = f'Setting current version failed. Error details: {e}'
     raise FatalException(1, err)
 
   sys.stdout.write('\nCurrent version successfully updated to ' + finalize_options.desired_repo_version)

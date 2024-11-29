@@ -53,7 +53,7 @@ class ServiceCheckWindows(ServiceCheck):
 
     yarn_exe = os_utils.quote_path(os.path.join(params.yarn_home, "bin", "yarn.cmd"))
 
-    run_yarn_check_cmd = "cmd /C %s node -list" % yarn_exe
+    run_yarn_check_cmd = f"cmd /C {yarn_exe} node -list"
 
     component_type = 'rm'
     if params.hadoop_ssl_enabled:
@@ -66,10 +66,10 @@ class ServiceCheckWindows(ServiceCheck):
     validateStatusFileName = "validateYarnComponentStatusWindows.py"
     validateStatusFilePath = os.path.join(temp_dir, validateStatusFileName)
     python_executable = sys.executable
-    validateStatusCmd = "%s %s %s -p %s -s %s" % (python_executable, validateStatusFilePath, component_type, component_address, params.hadoop_ssl_enabled)
+    validateStatusCmd = f"{python_executable} {validateStatusFilePath} {component_type} -p {component_address} -s {params.hadoop_ssl_enabled}"
 
     if params.security_enabled:
-      kinit_cmd = "%s -kt %s %s;" % (params.kinit_path_local, params.smoke_user_keytab, params.smokeuser)
+      kinit_cmd = f"{params.kinit_path_local} -kt {params.smoke_user_keytab} {params.smokeuser};"
       smoke_cmd = kinit_cmd + ' ' + validateStatusCmd
     else:
       smoke_cmd = validateStatusCmd
@@ -178,7 +178,7 @@ class ServiceCheckDefault(ServiceCheck):
           Logger.warning(format("Cluster info is not available from calling {get_cluster_info_cmd}"))
 
     if active_rm_webapp_address is None:
-      raise Fail('Resource Manager state is not available. Failed to determine the active Resource Manager web application address from {0}'.format(','.join(rm_webapp_addresses)));
+      raise Fail(f"Resource Manager state is not available. Failed to determine the active Resource Manager web application address from {','.join(rm_webapp_addresses)}");
     return active_rm_webapp_address
 
 if __name__ == "__main__":

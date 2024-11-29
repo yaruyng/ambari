@@ -88,7 +88,7 @@ class YamlParser(Parser): # Used Yaml parser to read data into a map
           if name != None:
             configurations[name] = str(value)
       except:
-        logger.error("Couldn't parse {0} file. Skipping ...".format(path))
+        logger.error(f"Couldn't parse {path} file. Skipping ...")
         return None, None
     return configurations, None
 
@@ -131,13 +131,13 @@ class XmlParser(Parser):  # Used DOM parser to read data into a map
       if name != None:
         name_text = name.text if name.text else ""
       else:
-        logger.warn("No name is found for one of the properties in {0}, ignoring it".format(path))
+        logger.warn(f"No name is found for one of the properties in {path}, ignoring it")
         continue
 
       if value != None:
         value_text = value.text if value.text else ""
       else:
-        logger.warn("No value is found for \"{0}\" in {1}, using empty string for it".format(name_text, path))
+        logger.warn(f"No value is found for \"{name_text}\" in {path}, using empty string for it")
         value_text = ""
 
       if final != None:
@@ -145,7 +145,7 @@ class XmlParser(Parser):  # Used DOM parser to read data into a map
         properties_attributes[name_text] = final_text
 
       configurations[name_text] = value_text
-    logger.debug("Following configurations found in {0}:\n{1}".format(path, configurations))
+    logger.debug(f"Following configurations found in {path}:\n{configurations}")
     return configurations, properties_attributes
 
 class ConfigMerge:
@@ -185,7 +185,7 @@ class ConfigMerge:
         if ext in extensions:
           file_path = os.path.join(dirName, file)
           if ext in ConfigMerge.SUPPORTED_FILENAME_ENDINGS and not ConfigMerge.SUPPORTED_FILENAME_ENDINGS[ext] in root:
-            logger.warn("File {0} is not configurable by Ambari. Skipping...".format(file_path))
+            logger.warn(f"File {file_path} is not configurable by Ambari. Skipping...")
             continue
           config_name = None
 
@@ -199,7 +199,7 @@ class ConfigMerge:
           if not config_name:
             if file in ConfigMerge.NOT_MAPPED_FILES:
               if ConfigMerge.UNKNOWN_FILES_MAPPING_FILE:
-                logger.error("File {0} doesn't match any regex from {1}".format(file_path, ConfigMerge.UNKNOWN_FILES_MAPPING_FILE))
+                logger.error(f"File {file_path} doesn't match any regex from {ConfigMerge.UNKNOWN_FILES_MAPPING_FILE}")
               else:
                 logger.error("Cannot map {0} to Ambari config type. Please use -u option to specify config mapping for this file. \n"
                              "For more information use --help option for script".format(file_path))
@@ -225,7 +225,7 @@ class ConfigMerge:
         if not value in property_name_to_value_to_filepaths[configuration_name]:
           property_name_to_value_to_filepaths[configuration_name][value] = []
 
-        logger.debug("Iterating over '{0}' with value '{1}' in file '{2}'".format(configuration_name, value, path))
+        logger.debug(f"Iterating over '{configuration_name}' with value '{value}' in file '{path}'")
         property_name_to_value_to_filepaths[configuration_name][value].append(path)
         merged_configurations[configuration_name] = value
 
@@ -272,10 +272,10 @@ class ConfigMerge:
       for value, filepaths in value_to_filepaths.items():
         if not first_item:
           first_item = True
-          output += "\n\n=== {0} | {1} | {2} |\nHas conflicts with:\n\n".format(property_name,filepaths[0], value)
+          output += f"\n\n=== {property_name} | {filepaths[0]} | {value} |\nHas conflicts with:\n\n"
           continue
         for filepath in filepaths:
-          output += "| {0} | {1} | {2} |\n".format(property_name, filepath, value)
+          output += f"| {property_name} | {filepath} | {value} |\n"
 
     return output
 
@@ -289,7 +289,7 @@ class ConfigMerge:
       configuration_type = os.path.splitext(filename)[0]
       for path_and_parser in paths_and_parsers:
         path, parser = path_and_parser
-        logger.debug("Read data from {0}".format(path))
+        logger.debug(f"Read data from {path}")
         parsed_configurations_from_path, parsed_properties_attributes = parser.read_data_to_map(path)
         if parsed_configurations_from_path != None:
           filepath_to_configurations[path] = parsed_configurations_from_path
@@ -311,7 +311,7 @@ class ConfigMerge:
         has_conflicts = True
         conflict_filename = os.path.join(self.OUTPUT_DIR, configuration_type + "-conflicts.txt")
         logger.warn(
-          "You have configurations conflicts for {0}. Please check {1}".format(configuration_type, conflict_filename))
+          f"You have configurations conflicts for {configuration_type}. Please check {conflict_filename}")
         with open(conflict_filename, "w") as fp:
           fp.write(configuration_conflicts_output)
 
@@ -319,7 +319,7 @@ class ConfigMerge:
         has_conflicts = True
         conflict_filename = os.path.join(self.OUTPUT_DIR, configuration_type + "-attributes-conflicts.txt")
         logger.warn(
-          "You have property attribute conflicts for {0}. Please check {1}".format(configuration_type, conflict_filename))
+          f"You have property attribute conflicts for {configuration_type}. Please check {conflict_filename}")
         with open(conflict_filename, "w") as fp:
           fp.write(attribute_conflicts_output)
 
@@ -328,7 +328,7 @@ class ConfigMerge:
 
 
     result_json_file = os.path.join(self.OUTPUT_DIR, "blueprint.json")
-    logger.info("Using '{0}' file as output for blueprint template".format(result_json_file))
+    logger.info(f"Using '{result_json_file}' file as output for blueprint template")
 
     with open(result_json_file, 'w') as outfile:
       outfile.write(json.dumps(ConfigMerge.format_for_blueprint(result_configurations, result_property_attributes), sort_keys=True, indent=4,
@@ -363,7 +363,7 @@ class ConfigMerge:
     if configuration_diff_output and configuration_diff_output != "":
       conflict_filename = os.path.join(ConfigMerge.OUTPUT_DIR, "file-diff.txt")
       logger.warn(
-        "You have file diff conflicts. Please check {0}".format(conflict_filename))
+        f"You have file diff conflicts. Please check {conflict_filename}")
       with open(conflict_filename, "w") as fp:
         fp.write(configuration_diff_output)
 
@@ -439,7 +439,7 @@ class ConfigMerge:
     conflicts = []
     for key, value in attributes.items():
       if not key in matches:
-        conflicts.append({key : "Final attribute is missing in {0} file".format(file_path)})
+        conflicts.append({key : f"Final attribute is missing in {file_path} file"})
     return conflicts
 
   @staticmethod
@@ -447,7 +447,7 @@ class ConfigMerge:
     conflicts = []
     for key, value in configurations.items():
       if not key in matches:
-        conflicts.append({key : "Property is missing in {0} file".format(file_path)})
+        conflicts.append({key : f"Property is missing in {file_path} file"})
     return conflicts
 
   @staticmethod
@@ -455,7 +455,7 @@ class ConfigMerge:
     conflicts = []
     for file_name in config_file_paths:
       if file_name not in matches:
-        conflicts.append({file_name : "Configurations file is missing for {0} directory".format(input_dir)})
+        conflicts.append({file_name : f"Configurations file is missing for {input_dir} directory"})
     return conflicts
 
 def main():
@@ -530,8 +530,8 @@ def main():
   if options.action == "merge" :
     ConfigMerge.INPUT_DIR = options.inputDir
     file_paths = ConfigMerge.get_all_supported_files_grouped_by_name(directory=ConfigMerge.INPUT_DIR)
-    logger.info("Writing logs into '{0}' file".format(logegr_file_name))
-    logger.debug("Following configuration files found:\n{0}".format(file_paths.items()))
+    logger.info(f"Writing logs into '{logegr_file_name}' file")
+    logger.debug(f"Following configuration files found:\n{file_paths.items()}")
     config_merge = ConfigMerge(config_files_map=file_paths)
     return config_merge.perform_merge()
 
@@ -539,26 +539,26 @@ def main():
     if options.leftInputDir and os.path.isdir(options.leftInputDir):
       ConfigMerge.LEFT_INPUT_DIR = options.leftInputDir
     else:
-      logger.error("Directory \"{0}\" doesn't exist. Use option \"-h\" for details".format(options.leftInputDir))
+      logger.error(f"Directory \"{options.leftInputDir}\" doesn't exist. Use option \"-h\" for details")
       return -1
 
     if options.rightInputDir and os.path.isdir(options.rightInputDir):
       ConfigMerge.RIGHT_INPUT_DIR = options.rightInputDir
     else:
-      logger.error("Directory \"{0}\" doesn't exist. Use option \"-h\" for details".format(options.rightInputDir))
+      logger.error(f"Directory \"{options.rightInputDir}\" doesn't exist. Use option \"-h\" for details")
       return -1
 
-    logger.info("Writing logs into '{0}' file".format(logegr_file_name))
+    logger.info(f"Writing logs into '{logegr_file_name}' file")
 
     left_file_paths = ConfigMerge.get_all_supported_files_grouped_by_name(directory=ConfigMerge.LEFT_INPUT_DIR)
-    logger.debug("Following configuration files found:\n{0} for left directory".format(left_file_paths.items()))
+    logger.debug(f"Following configuration files found:\n{left_file_paths.items()} for left directory")
     right_file_paths = ConfigMerge.get_all_supported_files_grouped_by_name(directory=ConfigMerge.RIGHT_INPUT_DIR)
-    logger.debug("Following configuration files found:\n{0} for right directory".format(right_file_paths.items()))
+    logger.debug(f"Following configuration files found:\n{right_file_paths.items()} for right directory")
     config_merge = ConfigMerge(left_file_paths=left_file_paths , right_file_paths=right_file_paths)
     return config_merge.perform_diff()
 
   else:
-    logger.error("Action \"{0}\" doesn't supports by script. Use option \"-h\" for details".format(options.action))
+    logger.error(f"Action \"{options.action}\" doesn't supports by script. Use option \"-h\" for details")
     return -1
 
 if __name__ == "__main__":

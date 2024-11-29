@@ -311,7 +311,7 @@ class KafkaRecommender(service_advisor.ServiceAdvisor):
         listeners = re.sub(r"(^|\b)SSL://", "SASL_SSL://", listeners)
         putKafkaBrokerProperty('listeners', listeners)
     except KeyError as e:
-      self.logger.info('Cannot replace PLAINTEXT to SASL_PLAINTEXT in listeners. KeyError: %s' % e)
+      self.logger.info(f'Cannot replace PLAINTEXT to SASL_PLAINTEXT in listeners. KeyError: {e}')
 
   def recommendKAFKAConfigurationsFromHDP26(self, configurations, clusterData, services, hosts):
     if 'kafka-env' in services['configurations'] and 'kafka_user' in services['configurations']['kafka-env']['properties']:

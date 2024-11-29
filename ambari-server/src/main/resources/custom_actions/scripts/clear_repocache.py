@@ -36,7 +36,7 @@ class ClearRepoCache(Script):
     if 0 == code:
       structured_output["clear_repocache"] = {"exit_code" : 0, "message": format("Repository cache successfully cleared!")}
     else:
-      structured_output["clear_repocache"] = {"exit_code": code, "message": "Failed to clear repository cache! {0}".format(str(output))}
+      structured_output["clear_repocache"] = {"exit_code": code, "message": f"Failed to clear repository cache! {str(output)}"}
     self.put_structured_out(structured_output)
 
   def get_clearcache_cmd(self):
@@ -50,7 +50,7 @@ class ClearRepoCache(Script):
       Logger.info("Clear repository cache for the Ubuntu OS family");
       return ('/usr/bin/apt-get', 'update')
     else:
-      raise Exception("Unsupported OS family: '{0}' ".format(OSCheck.get_os_family()))
+      raise Exception(f"Unsupported OS family: '{OSCheck.get_os_family()}' ")
 
 if __name__ == "__main__":
   ClearRepoCache().execute()

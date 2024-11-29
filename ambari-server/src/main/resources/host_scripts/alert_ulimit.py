@@ -70,13 +70,13 @@ def _get_warnings_for_partition(parameters, soft_ulimit):
     return 'CRITICAL', ['Unable to determine ulimit for open files (-n)']
 
   return_code = "OK"
-  label = "Ulimit for open files (-n) is {0}".format(soft_ulimit)
+  label = f"Ulimit for open files (-n) is {soft_ulimit}"
 
   if soft_ulimit >= critical_count:
-    label = "Ulimit for open files (-n) is {0} which is higher or equal than critical value of {1}".format(soft_ulimit, critical_count)
+    label = f"Ulimit for open files (-n) is {soft_ulimit} which is higher or equal than critical value of {critical_count}"
     return_code = 'CRITICAL'
   elif soft_ulimit >= warning_count:
-    label = "Ulimit for open files (-n) is {0} which is higher or equal than warning value of {1}".format(soft_ulimit, warning_count)
+    label = f"Ulimit for open files (-n) is {soft_ulimit} which is higher or equal than warning value of {warning_count}"
     return_code = 'WARNING'
 
   return return_code, label

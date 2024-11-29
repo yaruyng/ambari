@@ -156,7 +156,7 @@ def initialize_ha_zookeeper(params):
   try:
     iterations = 10
     formatZK_cmd = "hdfs zkfc -formatZK -nonInteractive"
-    Logger.info("Initialize HA state in ZooKeeper: %s" % (formatZK_cmd))
+    Logger.info(f"Initialize HA state in ZooKeeper: {formatZK_cmd}")
     for i in range(iterations):
       Logger.info('Try %d out of %d' % (i+1, iterations))
       code, out = shell.call(formatZK_cmd, logoutput=False, user=params.hdfs_user)
@@ -169,7 +169,7 @@ def initialize_ha_zookeeper(params):
       else:
         Logger.warning('HA state initialization in ZooKeeper failed with %d error code. Will retry' % (code))
   except Exception as ex:
-    Logger.error('HA state initialization in ZooKeeper threw an exception. Reason %s' %(str(ex)))
+    Logger.error(f'HA state initialization in ZooKeeper threw an exception. Reason {str(ex)}')
   return False
 
 

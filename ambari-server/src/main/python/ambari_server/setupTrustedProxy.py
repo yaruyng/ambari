@@ -61,7 +61,7 @@ def get_trusted_proxy_properties(ambari_properties, admin_login, admin_password)
 def populate_tproxy_configuration_property(properties, tproxy_user_name, property_name, question_text_qualifier):
   resolved_property_name = property_name.format(tproxy_user_name)
   resolved_property_value = get_value_from_dictionary(properties, resolved_property_name, WILDCARD_FOR_ALL)
-  resolved_property_value = get_validated_string_input("Allowed {0} for {1} ({2})? ".format(question_text_qualifier, tproxy_user_name, resolved_property_value), resolved_property_value, REGEX_ANYTHING, "Invalid input", False)
+  resolved_property_value = get_validated_string_input(f"Allowed {question_text_qualifier} for {tproxy_user_name} ({resolved_property_value})? ", resolved_property_value, REGEX_ANYTHING, "Invalid input", False)
   properties[resolved_property_name] = resolved_property_value
 
 
@@ -108,7 +108,7 @@ def validate_options(options):
 
   if options.tproxy_configuration_file_path and options.tproxy_configuration_file_path is not None:
     if not os.path.isfile(options.tproxy_configuration_file_path):
-      errors.append("--tproxy-configuration-file-path is set to a non-existing file: {}".format(options.tproxy_configuration_file_path))
+      errors.append(f"--tproxy-configuration-file-path is set to a non-existing file: {options.tproxy_configuration_file_path}")
 
   if len(errors) > 0:
     error_msg = "The following errors occurred while processing your request: {0}"
@@ -141,7 +141,7 @@ def setup_trusted_proxy(options):
           tproxy_status = "disabled"
       else:
         tproxy_status = "not configured"
-      print_info_msg("\nTrusted Proxy support is currently %s\n" % tproxy_status)
+      print_info_msg(f"\nTrusted Proxy support is currently {tproxy_status}\n")
 
       if tproxy_status == "enabled":
         enable_tproxy = not get_YN_input("Do you want to disable Trusted Proxy support [y/n] (n)? ", False)

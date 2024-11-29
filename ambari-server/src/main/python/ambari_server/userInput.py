@@ -134,7 +134,7 @@ def get_validated_filepath_input(prompt, description, default = None, answer = N
 def get_multi_line_input(prompt, end_line=""):
   full_prompt = prompt
   if end_line:
-    full_prompt += " ([{0}] to finish input):".format(end_line)
+    full_prompt += f" ([{end_line}] to finish input):"
   else:
     full_prompt += " (empty line to finish input):".format(end_line)
 

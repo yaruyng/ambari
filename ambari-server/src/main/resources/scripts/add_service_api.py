@@ -58,7 +58,7 @@ CONFIGS_TO_CHANGE = {
 }
 
 #################################################################
-SERVER_URL = "{protocol}://{hostname}:{port}".format(protocol=PROTOCOL, hostname=HOSTNAME, port=PORT)    
+SERVER_URL = f"{PROTOCOL}://{HOSTNAME}:{PORT}"    
 
 def main():
   # add service
@@ -91,15 +91,15 @@ def main():
     config[x['StackConfigurations']['property_name']] = x['StackConfigurations']['property_value']
 
   for site_name, site_content in configs.items():
-    code = call('/var/lib/ambari-server/resources/scripts/configs.sh get {hostname} {cluster_name} {site_name}'.format(hostname=HOSTNAME, cluster_name=CLUSTER_NAME, site_name=site_name))[0]
+    code = call(f'/var/lib/ambari-server/resources/scripts/configs.sh get {HOSTNAME} {CLUSTER_NAME} {site_name}')[0]
 
     if code:
       print("Adding new site: "+site_name)
-      checked_call('curl -i -H \'X-Requested-By:anything\' -X PUT -d \'{{"Clusters":{{"desired_configs":{{"type":"{site_name}","tag":"version1","properties":{site_content}}}}}}}\' -u admin:admin {server_url}/api/v1/clusters/{cluster_name}'.format(site_name=site_name, site_content=json.dumps(site_content), server_url=SERVER_URL, cluster_name=CLUSTER_NAME))
+      checked_call(f'curl -i -H \'X-Requested-By:anything\' -X PUT -d \'{{"Clusters":{{"desired_configs":{{"type":"{site_name}","tag":"version1","properties":{json.dumps(site_content)}}}}}}}\' -u admin:admin {SERVER_URL}/api/v1/clusters/{CLUSTER_NAME}')
     else:
       timestamp = int(time.time())
       print("Modifiying site: "+site_name+" version"+str(timestamp))
-      checked_call('/var/lib/ambari-server/resources/scripts/configs.sh get {hostname} {cluster_name} {site_name} /tmp/current_site.json'.format(hostname=HOSTNAME, cluster_name=CLUSTER_NAME, site_name=site_name))
+      checked_call(f'/var/lib/ambari-server/resources/scripts/configs.sh get {HOSTNAME} {CLUSTER_NAME} {site_name} /tmp/current_site.json')
       
       with open('/tmp/current_site.json', "r") as f:
         fcontent = f.read()
@@ -108,12 +108,12 @@ def main():
       for k,v in site_content.items():
         d['properties'][k] = v
         
-      checked_call('curl -i -H \'X-Requested-By:anything\' -X PUT -d \'{{"Clusters":{{"desired_configs":{{"type":"{site_name}","tag":"version{timestamp}","properties":{site_content}}}}}}}\' -u admin:admin {server_url}/api/v1/clusters/{cluster_name}'.format(site_name=site_name, timestamp=timestamp, site_content=json.dumps(d['properties']), server_url=SERVER_URL, cluster_name=CLUSTER_NAME))
+      checked_call(f"curl -i -H 'X-Requested-By:anything' -X PUT -d '{{\"Clusters\":{{\"desired_configs\":{{\"type\":\"{site_name}\",\"tag\":\"version{timestamp}\",\"properties\":{json.dumps(d['properties'])}}}}}}}' -u admin:admin {SERVER_URL}/api/v1/clusters/{CLUSTER_NAME}")
 
   for site_name, site_configs in CONFIGS_TO_CHANGE.items():
     for config_name, config_value in site_configs.items():
       print("Adding config "+config_name+"="+config_value+" to "+site_name)
-      checked_call('/var/lib/ambari-server/resources/scripts/configs.sh set {hostname} {cluster_name} {site_name} {config_name} {config_value}'.format(config_name=config_name, config_value=config_value, hostname=HOSTNAME, cluster_name=CLUSTER_NAME, site_name=site_name))
+      checked_call(f'/var/lib/ambari-server/resources/scripts/configs.sh set {HOSTNAME} {CLUSTER_NAME} {site_name} {config_name} {config_value}')
       
         
   # install all new components

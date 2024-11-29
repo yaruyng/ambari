@@ -134,7 +134,7 @@ def setup_ranger_admin(upgrade_type=None):
   if os.path.isfile(params.ranger_admin_default_file):
     File(params.ranger_admin_default_file, owner=params.unix_user, group=params.unix_group)
   else:
-    Logger.warning('Required file {0} does not exist, copying the file to {1} path'.format(params.ranger_admin_default_file, ranger_conf))
+    Logger.warning(f'Required file {params.ranger_admin_default_file} does not exist, copying the file to {ranger_conf} path')
     src_file = format('{ranger_home}/ews/webapp/WEB-INF/classes/conf.dist/ranger-admin-default-site.xml')
     dst_file = format('{ranger_home}/conf/ranger-admin-default-site.xml')
     Execute(('cp', '-f', src_file, dst_file), sudo=True)
@@ -143,7 +143,7 @@ def setup_ranger_admin(upgrade_type=None):
   if os.path.isfile(params.security_app_context_file):
     File(params.security_app_context_file, owner=params.unix_user, group=params.unix_group)
   else:
-    Logger.warning('Required file {0} does not exist, copying the file to {1} path'.format(params.security_app_context_file, ranger_conf))
+    Logger.warning(f'Required file {params.security_app_context_file} does not exist, copying the file to {ranger_conf} path')
     src_file = format('{ranger_home}/ews/webapp/WEB-INF/classes/conf.dist/security-applicationContext.xml')
     dst_file = format('{ranger_home}/conf/security-applicationContext.xml')
     Execute(('cp', '-f', src_file, dst_file), sudo=True)
@@ -705,7 +705,7 @@ def setup_ranger_audit_solr():
       secure_znode(format('{solr_znode}/configs/{ranger_solr_config_set}'), params.solr_jaas_file)
       secure_znode(format('{solr_znode}/collections/{ranger_solr_collection_name}'), params.solr_jaas_file)
   except ExecutionFailed as execution_exception:
-    Logger.error('Error when configuring Solr for Ranger, Kindly check Solr/Zookeeper services to be up and running:\n {0}'.format(execution_exception))
+    Logger.error(f'Error when configuring Solr for Ranger, Kindly check Solr/Zookeeper services to be up and running:\n {execution_exception}')
 
 def setup_ranger_admin_passwd_change(username, user_password, user_default_password):
   import params

@@ -39,7 +39,7 @@ ALL_ACTIONS = [RECOMMEND_COMPONENT_LAYOUT_ACTION,
                RECOMMEND_CONFIGURATIONS_FOR_KERBEROS,
                RECOMMEND_CONFIGURATION_DEPENDENCIES,
                VALIDATE_CONFIGURATIONS]
-USAGE = "Usage: <action> <hosts_file> <services_file>\nPossible actions are: {0}\n".format( str(ALL_ACTIONS) )
+USAGE = f"Usage: <action> <hosts_file> <services_file>\nPossible actions are: {str(ALL_ACTIONS)}\n"
 
 SCRIPT_DIRECTORY = os.path.dirname(os.path.abspath(__file__))
 STACKS_DIRECTORY = os.path.join(SCRIPT_DIRECTORY, '../stacks')
@@ -63,7 +63,7 @@ def loadJson(path):
       return json.load(f)
   except Exception as err:
     traceback.print_exc()
-    raise StackAdvisorException("Error loading file at: {0}".format(path))
+    raise StackAdvisorException(f"Error loading file at: {path}")
 
 
 def dumpJson(json_object, dump_file):
@@ -72,7 +72,7 @@ def dumpJson(json_object, dump_file):
       json.dump(json_object, out, indent=1)
   except Exception as err:
     traceback.print_exc()
-    raise StackAdvisorException("Error writing to file {0} : {1}".format(dump_file, str(err)))
+    raise StackAdvisorException(f"Error writing to file {dump_file} : {str(err)}")
 
 
 def main(argv=None):
@@ -169,10 +169,10 @@ def instantiateStackAdvisor(stackName, stackVersion, parentVersions):
         with open(path, 'r') as fp:
           stack_advisor = imp.load_module('stack_advisor_impl', fp, path, ('.py', 'rb', imp.PY_SOURCE))
         className = STACK_ADVISOR_IMPL_CLASS_TEMPLATE.format(stackName, version.replace('.', ''))
-        print("StackAdvisor implementation for stack {0}, version {1} was loaded".format(stackName, version))
+        print(f"StackAdvisor implementation for stack {stackName}, version {version} was loaded")
     except IOError: # file not found
       traceback.print_exc()
-      print("StackAdvisor implementation for stack {0}, version {1} was not found".format(stackName, version))
+      print(f"StackAdvisor implementation for stack {stackName}, version {version} was not found")
 
   try:
     clazz = getattr(stack_advisor, className)
@@ -189,10 +189,10 @@ if __name__ == '__main__':
     main(sys.argv)
   except StackAdvisorException as stack_exception:
     traceback.print_exc()
-    print("Error occured in stack advisor.\nError details: {0}".format(str(stack_exception)))
+    print(f"Error occured in stack advisor.\nError details: {str(stack_exception)}")
     sys.exit(1)
   except Exception as e:
     traceback.print_exc()
-    print("Error occured in stack advisor.\nError details: {0}".format(str(e)))
+    print(f"Error occured in stack advisor.\nError details: {str(e)}")
     sys.exit(2)
 

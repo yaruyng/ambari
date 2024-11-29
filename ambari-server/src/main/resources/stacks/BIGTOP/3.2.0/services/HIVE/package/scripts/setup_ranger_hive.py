@@ -60,7 +60,7 @@ def setup_ranger_hive(upgrade_type = None):
         )
         params.HdfsResource(None, action="execute")
       except Exception as err:
-        Logger.exception("Audit directory creation in HDFS for HIVE Ranger plugin failed with error:\n{0}".format(err))
+        Logger.exception(f"Audit directory creation in HDFS for HIVE Ranger plugin failed with error:\n{err}")
 
     api_version='v2'
 

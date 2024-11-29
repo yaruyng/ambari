@@ -81,8 +81,7 @@ class AMSServiceCheck(Script):
           if params.metric_collector_https_enabled:
             protocol = "https"
         port = str(params.metric_collector_port)
-        uri = '{0}://{1}:{2}{3}'.format(
-        protocol, metric_collector_host, port, self.AMS_METRICS_POST_URL)
+        uri = f'{protocol}://{metric_collector_host}:{port}{self.AMS_METRICS_POST_URL}'
 
         call_curl_krb_request(tmp_dir, params.smoke_user_keytab, params.smoke_user_princ, uri, params.kinit_path_local, params.smoke_user,
                               self.AMS_CONNECT_TIMEOUT, method, metric_json, header, tries = self.AMS_CONNECT_TRIES)
@@ -125,14 +124,14 @@ class AMSServiceCheck(Script):
           )
           conn.request("GET", self.AMS_METRICS_GET_URL % encoded_get_metrics_parameters)
           response = conn.getresponse()
-          Logger.info("Http response for host %s : %s %s" % (metric_collector_host, response.status, response.reason))
+          Logger.info(f"Http response for host {metric_collector_host} : {response.status} {response.reason}")
 
           data = response.read()
-          Logger.info("Http data: %s" % data)
+          Logger.info(f"Http data: {data}")
           conn.close()
 
           if response.status == 200:
-            Logger.info("Metrics were retrieved from host %s" % metric_collector_host)
+            Logger.info(f"Metrics were retrieved from host {metric_collector_host}")
           else:
             raise Fail("Metrics were not retrieved from host %s. GET request status: %s %s \n%s" %
                        (metric_collector_host, response.status, response.reason, data))
@@ -146,7 +145,7 @@ class AMSServiceCheck(Script):
             if (str(current_time) in metrics_data["metrics"] and str(current_time + 1000) in metrics_data["metrics"]
                 and floats_eq(metrics_data["metrics"][str(current_time)], random_value1, 0.0000001)
                 and floats_eq(metrics_data["metrics"][str(current_time + 1000)], current_time, 1)):
-              Logger.info("Values %s and %s were found in the response from host %s." % (metric_collector_host, random_value1, current_time))
+              Logger.info(f"Values {metric_collector_host} and {random_value1} were found in the response from host {current_time}.")
               values_are_present = True
               break
               pass
@@ -157,13 +156,13 @@ class AMSServiceCheck(Script):
                           % (self.AMS_READ_TIMEOUT))
               time.sleep(self.AMS_READ_TIMEOUT)
             else:
-              raise Fail("Values %s and %s were not found in the response." % (random_value1, current_time))
+              raise Fail(f"Values {random_value1} and {current_time} were not found in the response.")
           else:
             break
             pass
     except Fail as ex:
-      Logger.warning("Ambari Metrics service check failed on collector host %s. Reason : %s" % (metric_collector_host, str(ex)))
-      raise Fail("Ambari Metrics service check failed on collector host %s. Reason : %s" % (metric_collector_host, str(ex)))
+      Logger.warning(f"Ambari Metrics service check failed on collector host {metric_collector_host}. Reason : {str(ex)}")
+      raise Fail(f"Ambari Metrics service check failed on collector host {metric_collector_host}. Reason : {str(ex)}")
 
   @OsFamilyFuncImpl(os_family=OsFamilyImpl.DEFAULT)
   def service_check(self, env):
@@ -194,11 +193,11 @@ def is_spnego_enabled(params):
 def call_curl_krb_request(tmp_dir, user_keytab, user_princ, uri, kinit_path, user,
                           connection_timeout, method='GET', metric_json='', header='', tries = 1, current_time = 0, random_value = 0):
   if method == 'POST':
-    Logger.info("Generated metrics for %s:\n%s" % (uri, metric_json))
+    Logger.info(f"Generated metrics for {uri}:\n{metric_json}")
 
   for i in range(0, tries):
     try:
-      Logger.info("Connecting (%s) to %s" % (method, uri));
+      Logger.info(f"Connecting ({method}) to {uri}");
 
       response = None
       errmsg = None
@@ -215,16 +214,16 @@ def call_curl_krb_request(tmp_dir, user_keytab, user_princ, uri, kinit_path, use
                     % (uri, connection_timeout))
         continue
       else:
-        raise Fail("Unable to {0} metrics on: {1}. Exception: {2}".format(method, uri, str(exception)))
+        raise Fail(f"Unable to {method} metrics on: {uri}. Exception: {str(exception)}")
     finally:
       if not response:
-        Logger.error("Unable to {0} metrics on: {1}.  Error: {2}".format(method, uri, errmsg))
+        Logger.error(f"Unable to {method} metrics on: {uri}.  Error: {errmsg}")
       else:
-        Logger.info("%s response from %s: %s, errmsg: %s" % (method, uri, response, errmsg));
+        Logger.info(f"{method} response from {uri}: {response}, errmsg: {errmsg}");
         try:
           response.close()
         except:
-          Logger.debug("Unable to close {0} connection to {1}".format(method, uri))
+          Logger.debug(f"Unable to close {method} connection to {uri}")
 
     if method == 'GET':
       data_json = json.loads(response)
@@ -237,18 +236,17 @@ def call_curl_krb_request(tmp_dir, user_keytab, user_princ, uri, kinit_path, use
         if (str(current_time) in metrics_data["metrics"] and str(current_time + 1000) in metrics_data["metrics"]
             and floats_eq(metrics_data["metrics"][str(current_time)], random_value, 0.0000001)
             and floats_eq(metrics_data["metrics"][str(current_time + 1000)], current_time, 1)):
-          Logger.info("Values %s and %s were found in the response from %s." % (uri, random_value, current_time))
+          Logger.info(f"Values {uri} and {random_value} were found in the response from {current_time}.")
           values_are_present = True
           break
           pass
 
       if not values_are_present:
         if i < tries - 1:  #range/xrange returns items from start to end-1
-          Logger.info("Values weren't stored yet. Retrying in %s seconds."
-                      % (tries))
+          Logger.info(f"Values weren't stored yet. Retrying in {tries} seconds.")
           time.sleep(connection_timeout)
         else:
-          raise Fail("Values %s and %s were not found in the response." % (random_value, current_time))
+          raise Fail(f"Values {random_value} and {current_time} were not found in the response.")
       else:
         break
         pass
@@ -259,7 +257,7 @@ def post_metrics_to_collector(ams_metrics_post_url, metric_collector_host, metri
                               metric_json, headers, ca_certs, tries = 1, connect_timeout = 10):
   for i in range(0, tries):
     try:
-      Logger.info("Generated metrics for host %s :\n%s" % (metric_collector_host, metric_json))
+      Logger.info(f"Generated metrics for host {metric_collector_host} :\n{metric_json}")
 
       Logger.info("Connecting (POST) to %s:%s%s" % (metric_collector_host,
                                                     metric_collector_port,
@@ -274,7 +272,7 @@ def post_metrics_to_collector(ams_metrics_post_url, metric_collector_host, metri
       conn.request("POST", ams_metrics_post_url, metric_json, headers)
 
       response = conn.getresponse()
-      Logger.info("Http response for host %s: %s %s" % (metric_collector_host, response.status, response.reason))
+      Logger.info(f"Http response for host {metric_collector_host}: {response.status} {response.reason}")
     except (http.client.HTTPException, socket.error) as ex:
       if i < tries - 1:  #range/xrange returns items from start to end-1
         time.sleep(connect_timeout)
@@ -285,7 +283,7 @@ def post_metrics_to_collector(ams_metrics_post_url, metric_collector_host, metri
         raise Fail("Metrics were not saved. Connection failed.")
 
     data = response.read()
-    Logger.info("Http data: %s" % data)
+    Logger.info(f"Http data: {data}")
     conn.close()
 
     if response.status == 200:
@@ -295,8 +293,7 @@ def post_metrics_to_collector(ams_metrics_post_url, metric_collector_host, metri
       Logger.info("Metrics were not saved.")
       if i < tries - 1:  #range/xrange returns items from start to end-1
         time.sleep(tries)
-        Logger.info("Next retry in %s seconds."
-                    % (tries))
+        Logger.info(f"Next retry in {tries} seconds.")
       else:
         raise Fail("Metrics were not saved. POST request status: %s %s \n%s" %
                    (response.status, response.reason, data))

@@ -83,7 +83,7 @@ def validate_options(options):
 def populate_sso_provider_url(options, properties):
   if not options.sso_provider_url:
       provider_url = get_value_from_dictionary(properties, SSO_PROVIDER_URL, SSO_PROVIDER_URL_DEFAULT)
-      provider_url = get_validated_string_input("Provider URL ({0}): ".format(provider_url), provider_url, REGEX_URL,
+      provider_url = get_validated_string_input(f"Provider URL ({provider_url}): ", provider_url, REGEX_URL,
                                                 "Invalid provider URL", False)
   else:
     provider_url = options.sso_provider_url
@@ -108,7 +108,7 @@ def populate_sso_public_cert(options, properties):
 def populate_jwt_cookie_name(options, properties):
   if not options.sso_jwt_cookie_name and (not options.sso_provider_url or not options.sso_public_cert_file):
     cookie_name = get_value_from_dictionary(properties, JWT_COOKIE_NAME, JWT_COOKIE_NAME_DEFAULT)
-    cookie_name = get_validated_string_input("JWT Cookie name ({0}): ".format(cookie_name), cookie_name, REGEX_ANYTHING,
+    cookie_name = get_validated_string_input(f"JWT Cookie name ({cookie_name}): ", cookie_name, REGEX_ANYTHING,
                                          "Invalid cookie name", False)
   else:
     cookie_name = options.sso_jwt_cookie_name if options.sso_jwt_cookie_name else JWT_COOKIE_NAME_DEFAULT
@@ -119,7 +119,7 @@ def populate_jwt_cookie_name(options, properties):
 def populate_jwt_audiences(options, properties):
   if options.sso_jwt_audience_list is None and (not options.sso_provider_url or not options.sso_public_cert_file):
     audiences = get_value_from_dictionary(properties, JWT_AUDIENCES, JWT_AUDIENCES_DEFAULT)
-    audiences = get_validated_string_input("JWT audiences list (comma-separated), empty for any ({0}): ".format(audiences), audiences,
+    audiences = get_validated_string_input(f"JWT audiences list (comma-separated), empty for any ({audiences}): ", audiences,
                                         REGEX_ANYTHING, "Invalid value", False)
   else:
     audiences = options.sso_jwt_audience_list if options.sso_jwt_audience_list else JWT_AUDIENCES_DEFAULT
@@ -129,7 +129,7 @@ def populate_jwt_audiences(options, properties):
 def populate_ambari_requires_sso(options, properties):
   if options.sso_enabled_ambari is None:
     enabled = get_boolean_from_dictionary(properties, AMBARI_SSO_AUTH_ENABLED, False)
-    enabled = get_YN_input("Use SSO for Ambari [y/n] ({0})? ".format('y' if enabled else 'n'), enabled)
+    enabled = get_YN_input(f"Use SSO for Ambari [y/n] ({'y' if enabled else 'n'})? ", enabled)
   else:
     enabled = 'true' == options.sso_enabled_ambari
 
@@ -139,7 +139,7 @@ def populate_service_management(options, properties, ambari_properties, admin_lo
   if not options.sso_enabled_services:
     if not options.sso_manage_services:
       manage_services = get_boolean_from_dictionary(properties, SSO_MANAGE_SERVICES, False)
-      manage_services = get_YN_input("Manage SSO configurations for eligible services [y/n] ({0})? ".format('y' if manage_services else 'n'), manage_services)
+      manage_services = get_YN_input(f"Manage SSO configurations for eligible services [y/n] ({'y' if manage_services else 'n'})? ", manage_services)
     else:
       manage_services = 'true' == options.sso_manage_services
 
@@ -152,7 +152,7 @@ def populate_service_management(options, properties, ambari_properties, admin_lo
       enabled_services = get_value_from_dictionary(properties, SSO_ENABLED_SERVICES, "").upper().split(',')
 
       all = "*" in enabled_services
-      configure_for_all_services = get_YN_input(" Use SSO for all services [y/n] ({0})? ".format('y' if all else 'n'), all)
+      configure_for_all_services = get_YN_input(f" Use SSO for all services [y/n] ({'y' if all else 'n'})? ", all)
       if configure_for_all_services:
         services = WILDCARD_FOR_ALL_SERVICES
       else:
@@ -166,7 +166,7 @@ def populate_service_management(options, properties, ambari_properties, admin_lo
 
             for service in eligible_services:
               enabled = service.upper() in enabled_services
-              question = "   Use SSO for {0} [y/n] ({1})? ".format(service, 'y' if enabled else 'n')
+              question = f"   Use SSO for {service} [y/n] ({'y' if enabled else 'n'})? "
               if get_YN_input(question, enabled):
                 service_list.append(service)
 
@@ -253,7 +253,7 @@ def setup_sso(options):
           sso_status = "disabled"
       else:
         sso_status = "not configured"
-      sys.stdout.write("\nSSO is currently %s\n" % sso_status)
+      sys.stdout.write(f"\nSSO is currently {sso_status}\n")
 
       if sso_status == "enabled":
         enable_sso = not get_YN_input("Do you want to disable SSO authentication [y/n] (n)? ", False)

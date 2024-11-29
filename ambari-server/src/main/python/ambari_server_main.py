@@ -165,7 +165,7 @@ def generate_child_process_param_list(ambari_user, java_exe, class_path,
 
   command_base = SERVER_START_CMD_DEBUG if debug_start else SERVER_START_CMD
 
-  ulimit_cmd = "%s %s" % (ULIMIT_CMD, str(get_ulimit_open_files(properties)))
+  ulimit_cmd = f"{ULIMIT_CMD} {str(get_ulimit_open_files(properties))}"
   command = command_base.format(java_exe,
           ambari_provider_module_option,
           jvm_args,
@@ -189,7 +189,7 @@ def generate_child_process_param_list(ambari_user, java_exe, class_path,
                                                                                 sh_shell=locate_file('sh', '/bin'), command=command,
                                                                                 ambari_env_file=AMBARI_ENV_FILE)
   else:
-    cmd = "{ulimit_cmd} ; {command}".format(ulimit_cmd=ulimit_cmd, command=command)
+    cmd = f"{ulimit_cmd} ; {command}"
     
   param_list.append(cmd)
   return param_list

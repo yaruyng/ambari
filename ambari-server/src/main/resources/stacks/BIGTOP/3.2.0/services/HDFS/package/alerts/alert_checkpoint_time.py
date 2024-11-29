@@ -100,7 +100,7 @@ def execute(configurations={}, parameters={}, host_name=None):
 
   # hdfs-site is required
   if not HDFS_SITE_KEY in configurations:
-    return (RESULT_STATE_UNKNOWN, ['{0} is a required parameter for the script'.format(HDFS_SITE_KEY)])
+    return (RESULT_STATE_UNKNOWN, [f'{HDFS_SITE_KEY} is a required parameter for the script'])
 
   if NN_HTTP_POLICY_KEY in configurations:
     http_policy = configurations[NN_HTTP_POLICY_KEY]
@@ -165,12 +165,12 @@ def execute(configurations={}, parameters={}, host_name=None):
       uri = nn_address
       break
   if not uri:
-    return (RESULT_STATE_SKIPPED, ['NameNode on host {0} not found (namenode adresses = {1})'.format(host_name, ', '.join(nn_addresses))])
+    return (RESULT_STATE_SKIPPED, [f"NameNode on host {host_name} not found (namenode adresses = {', '.join(nn_addresses)})"])
 
   current_time = int(round(time.time() * 1000))
 
-  last_checkpoint_time_qry = "{0}://{1}/jmx?qry=Hadoop:service=NameNode,name=FSNamesystem".format(scheme,uri)
-  journal_transaction_info_qry = "{0}://{1}/jmx?qry=Hadoop:service=NameNode,name=NameNodeInfo".format(scheme,uri)
+  last_checkpoint_time_qry = f"{scheme}://{uri}/jmx?qry=Hadoop:service=NameNode,name=FSNamesystem"
+  journal_transaction_info_qry = f"{scheme}://{uri}/jmx?qry=Hadoop:service=NameNode,name=NameNodeInfo"
 
   # start out assuming an OK status
   label = None
@@ -221,10 +221,10 @@ def execute(configurations={}, parameters={}, host_name=None):
     # Either too many uncommitted transactions or missed check-pointing for
     # long time decided by the thresholds
     if is_checkpoint_txn_critical or (float(delta) / int(checkpoint_period)*100 >= int(percent_critical)):
-      logger.debug('Raising critical alert: transaction_difference = {0}, checkpoint_tx = {1}'.format(transaction_difference, checkpoint_tx))
+      logger.debug(f'Raising critical alert: transaction_difference = {transaction_difference}, checkpoint_tx = {checkpoint_tx}')
       result_code = 'CRITICAL'
     elif is_checkpoint_txn_warning or (float(delta) / int(checkpoint_period)*100 >= int(percent_warning)):
-      logger.debug('Raising warning alert: transaction_difference = {0}, checkpoint_tx = {1}'.format(transaction_difference, checkpoint_tx))
+      logger.debug(f'Raising warning alert: transaction_difference = {transaction_difference}, checkpoint_tx = {checkpoint_tx}')
       result_code = 'WARNING'
 
   except:

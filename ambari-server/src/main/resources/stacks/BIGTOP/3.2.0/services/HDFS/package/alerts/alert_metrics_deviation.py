@@ -169,7 +169,7 @@ def execute(configurations={}, parameters={}, host_name=None):
 
   # hdfs-site is required
   if not HDFS_SITE_KEY in configurations:
-    return (RESULT_STATE_UNKNOWN, ['{0} is a required parameter for the script'.format(HDFS_SITE_KEY)])
+    return (RESULT_STATE_UNKNOWN, [f'{HDFS_SITE_KEY} is a required parameter for the script'])
 
   if METRICS_COLLECTOR_VIP_HOST_KEY in configurations and METRICS_COLLECTOR_VIP_PORT_KEY in configurations:
     collector_host = configurations[METRICS_COLLECTOR_VIP_HOST_KEY].split(',')[0]
@@ -177,7 +177,7 @@ def execute(configurations={}, parameters={}, host_name=None):
   else:
     # ams-site/timeline.metrics.service.webapp.address is required
     if not METRICS_COLLECTOR_WEBAPP_ADDRESS_KEY in configurations:
-      return (RESULT_STATE_UNKNOWN, ['{0} is a required parameter for the script'.format(METRICS_COLLECTOR_WEBAPP_ADDRESS_KEY)])
+      return (RESULT_STATE_UNKNOWN, [f'{METRICS_COLLECTOR_WEBAPP_ADDRESS_KEY} is a required parameter for the script'])
     else:
       collector_webapp_address = configurations[METRICS_COLLECTOR_WEBAPP_ADDRESS_KEY].split(":")
       if valid_collector_webapp_address(collector_webapp_address):
@@ -190,7 +190,7 @@ def execute(configurations={}, parameters={}, host_name=None):
   namenode_service_rpc_address = None
   # hdfs-site is required
   if not HDFS_SITE_KEY in configurations:
-    return (RESULT_STATE_UNKNOWN, ['{0} is a required parameter for the script'.format(HDFS_SITE_KEY)])
+    return (RESULT_STATE_UNKNOWN, [f'{HDFS_SITE_KEY} is a required parameter for the script'])
 
   hdfs_site = configurations[HDFS_SITE_KEY]
 
@@ -201,7 +201,7 @@ def execute(configurations={}, parameters={}, host_name=None):
   if NAMESERVICE_KEY in configurations and app_id.lower() == 'namenode':
     # hdfs-site is required
     if not HDFS_SITE_KEY in configurations:
-      return (RESULT_STATE_UNKNOWN, ['{0} is a required parameter for the script'.format(HDFS_SITE_KEY)])
+      return (RESULT_STATE_UNKNOWN, [f'{HDFS_SITE_KEY} is a required parameter for the script'])
 
     if SMOKEUSER_KEY in configurations:
       smokeuser = configurations[SMOKEUSER_KEY]
@@ -238,7 +238,7 @@ def execute(configurations={}, parameters={}, host_name=None):
     # look for dfs.ha.namenodes.foo
     nn_unique_ids_key = 'dfs.ha.namenodes.' + name_service
     if not nn_unique_ids_key in hdfs_site:
-      return (RESULT_STATE_UNKNOWN, ['Unable to find unique NameNode alias key {0}'.format(nn_unique_ids_key)])
+      return (RESULT_STATE_UNKNOWN, [f'Unable to find unique NameNode alias key {nn_unique_ids_key}'])
 
     namenode_http_fragment = 'dfs.namenode.http-address.{0}.{1}'
     jmx_uri_fragment = "http://{0}/jmx?qry=Hadoop:service=NameNode,name=*"
@@ -282,7 +282,7 @@ def execute(configurations={}, parameters={}, host_name=None):
             active_namenodes.append(namenode)
 
             # Only check active NN
-            nn_service_rpc_address_key = 'dfs.namenode.servicerpc-address.{0}.{1}'.format(name_service, nn_unique_id)
+            nn_service_rpc_address_key = f'dfs.namenode.servicerpc-address.{name_service}.{nn_unique_id}'
             if nn_service_rpc_address_key in hdfs_site:
               namenode_service_rpc_address = hdfs_site[nn_service_rpc_address_key]
           pass
@@ -362,7 +362,7 @@ def execute(configurations={}, parameters={}, host_name=None):
     # Filter out points below min threshold
     metrics = [metric for metric in metrics if metric > (minimum_value_threshold * minimum_value_multiplier)]
     if len(metrics) < 2:
-      return (RESULT_STATE_OK, ['There were no data points above the minimum threshold of {0} seconds'.format(minimum_value_threshold)])
+      return (RESULT_STATE_OK, [f'There were no data points above the minimum threshold of {minimum_value_threshold} seconds'])
 
   mean_value = mean(metrics)
   stddev = sample_standard_deviation(metrics)
@@ -375,13 +375,13 @@ def execute(configurations={}, parameters={}, host_name=None):
 
   # log the AMS request
   if logger.isEnabledFor(logging.DEBUG):
-    logger.debug("""
-    AMS request parameters - {0}
-    AMS response - {1}
-    Mean - {2}
-    Standard deviation - {3}
-    Percentage standard deviation - {4}
-    """.format(encoded_get_metrics_parameters, data_json, mean_value, stddev, deviation_percent))
+    logger.debug(f"""
+    AMS request parameters - {encoded_get_metrics_parameters}
+    AMS response - {data_json}
+    Mean - {mean_value}
+    Standard deviation - {stddev}
+    Percentage standard deviation - {deviation_percent}
+    """)
 
   mean_value_localized = locale.format("%.0f", mean_value, grouping=True)
 

@@ -410,7 +410,7 @@ class DefaultStackAdvisor(StackAdvisor):
     index = 0
     for key in hostsComponentsMap.keys():
       index += 1
-      host_group_name = "host-group-{0}".format(index)
+      host_group_name = f"host-group-{index}"
       host_groups.append( { "name": host_group_name, "components": hostsComponentsMap[key] } )
       bindings.append( { "name": host_group_name, "hosts": [{ "fqdn": socket.getfqdn(key) }] } )
 
