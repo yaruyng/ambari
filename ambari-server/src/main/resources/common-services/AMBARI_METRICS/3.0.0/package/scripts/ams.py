@@ -136,7 +136,7 @@ def ams(name=None):
         target = compress_backslashes(glob.glob(os.path.expandvars(target))[0])
         if not os.path.exists(real_link):
           #TODO check the symlink destination too. Broken in Python 2.x on Windows.
-          Execute('cmd /c mklink "{0}" "{1}"'.format(real_link, target))
+          Execute(f'cmd /c mklink "{real_link}" "{target}"')
     pass
 
   elif name == 'monitor':
@@ -156,7 +156,7 @@ def ams(name=None):
       target = compress_backslashes(glob.glob(os.path.expandvars(target))[0])
       if not os.path.exists(real_link):
         #TODO check the symlink destination too. Broken in Python 2.x on Windows.
-        Execute('cmd /c mklink "{0}" "{1}"'.format(real_link, target))
+        Execute(f'cmd /c mklink "{real_link}" "{target}"')
 
     Directory(params.ams_monitor_conf_dir,
               owner=params.ams_user,

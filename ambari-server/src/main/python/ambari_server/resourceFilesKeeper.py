@@ -84,7 +84,7 @@ class ResourceFilesKeeper():
 
   def _update_resources_subdir_archive(self, subdir):
     archive_root = os.path.join(self.resources_dir, subdir)
-    self.dbg_out("Updating archive for {0} dir at {1}...".format(subdir, archive_root))
+    self.dbg_out(f"Updating archive for {subdir} dir at {archive_root}...")
 
     # update the directories so that the .hash is generated
     self.update_directory_archive(archive_root)
@@ -94,25 +94,25 @@ class ResourceFilesKeeper():
     Please see AMBARI-4481 for more details
     """
     # archive stacks
-    self.dbg_out("Updating archives for stack dirs at {0}...".format(self.stacks_root))
+    self.dbg_out(f"Updating archives for stack dirs at {self.stacks_root}...")
     valid_stacks = self.list_stacks(self.stacks_root)
-    self.dbg_out("Stacks: {0}".format(pprint.pformat(valid_stacks)))
+    self.dbg_out(f"Stacks: {pprint.pformat(valid_stacks)}")
     # Iterate over stack directories
     self._iter_update_directory_archive(valid_stacks)
 
     # archive common services
     common_services_root = os.path.join(self.resources_dir, self.COMMON_SERVICES_DIR)
-    self.dbg_out("Updating archives for common services dirs at {0}...".format(common_services_root))
+    self.dbg_out(f"Updating archives for common services dirs at {common_services_root}...")
     valid_common_services = self.list_common_services(common_services_root)
-    self.dbg_out("Common Services: {0}".format(pprint.pformat(valid_common_services)))
+    self.dbg_out(f"Common Services: {pprint.pformat(valid_common_services)}")
     # Iterate over common services directories
     self._iter_update_directory_archive(valid_common_services)
 
     # archive extensions
     extensions_root = os.path.join(self.resources_dir, self.EXTENSIONS_DIR)
-    self.dbg_out("Updating archives for extensions dirs at {0}...".format(extensions_root))
+    self.dbg_out(f"Updating archives for extensions dirs at {extensions_root}...")
     valid_extensions = self.list_extensions(extensions_root)
-    self.dbg_out("Extensions: {0}".format(pprint.pformat(valid_extensions)))
+    self.dbg_out(f"Extensions: {pprint.pformat(valid_extensions)}")
     # Iterate over extension directories
     self._iter_update_directory_archive(valid_extensions)
 
@@ -131,7 +131,7 @@ class ResourceFilesKeeper():
 
   def _list_metainfo_dirs(self, root_dir):
     valid_items = []  # Format: <stack_dir, ignore(True|False)>
-    glob_pattern = "{0}/*/*".format(root_dir)
+    glob_pattern = f"{root_dir}/*/*"
     dirs = glob.glob(glob_pattern)
     for directory in dirs:
       metainfo_file = os.path.join(directory, self.METAINFO_XML)
@@ -146,7 +146,7 @@ class ResourceFilesKeeper():
     try:
       return self._list_metainfo_dirs(root_dir)
     except Exception as err:
-      raise KeeperException("Can not list stacks: {0}".format(str(err)))
+      raise KeeperException(f"Can not list stacks: {str(err)}")
 
   def list_common_services(self, root_dir):
     """
@@ -155,7 +155,7 @@ class ResourceFilesKeeper():
     try:
       return self._list_metainfo_dirs(root_dir)
     except Exception as err:
-      raise KeeperException("Can not list common services: {0}".format(str(err)))
+      raise KeeperException(f"Can not list common services: {str(err)}")
 
   def list_extensions(self, root_dir):
     """
@@ -164,7 +164,7 @@ class ResourceFilesKeeper():
     try:
       return self._list_metainfo_dirs(root_dir)
     except Exception as err:
-      raise KeeperException("Can not list extensions: {0}".format(str(err)))
+      raise KeeperException(f"Can not list extensions: {str(err)}")
 
   def update_directory_archive(self, directory):
     """
@@ -185,7 +185,7 @@ class ResourceFilesKeeper():
         self.zip_directory(directory, skip_empty_directory)
       # Skip generation of .hash file is directory is empty
       if (skip_empty_directory and (not os.path.exists(directory) or not os.listdir(directory))):
-        self.dbg_out("Empty directory. Skipping generation of hash file for {0}".format(directory))
+        self.dbg_out(f"Empty directory. Skipping generation of hash file for {directory}")
       else:
         self.write_hash_sum(directory, cur_hash)
       pass
@@ -209,7 +209,7 @@ class ResourceFilesKeeper():
             file_list.append(full_path)
       file_list.sort()
       for path in file_list:
-        self.dbg_out("Counting hash of {0}".format(path))
+        self.dbg_out(f"Counting hash of {path}")
         with open(path, 'rb') as fh:
           while True:
             data = fh.read(self.BUFFER)
@@ -218,8 +218,7 @@ class ResourceFilesKeeper():
             sha1.update(data)
       return sha1.hexdigest()
     except Exception as err:
-      raise KeeperException("Can not calculate directory "
-                            "hash: {0}".format(str(err)))
+      raise KeeperException(f"Can not calculate directory hash: {str(err)}")
 
 
   def read_hash_sum(self, directory):
@@ -233,8 +232,7 @@ class ResourceFilesKeeper():
         with open(hash_file) as fh:
           return fh.readline().strip()
       except Exception as err:
-        raise KeeperException("Can not read file {0} : {1}".format(hash_file,
-                                                                   str(err)))
+        raise KeeperException(f"Can not read file {hash_file} : {str(err)}")
     else:
       return None
 
@@ -250,19 +248,18 @@ class ResourceFilesKeeper():
         fh.write(new_hash)
       os.chmod(hash_file, 0o644)
     except Exception as err:
-      raise KeeperException("Can not write to file {0} : {1}".format(hash_file,
-                                                                   str(err)))
+      raise KeeperException(f"Can not write to file {hash_file} : {str(err)}")
 
   def zip_directory(self, directory, skip_if_empty = False):
     """
     Packs entire directory into zip file. Hash file is also packaged
     into archive
     """
-    self.dbg_out("creating archive for directory {0}".format(directory))
+    self.dbg_out(f"creating archive for directory {directory}")
     try:
       if skip_if_empty:
         if not os.path.exists(directory) or not os.listdir(directory):
-          self.dbg_out("Empty directory. Skipping archive creation for {0}".format(directory))
+          self.dbg_out(f"Empty directory. Skipping archive creation for {directory}")
           return
 
       zip_file_path = os.path.join(directory, self.ARCHIVE_NAME)
@@ -274,8 +271,7 @@ class ResourceFilesKeeper():
           if not self.is_ignored(filename):
             absname = os.path.abspath(os.path.join(root, filename))
             arcname = absname[len(abs_src) + 1:]
-            self.dbg_out('zipping %s as %s' % (os.path.join(root, filename),
-                                        arcname))
+            self.dbg_out(f'zipping {os.path.join(root, filename)} as {arcname}')
             zf.write(absname, arcname)
       zf.close()
       os.chmod(zip_file_path, 0o755)
@@ -294,7 +290,7 @@ class ResourceFilesKeeper():
 
   def dbg_out(self, text):
     if self.DEBUG:
-      sys.stderr.write("{0}\n".format(text))
+      sys.stderr.write(f"{text}\n")
     if not self.DEBUG and self.verbose:
       print(text)
 

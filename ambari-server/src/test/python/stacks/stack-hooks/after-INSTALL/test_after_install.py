@@ -73,7 +73,7 @@ class TestHookAfterInstall(RMFTestCase):
   def test_hook_default_conf_select(self, rmtree_mock, symlink_mock, conf_select_select_mock, conf_select_create_mock):
 
     def mocked_conf_select(arg1, arg2, arg3, dry_run = False):
-      return "/etc/{0}/{1}/0".format(arg2, arg3)
+      return f"/etc/{arg2}/{arg3}/0"
 
     conf_select_create_mock.side_effect = mocked_conf_select
 
@@ -140,7 +140,7 @@ class TestHookAfterInstall(RMFTestCase):
           raise Exception("whoops")
         else:
           return None
-      return "/etc/{0}/{1}/0".format(arg2, arg3)
+      return f"/etc/{arg2}/{arg3}/0"
 
     conf_select_create_mock.side_effect = mocked_conf_select
     conf_select_select_mock.side_effect = mocked_conf_select
@@ -213,7 +213,7 @@ class TestHookAfterInstall(RMFTestCase):
     """
 
     def mocked_conf_select(arg1, arg2, arg3, dry_run = False):
-      return "/etc/{0}/{1}/0".format(arg2, arg3)
+      return f"/etc/{arg2}/{arg3}/0"
 
     conf_select_create_mock.side_effect = mocked_conf_select
 
@@ -244,7 +244,7 @@ class TestHookAfterInstall(RMFTestCase):
   def test_hook_default_conf_select_suspended(self, rmtree_mock, symlink_mock, conf_select_select_mock, conf_select_create_mock):
 
     def mocked_conf_select(arg1, arg2, arg3, dry_run = False):
-      return "/etc/{0}/{1}/0".format(arg2, arg3)
+      return f"/etc/{arg2}/{arg3}/0"
 
     conf_select_create_mock.side_effect = mocked_conf_select
 
@@ -310,7 +310,7 @@ class TestHookAfterInstall(RMFTestCase):
     """
 
     def mocked_conf_select(arg1, arg2, arg3, dry_run = False):
-      return "/etc/{0}/{1}/0".format(arg2, arg3)
+      return f"/etc/{arg2}/{arg3}/0"
 
     conf_select_create_mock.side_effect = mocked_conf_select
 

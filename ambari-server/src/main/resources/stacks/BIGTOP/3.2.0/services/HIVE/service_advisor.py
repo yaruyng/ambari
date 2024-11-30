@@ -537,7 +537,7 @@ class HiveRecommender(service_advisor.ServiceAdvisor):
             metadata_port =  services["configurations"]["application-properties"]["properties"]["atlas.server.https.port"]
           else:
             metadata_port = atlas_server_default_https_port
-      putHiveSiteProperty("atlas.rest.address", "{0}://{1}:{2}".format(scheme, atlas_rest_host, metadata_port))
+      putHiveSiteProperty("atlas.rest.address", f"{scheme}://{atlas_rest_host}:{metadata_port}")
     else:
       putHiveSitePropertyAttribute("atlas.cluster.name", "delete", "true")
       putHiveSitePropertyAttribute("atlas.rest.address", "delete", "true")
@@ -561,7 +561,7 @@ class HiveRecommender(service_advisor.ServiceAdvisor):
 
           if hive_tez_default_queue:
             putHiveInteractiveSiteProperty("hive.server2.tez.default.queues", hive_tez_default_queue)
-            self.logger.debug("Updated 'hive.server2.tez.default.queues' config : '{0}'".format(hive_tez_default_queue))
+            self.logger.debug(f"Updated 'hive.server2.tez.default.queues' config : '{hive_tez_default_queue}'")
     else:
       self.logger.info("DBG: Setting 'num_llap_nodes' config's  READ ONLY attribute as 'True'.")
       putHiveInteractiveEnvProperty("enable_hive_interactive", "false")
@@ -617,7 +617,7 @@ class HiveRecommender(service_advisor.ServiceAdvisor):
     if hosts and config_type in services['configurations']:
       host = hosts[0]['Hosts']['host_name']
       port = services['configurations'][config_type]['properties']['druid.port']
-      return "%s:%s" % (host, port)
+      return f"{host}:{port}"
     else:
       return default_host
 
@@ -649,9 +649,9 @@ class HiveRecommender(service_advisor.ServiceAdvisor):
                           "count(configurations['capacity-scheduler']['properties']['capacity-scheduler']) = "
                           "{0}".format(len(capacity_scheduler_properties)))
             else:
-              self.logger.info("Read configurations['capacity-scheduler']['properties']['capacity-scheduler'] is : {0}".format(cap_sched_props_as_str))
+              self.logger.info(f"Read configurations['capacity-scheduler']['properties']['capacity-scheduler'] is : {cap_sched_props_as_str}")
           else:
-            self.logger.info("configurations['capacity-scheduler']['properties']['capacity-scheduler'] : {0}.".format(cap_sched_props_as_str))
+            self.logger.info(f"configurations['capacity-scheduler']['properties']['capacity-scheduler'] : {cap_sched_props_as_str}.")
 
         # if "capacity_scheduler_properties" is empty, implies we may have "capacity-scheduler" configs as dictionary
         # in configurations, if "capacity-scheduler" changed in current invocation.
@@ -660,7 +660,7 @@ class HiveRecommender(service_advisor.ServiceAdvisor):
             capacity_scheduler_properties = cap_sched_props_as_dict
             self.logger.info("'capacity-scheduler' changed in current Stack Advisor invocation. Retrieved the configs as dictionary from configurations.")
           else:
-            self.logger.info("Read configurations['capacity-scheduler']['properties'] is : {0}".format(cap_sched_props_as_dict))
+            self.logger.info(f"Read configurations['capacity-scheduler']['properties'] is : {cap_sched_props_as_dict}")
     else:
       self.logger.info("'capacity-scheduler' not modified in the current Stack Advisor invocation.")
 
@@ -677,7 +677,7 @@ class HiveRecommender(service_advisor.ServiceAdvisor):
       leafQueues = [{"label": str(queueName), "value": queueName} for queueName in leafQueueNames]
       leafQueues = sorted(leafQueues, key=lambda q: q["value"])
       putHiveInteractiveSitePropertyAttribute("hive.llap.daemon.queue.name", "entries", leafQueues)
-      self.logger.info("'hive.llap.daemon.queue.name' config Property Attributes set to : {0}".format(leafQueues))
+      self.logger.info(f"'hive.llap.daemon.queue.name' config Property Attributes set to : {leafQueues}")
     else:
       self.logger.error("Problem retrieving YARN queues. Skipping updating HIVE Server Interactve "
                    "'hive.server2.tez.default.queues' property attributes.")
@@ -998,7 +998,7 @@ class HiveValidator(service_advisor.ServiceAdvisor):
             validationItems.append({"config-name": "hive.server2.tez.sessions.per.default.queue","item": self.getWarnItem(errMsg3)})
       
       if int(hsi_site["hive.llap.io.memory.size"]) > int(hsi_site["hive.llap.daemon.yarn.container.mb"]):
-        errorMessage = "In-Memory Cache per Daemon (value: {0}) may not be more then Memory per Daemon (value: {1})".format(hsi_site["hive.llap.io.memory.size"], hsi_site["hive.llap.daemon.yarn.container.mb"])
+        errorMessage = f"In-Memory Cache per Daemon (value: {hsi_site['hive.llap.io.memory.size']}) may not be more then Memory per Daemon (value: {hsi_site['hive.llap.daemon.yarn.container.mb']})"
         validationItems.append({"config-name": "hive.llap.io.memory.size","item": self.getErrorItem(errorMessage)})
       
     # Validate that "remaining available capacity" in cluster is at least 512 MB, after "llap" queue is selected,
@@ -1039,7 +1039,7 @@ class HiveValidator(service_advisor.ServiceAdvisor):
       yarn_nm_mem_in_mb = float(yarn_site["yarn.nodemanager.resource.memory-mb"])
 
     if yarn_nm_mem_in_mb <= 0.0:
-      self.logger.warning("'yarn.nodemanager.resource.memory-mb' current value : {0}. Expected value : > 0".format(yarn_nm_mem_in_mb))
+      self.logger.warning(f"'yarn.nodemanager.resource.memory-mb' current value : {yarn_nm_mem_in_mb}. Expected value : > 0")
 
     return yarn_nm_mem_in_mb
 
@@ -1085,10 +1085,10 @@ class HiveValidator(service_advisor.ServiceAdvisor):
     for key in cap_sched_keys:
       if key.endswith("."+llap_daemon_selected_queue_name+".maximum-am-resource-percent"):
         llap_selected_queue_am_percent_key = key
-        self.logger.info("AM percent key got for '{0}' queue is : '{1}'".format(llap_daemon_selected_queue_name, llap_selected_queue_am_percent_key))
+        self.logger.info(f"AM percent key got for '{llap_daemon_selected_queue_name}' queue is : '{llap_selected_queue_am_percent_key}'")
         break;
     if llap_selected_queue_am_percent_key is None:
-      self.logger.info("Returning default AM percent value : '0.1' for queue : {0}".format(llap_daemon_selected_queue_name))
+      self.logger.info(f"Returning default AM percent value : '0.1' for queue : {llap_daemon_selected_queue_name}")
       return 0.1 # Default value to use if we couldn't retrieve queue's corresponding AM Percent key.
     else:
       llap_selected_queue_am_percent = capacity_scheduler_properties.get(llap_selected_queue_am_percent_key)
@@ -1101,7 +1101,7 @@ class HiveValidator(service_advisor.ServiceAdvisor):
     """
     Calculates the total available capacity for the passed-in YARN queue of any level based on the percentages.
     """
-    self.logger.info("Entered __getSelectedQueueTotalCap fn() with llap_daemon_selected_queue_name= '{0}'.".format(llap_daemon_selected_queue_name))
+    self.logger.info(f"Entered __getSelectedQueueTotalCap fn() with llap_daemon_selected_queue_name= '{llap_daemon_selected_queue_name}'.")
     available_capacity = total_cluster_capacity
     queue_cap_key = self.__getQueueCapacityKeyFromCapacityScheduler(capacity_scheduler_properties, llap_daemon_selected_queue_name)
     if queue_cap_key:
@@ -1111,13 +1111,13 @@ class HiveValidator(service_advisor.ServiceAdvisor):
         queue_path = queue_cap_key[24:]  # Strip from beginning "yarn.scheduler.capacity."
         queue_path = queue_path[0:-9]  # Strip from end ".capacity"
         queues_list = queue_path.split(".")
-        self.logger.info("Queue list : {0}".format(queues_list))
+        self.logger.info(f"Queue list : {queues_list}")
         if queues_list:
           for queue in queues_list:
             queue_cap_key = self.__getQueueCapacityKeyFromCapacityScheduler(capacity_scheduler_properties, queue)
             queue_cap_perc = float(capacity_scheduler_properties.get(queue_cap_key))
             available_capacity = queue_cap_perc / 100 * available_capacity
-            self.logger.info("Total capacity available for queue {0} is : {1}".format(queue, available_capacity))
+            self.logger.info(f"Total capacity available for queue {queue} is : {available_capacity}")
 
     # returns the capacity calculated for passed-in queue in "llap_daemon_selected_queue_name".
     return available_capacity
@@ -1170,15 +1170,15 @@ class HiveValidator(service_advisor.ServiceAdvisor):
     # Check if services["changed-configurations"] is empty and "yarn.scheduler.minimum-allocation-mb" is modified in current ST invocation.
     if not services["changed-configurations"] and yarn_site and yarn_min_allocation_property in yarn_site:
       yarn_min_container_size = yarn_site[yarn_min_allocation_property]
-      self.logger.info("DBG: 'yarn.scheduler.minimum-allocation-mb' read from output as : {0}".format(yarn_min_container_size))
+      self.logger.info(f"DBG: 'yarn.scheduler.minimum-allocation-mb' read from output as : {yarn_min_container_size}")
 
     # Check if "yarn.scheduler.minimum-allocation-mb" is input in services array.
     elif yarn_site_properties and yarn_min_allocation_property in yarn_site_properties:
       yarn_min_container_size = yarn_site_properties[yarn_min_allocation_property]
-      self.logger.info("DBG: 'yarn.scheduler.minimum-allocation-mb' read from services as : {0}".format(yarn_min_container_size))
+      self.logger.info(f"DBG: 'yarn.scheduler.minimum-allocation-mb' read from services as : {yarn_min_container_size}")
 
     if not yarn_min_container_size:
-      self.logger.error("{0} was not found in the configuration".format(yarn_min_allocation_property))
+      self.logger.error(f"{yarn_min_allocation_property} was not found in the configuration")
 
     return yarn_min_container_size
 
@@ -1219,10 +1219,10 @@ class HiveValidator(service_advisor.ServiceAdvisor):
       elif total_cluster_capacity > 98304:
         calculated_tez_am_resource_memory_mb = 4096
 
-      self.logger.info("DBG: Calculated and returning 'tez_am_resource_memory_mb' as : {0}".format(calculated_tez_am_resource_memory_mb))
+      self.logger.info(f"DBG: Calculated and returning 'tez_am_resource_memory_mb' as : {calculated_tez_am_resource_memory_mb}")
       return float(calculated_tez_am_resource_memory_mb)
     else:
-      self.logger.info("DBG: Returning 'tez_am_resource_memory_mb' as : {0}".format(tez_am_resource_memory_mb))
+      self.logger.info(f"DBG: Returning 'tez_am_resource_memory_mb' as : {tez_am_resource_memory_mb}")
       return float(tez_am_resource_memory_mb)
 
   def get_tez_am_resource_memory_mb(self, services):

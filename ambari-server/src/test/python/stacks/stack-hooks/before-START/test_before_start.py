@@ -286,7 +286,7 @@ class TestHookBeforeStart(RMFTestCase):
     self.assertNoMoreResources()
 
   def test_hook_refresh_topology_custom_directories(self):
-    config_file = "{0}/test/python/stacks/configs/default.json".format(self.get_src_folder())
+    config_file = f"{self.get_src_folder()}/test/python/stacks/configs/default.json"
     with open(config_file, "r") as f:
       default_json = json.load(f)
 

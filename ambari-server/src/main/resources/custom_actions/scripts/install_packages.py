@@ -103,11 +103,11 @@ class InstallPackages(Script):
             self.repository_version))
       else:
         Logger.info(
-          "Will install packages for repository version {0}".format(self.repository_version))
+          f"Will install packages for repository version {self.repository_version}")
         new_repo_files = Script.repository_util.create_repo_files()
         self.repo_files.update(new_repo_files)
     except Exception as err:
-      Logger.logger.exception("Cannot install repository files. Error: {0}".format(str(err)))
+      Logger.logger.exception(f"Cannot install repository files. Error: {str(err)}")
       num_errors += 1
 
     # Build structured output with initial values
@@ -143,13 +143,13 @@ class InstallPackages(Script):
         num_errors += 1
     except Exception as err:
       num_errors += 1
-      Logger.logger.exception("Could not install packages. Error: {0}".format(str(err)))
+      Logger.logger.exception(f"Could not install packages. Error: {str(err)}")
 
     try:
       lzo_utils.install_lzo_if_needed()
     except Exception as err:
       num_errors += 1
-      Logger.logger.exception("Could not install LZO packages. Error: {0}".format(str(err)))
+      Logger.logger.exception(f"Could not install LZO packages. Error: {str(err)}")
 
     # Provide correct exit code
     if num_errors > 0:
@@ -186,11 +186,11 @@ class InstallPackages(Script):
     if 0 == len(restricted_packages):
       Logger.info("There are no restricted conf-select packages for this installation")
     else:
-      Logger.info("Restricting conf-select packages to {0}".format(restricted_packages))
+      Logger.info(f"Restricting conf-select packages to {restricted_packages}")
 
     for package_name, directories in conf_select.get_package_dirs().items():
-      Logger.info("Attempting to fix the default conf links for {0}".format(package_name))
-      Logger.info("The following directories will be fixed for {0}: {1}".format(package_name, str(directories)))
+      Logger.info(f"Attempting to fix the default conf links for {package_name}")
+      Logger.info(f"The following directories will be fixed for {package_name}: {str(directories)}")
 
       component_name = None
       for directory_struct in directories:
@@ -200,7 +200,7 @@ class InstallPackages(Script):
       if component_name:
         stack_version = stack_select.get_stack_version_before_install(component_name)
       else:
-        Logger.warning("Unable to fix {0} since stack using outdated stack_packages.json".format(package_name))
+        Logger.warning(f"Unable to fix {package_name} since stack using outdated stack_packages.json")
         return
 
       if 0 == len(restricted_packages) or package_name in restricted_packages:
@@ -208,7 +208,7 @@ class InstallPackages(Script):
           conf_select.convert_conf_directories_to_symlinks(package_name, stack_version, directories)
         else:
           Logger.warning(
-            "Unable to fix {0} since there is no known installed version for this component".format(package_name))
+            f"Unable to fix {package_name} since there is no known installed version for this component")
 
   def _relink_configurations_with_conf_select(self, stack_id, stack_version):
     """
@@ -224,12 +224,12 @@ class InstallPackages(Script):
 
     args = stack_id.upper().split('-')
     if len(args) != 2:
-      Logger.info("Unrecognized stack id {0}, cannot create config links".format(stack_id))
+      Logger.info(f"Unrecognized stack id {stack_id}, cannot create config links")
       return
 
     target_stack_version = args[1]
     if not (target_stack_version and check_stack_feature(StackFeature.CONFIG_VERSIONING, target_stack_version)):
-      Logger.info("Configuration symlinks are not needed for {0}".format(stack_version))
+      Logger.info(f"Configuration symlinks are not needed for {stack_version}")
       return
 
     # After upgrading hdf-select package from HDF-2.X to HDF-3.Y, we need to create this symlink
@@ -242,7 +242,7 @@ class InstallPackages(Script):
     if 0 == len(restricted_packages):
       Logger.info("There are no restricted conf-select packages for this installation")
     else:
-      Logger.info("Restricting conf-select packages to {0}".format(restricted_packages))
+      Logger.info(f"Restricting conf-select packages to {restricted_packages}")
 
     for package_name, directories in conf_select.get_package_dirs().items():
       if 0 == len(restricted_packages) or package_name in restricted_packages:
@@ -267,13 +267,13 @@ class InstallPackages(Script):
         self.put_structured_out(self.structured_output)
 
     Logger.info("Attempting to determine actual version with build number.")
-    Logger.info("Old versions: {0}".format(self.old_versions))
+    Logger.info(f"Old versions: {self.old_versions}")
 
     new_versions = get_stack_versions(self.stack_root_folder)
-    Logger.info("New versions: {0}".format(new_versions))
+    Logger.info(f"New versions: {new_versions}")
 
     deltas = set(new_versions) - set(self.old_versions)
-    Logger.info("Deltas: {0}".format(deltas))
+    Logger.info(f"Deltas: {deltas}")
 
     # Get version without build number
     normalized_repo_version = self.repository_version.split('-')[0]
@@ -297,7 +297,7 @@ class InstallPackages(Script):
         self.actual_version = self.actual_version.strip()
         self.structured_output['actual_version'] = self.actual_version
         self.put_structured_out(self.structured_output)
-        Logger.info("Found actual version {0} by searching for best possible match".format(self.actual_version))
+        Logger.info(f"Found actual version {self.actual_version} by searching for best possible match")
       else:
         msg = "Could not determine actual version installed. Try reinstalling packages again."
         raise Fail(msg)
@@ -309,13 +309,13 @@ class InstallPackages(Script):
     :return:
     """
     Logger.info("Installation of packages failed. Checking if installation was partially complete")
-    Logger.info("Old versions: {0}".format(self.old_versions))
+    Logger.info(f"Old versions: {self.old_versions}")
 
     new_versions = get_stack_versions(self.stack_root_folder)
-    Logger.info("New versions: {0}".format(new_versions))
+    Logger.info(f"New versions: {new_versions}")
 
     deltas = set(new_versions) - set(self.old_versions)
-    Logger.info("Deltas: {0}".format(deltas))
+    Logger.info(f"Deltas: {deltas}")
 
     # Get version without build number
     normalized_repo_version = self.repository_version.split('-')[0]
@@ -324,7 +324,7 @@ class InstallPackages(Script):
       # Some packages were installed successfully. Log this version to REPO_VERSION_HISTORY_FILE
       partial_install_version = next(iter(deltas)).strip()
       write_actual_version_to_history_file(normalized_repo_version, partial_install_version)
-      Logger.info("Version {0} was partially installed. ".format(partial_install_version))
+      Logger.info(f"Version {partial_install_version} was partially installed. ")
 
   def find_best_fit_version(self, versions, repo_version):
     """
@@ -343,7 +343,7 @@ class InstallPackages(Script):
     build_num_match = re.search("[\d\.]+-\d+", repo_version)
     if build_num_match and repo_version in versions:
       # If repo version has build number and is found in the list of versions, return it as the matching version
-      Logger.info("Best Fit Version: Resolved from repo version with valid build number: {0}".format(repo_version))
+      Logger.info(f"Best Fit Version: Resolved from repo version with valid build number: {repo_version}")
       return repo_version
 
     # Get version without build number
@@ -355,7 +355,7 @@ class InstallPackages(Script):
 
       if len(match_versions) == 1:
         # Resolved without conflicts
-        Logger.info("Best Fit Version: Resolved from normalized repo version without conflicts: {0}".format(match_versions[0]))
+        Logger.info(f"Best Fit Version: Resolved from normalized repo version without conflicts: {match_versions[0]}")
         return match_versions[0]
 
       # Resolve conflicts using REPO_VERSION_HISTORY_FILE
@@ -363,7 +363,7 @@ class InstallPackages(Script):
 
       # Validate history version retrieved is valid
       if history_version in match_versions:
-        Logger.info("Best Fit Version: Resolved from normalized repo version using {0}: {1}".format(REPO_VERSION_HISTORY_FILE, history_version))
+        Logger.info(f"Best Fit Version: Resolved from normalized repo version using {REPO_VERSION_HISTORY_FILE}: {history_version}")
         return history_version
 
     # No matching version
@@ -435,7 +435,7 @@ class InstallPackages(Script):
         self.repo_mgr.upgrade_package(name, installation_context)
     except Exception as err:
       ret_code = 1
-      Logger.logger.error("Package Manager failed to install packages: {0}".format(str(err)))
+      Logger.logger.error(f"Package Manager failed to install packages: {str(err)}")
 
       # Remove already installed packages in case of fail
       if packages_were_checked and packages_installed_before:
@@ -469,11 +469,11 @@ class InstallPackages(Script):
         self.check_partial_install()
     except Fail as err:
       ret_code = 1
-      Logger.logger.exception("Failure while computing actual version. Error: {0}".format(str(err)))
+      Logger.logger.exception(f"Failure while computing actual version. Error: {str(err)}")
     return ret_code
 
   def abort_handler(self, signum, frame):
-    Logger.error("Caught signal {0}, will handle it gracefully. Compute the actual version if possible before exiting.".format(signum))
+    Logger.error(f"Caught signal {signum}, will handle it gracefully. Compute the actual version if possible before exiting.")
     self.check_partial_install()
     
   def filter_package_list(self, package_list):

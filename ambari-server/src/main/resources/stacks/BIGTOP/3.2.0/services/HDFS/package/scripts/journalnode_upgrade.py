@@ -137,15 +137,15 @@ def ensure_jns_have_new_txn(nodelist, last_txn_id):
       if node in actual_txn_ids and actual_txn_ids[node] and actual_txn_ids[node] >= last_txn_id:
         continue
 
-      url = '%s://%s:%s' % (protocol, node, params.journalnode_port)
+      url = f'{protocol}://{node}:{params.journalnode_port}'
       data = utils.get_jmx_data(url, 'Journal-', 'LastWrittenTxId', params.https_only, params.security_enabled)
       if data:
         actual_txn_ids[node] = int(data)
         if actual_txn_ids[node] >= last_txn_id:
-          Logger.info("JournalNode %s has a higher transaction id: %s" % (node, str(data)))
+          Logger.info(f"JournalNode {node} has a higher transaction id: {str(data)}")
           jns_updated += 1
         else:
-          Logger.info("JournalNode %s is still on transaction id: %s" % (node, str(data)))
+          Logger.info(f"JournalNode {node} is still on transaction id: {str(data)}")
 
     Logger.info("Sleeping for %d secs" % step_time_secs)
     time.sleep(step_time_secs)

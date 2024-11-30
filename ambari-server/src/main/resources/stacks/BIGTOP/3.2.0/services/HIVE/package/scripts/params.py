@@ -160,8 +160,8 @@ hive_user_nproc_limit = default("/configurations/hive-env/hive_user_nproc_limit"
 # --- Tarballs ---
 # DON'T CHANGE THESE VARIABLE NAMES
 # Values don't change from those in copy_tarball.py
-hive_tar_source = "{0}/{1}/hive/hive.tar.gz".format(STACK_ROOT_PATTERN, STACK_VERSION_PATTERN)
-hive_tar_dest_file = "/{0}/apps/{1}/hive/hive.tar.gz".format(STACK_NAME_PATTERN,STACK_VERSION_PATTERN)
+hive_tar_source = f"{STACK_ROOT_PATTERN}/{STACK_VERSION_PATTERN}/hive/hive.tar.gz"
+hive_tar_dest_file = f"/{STACK_NAME_PATTERN}/apps/{STACK_VERSION_PATTERN}/hive/hive.tar.gz"
 
 tarballs_mode = 0o444
 

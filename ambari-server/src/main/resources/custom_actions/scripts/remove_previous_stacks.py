@@ -56,19 +56,19 @@ class RemovePreviousStacks(Script):
       Package(package, action="remove")
     self.remove_stack_folder(structured_output, version)
     structured_output["remove_previous_stacks"] = {"exit_code": 0,
-                                       "message": format("Stack version {0} successfully removed!".format(version))}
+                                       "message": format(f"Stack version {version} successfully removed!")}
     self.put_structured_out(structured_output)
 
   def remove_stack_folder(self, structured_output, version):
     if version and version != '' and stack_root and stack_root != '':
 
-      Logger.info("Removing {0}/{1}".format(stack_root, version))
+      Logger.info(f"Removing {stack_root}/{version}")
       try:
         Execute(('rm', '-f', stack_root + version),
                 sudo=True)
       finally:
         structured_output["remove_previous_stacks"] = {"exit_code": -1,
-                                           "message": "Failed to remove version {0}{1}".format(stack_root, version)}
+                                           "message": f"Failed to remove version {stack_root}{version}"}
         self.put_structured_out(structured_output)
 
   def get_packages_to_remove(self, version):
@@ -80,7 +80,7 @@ class RemovePreviousStacks(Script):
     for package in all_installed_packages:
       if formated_version in package and self.stack_tool_package not in package:
         packages.append(package)
-        Logger.info("%s added to remove" % (package))
+        Logger.info(f"{package} added to remove")
     return packages
 
   def check_no_symlink_to_version(self, structured_output, version):
@@ -91,17 +91,17 @@ class RemovePreviousStacks(Script):
                                            "message": "{0} contains symlink to version for remove! {1}".format(
                                              stack_root_current, version)}
         self.put_structured_out(structured_output)
-        raise Fail("{0} contains symlink to version for remove! {1}".format(stack_root_current, version))
+        raise Fail(f"{stack_root_current} contains symlink to version for remove! {version}")
 
   def get_lower_versions(self, current_version):
     versions = get_stack_versions(stack_root)
-    Logger.info("available versions: {0}".format(str(versions)))
+    Logger.info(f"available versions: {str(versions)}")
 
     lover_versions = []
     for version in versions:
       if self.compare(version, current_version) < 0 :
         lover_versions.append(version)
-        Logger.info("version %s added to remove" % (version))
+        Logger.info(f"version {version} added to remove")
     return lover_versions
 
   def compare(self, version1, version2):

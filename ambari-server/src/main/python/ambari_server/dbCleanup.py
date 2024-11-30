@@ -147,5 +147,5 @@ def validate_args(options):
   try:
     datetime.datetime.strptime(options.purge_from_date, "%Y-%m-%d")
   except ValueError as e:
-    print_error_msg("The --from-date argument has an invalid format. {0}".format(e.args[0]))
+    print_error_msg(f"The --from-date argument has an invalid format. {e.args[0]}")
     return 1

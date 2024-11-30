@@ -243,7 +243,7 @@ def execute(configurations={}, parameters={}, host_name=None):
 def shouldCheck(kinitcmd, smokeuser, host_name, webui_port, webui_use_ssl):
   """Should check node if: 1) non-HA setup or 2) active node in a HA setup"""
 
-  logger.debug("shouldCheck kinitcmd={}, smokeuser={}, host_name={}, webui_port={}, webui_use_ssl={}".format(kinitcmd, smokeuser, host_name, webui_port, webui_use_ssl))
+  logger.debug(f"shouldCheck kinitcmd={kinitcmd}, smokeuser={smokeuser}, host_name={host_name}, webui_port={webui_port}, webui_use_ssl={webui_use_ssl}")
 
   if (kinitcmd):
     # prevent concurrent kinit
@@ -255,10 +255,10 @@ def shouldCheck(kinitcmd, smokeuser, host_name, webui_port, webui_use_ssl):
       kinit_lock.release()
 
   protocol = "https" if webui_use_ssl else "http"
-  check_cmd = "curl -k {}://{}:{}/leader".format(protocol, host_name, webui_port)
-  logger.debug("cmd={}".format(check_cmd))
+  check_cmd = f"curl -k {protocol}://{host_name}:{webui_port}/leader"
+  logger.debug(f"cmd={check_cmd}")
   code, out, err = shell.call(check_cmd, stdout = subprocess.PIPE, stderr = subprocess.PIPE, quiet = True)
-  logger.debug("code={}, out={}, err={}".format(code, out, err))
+  logger.debug(f"code={code}, out={out}, err={err}")
   if (code != 0):
-    raise Exception("shouldCheck failed with exit code {}".format(code))
+    raise Exception(f"shouldCheck failed with exit code {code}")
   return out != 'false' # false means there is a HA setup and the server is in standby mode

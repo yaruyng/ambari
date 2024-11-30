@@ -258,7 +258,7 @@ class TestMpacks(TestCase):
     try:
       install_mpack(options)
     except FatalException as e:
-      self.assertEqual("Malformed management pack {0}. Metadata file missing!".format(options.mpack_path), e.reason)
+      self.assertEqual(f"Malformed management pack {options.mpack_path}. Metadata file missing!", e.reason)
       fail = True
     self.assertTrue(fail)
 

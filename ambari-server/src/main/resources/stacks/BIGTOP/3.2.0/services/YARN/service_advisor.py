@@ -351,12 +351,12 @@ class YARNRecommender(service_advisor.ServiceAdvisor):
     if "TEZ" in servicesList:
       ambari_user = self.getAmbariUser(services)
       ambariHostName = socket.getfqdn()
-      putYarnProperty("yarn.timeline-service.http-authentication.proxyuser.{0}.hosts".format(ambari_user), ambariHostName)
-      putYarnProperty("yarn.timeline-service.http-authentication.proxyuser.{0}.groups".format(ambari_user), "*")
+      putYarnProperty(f"yarn.timeline-service.http-authentication.proxyuser.{ambari_user}.hosts", ambariHostName)
+      putYarnProperty(f"yarn.timeline-service.http-authentication.proxyuser.{ambari_user}.groups", "*")
       old_ambari_user = self.getOldAmbariUser(services)
       if old_ambari_user is not None:
-        putYarnPropertyAttribute("yarn.timeline-service.http-authentication.proxyuser.{0}.hosts".format(old_ambari_user), 'delete', 'true')
-        putYarnPropertyAttribute("yarn.timeline-service.http-authentication.proxyuser.{0}.groups".format(old_ambari_user), 'delete', 'true')
+        putYarnPropertyAttribute(f"yarn.timeline-service.http-authentication.proxyuser.{old_ambari_user}.hosts", 'delete', 'true')
+        putYarnPropertyAttribute(f"yarn.timeline-service.http-authentication.proxyuser.{old_ambari_user}.groups", 'delete', 'true')
 
   def recommendYARNConfigurationsFromHDP22(self, configurations, clusterData, services, hosts):
     capacity_scheduler_properties, received_as_key_value_pair = self.getCapacitySchedulerProperties(services)
@@ -585,7 +585,7 @@ class YARNRecommender(service_advisor.ServiceAdvisor):
       # Calculation for 'ats_heapsize' is in MB.
       ats_heapsize = self.calculate_yarn_apptimelineserver_heapsize(host_mem, yarn_timeline_app_cache_size)
       putYarnEnvProperty('apptimelineserver_heapsize', ats_heapsize) # Value in MB
-      self.logger.info("Updated YARN config 'apptimelineserver_heapsize' as : {0}, ".format(ats_heapsize))
+      self.logger.info(f"Updated YARN config 'apptimelineserver_heapsize' as : {ats_heapsize}, ")
 
     restyps_list = []
     yn_cgrp_active = None
@@ -607,7 +607,7 @@ class YARNRecommender(service_advisor.ServiceAdvisor):
       "yarn.resource-types" in services["configurations"]["resource-types"]["properties"]:
       yarn_restyps = services["configurations"]["resource-types"]["properties"]["yarn.resource-types"]
       restyps_list = yarn_restyps.split(',') if len(yarn_restyps) > 1 else yarn_restyps.split()
-      self.logger.info("new what is yarn_restyps: '{0}'.".format(restyps_list))
+      self.logger.info(f"new what is yarn_restyps: '{restyps_list}'.")
 
     if "yarn-env" in services["configurations"] and \
                     "yarn_cgroups_enabled" in services["configurations"]["yarn-env"]["properties"]:
@@ -622,17 +622,17 @@ class YARNRecommender(service_advisor.ServiceAdvisor):
       if "docker_allowed_devices" in services["configurations"]["container-executor"]["properties"]:
         docker_allow_dev = services["configurations"]["container-executor"]["properties"]["docker_allowed_devices"]
         allow_dev_list = docker_allow_dev.split(',') if len(docker_allow_dev) > 1 else docker_allow_dev.split()
-        self.logger.info("new what is docker_allowed_devices: '{0}'.".format(allow_dev_list))
+        self.logger.info(f"new what is docker_allowed_devices: '{allow_dev_list}'.")
 
       if "docker_allowed_volume-drivers" in services["configurations"]["container-executor"]["properties"]:
         docker_allow_vol_drive = services["configurations"]["container-executor"]["properties"]["docker_allowed_volume-drivers"]
         allow_vol_drive_list = docker_allow_vol_drive.split(',') if len(docker_allow_vol_drive) > 1 else docker_allow_vol_drive.split()
-        self.logger.info("new what is docker_allowed_volume-drivers: '{0}'.".format(allow_vol_drive_list))
+        self.logger.info(f"new what is docker_allowed_volume-drivers: '{allow_vol_drive_list}'.")
 
       if "docker_allowed_ro-mounts" in services["configurations"]["container-executor"]["properties"]:
         docker_allow_romounts = services["configurations"]["container-executor"]["properties"]["docker_allowed_ro-mounts"]
         allow_romounts_list = docker_allow_romounts.split(',') if len(docker_allow_romounts) > 1 else docker_allow_romounts.split()
-        self.logger.info("new what is docker.allowed.ro-mounts: '{0}'.".format(allow_romounts_list))
+        self.logger.info(f"new what is docker.allowed.ro-mounts: '{allow_romounts_list}'.")
 
       if "cgroup_root" in services["configurations"]["container-executor"]["properties"]:
         cg_root = services["configurations"]["container-executor"]["properties"]["cgroup_root"]
@@ -646,7 +646,7 @@ class YARNRecommender(service_advisor.ServiceAdvisor):
       if "yarn.nodemanager.linux-container-executor.cgroups.hierarchy" in services["configurations"]["yarn-site"]["properties"]:
         lce_cgrp_hirch = services["configurations"]["yarn-site"]["properties"]["yarn.nodemanager.linux-container-executor.cgroups.hierarchy"]
         lce_cgrp_hirch_list = lce_cgrp_hirch.split(',') if len(lce_cgrp_hirch) > 1 else lce_cgrp_hirch.split()
-        self.logger.info("new what is yarn.nodemanager.linux-container-executor.cgroups.hierarchy: '{0}'.".format(lce_cgrp_hirch_list))
+        self.logger.info(f"new what is yarn.nodemanager.linux-container-executor.cgroups.hierarchy: '{lce_cgrp_hirch_list}'.")
 
       if "yarn.nodemanager.linux-container-executor.cgroups.mount" in services["configurations"]["yarn-site"]["properties"]:
         lce_cgrp_mt = services["configurations"]["yarn-site"]["properties"]["yarn.nodemanager.linux-container-executor.cgroups.mount"]
@@ -654,22 +654,22 @@ class YARNRecommender(service_advisor.ServiceAdvisor):
       if "yarn.nodemanager.linux-container-executor.cgroups.mount-path" in services["configurations"]["yarn-site"]["properties"]:
         lce_cgrp_mtp = services["configurations"]["yarn-site"]["properties"]["yarn.nodemanager.linux-container-executor.cgroups.mount-path"]
         lce_cgrp_mtp_list = lce_cgrp_mtp.split(',') if len(lce_cgrp_mtp) > 1 else lce_cgrp_mtp.split()
-        self.logger.info("new what is yarn.nodemanager.linux-container-executor.cgroups.mount-path: '{0}'.".format(lce_cgrp_mtp_list))
+        self.logger.info(f"new what is yarn.nodemanager.linux-container-executor.cgroups.mount-path: '{lce_cgrp_mtp_list}'.")
 
       if "yarn.nodemanager.resource-plugins.gpu.allowed-gpu-devices" in services["configurations"]["yarn-site"]["properties"]:
         rp_gpu_agd = services["configurations"]["yarn-site"]["properties"]["yarn.nodemanager.resource-plugins.gpu.allowed-gpu-devices"]
         rp_gpu_agd_list = rp_gpu_agd.split(',') if len(rp_gpu_agd) > 1 else rp_gpu_agd.split()
-        self.logger.info("new what is yarn.nodemanager.resource-plugins.gpu.allowed-gpu-devices: '{0}'.".format(rp_gpu_agd_list))
+        self.logger.info(f"new what is yarn.nodemanager.resource-plugins.gpu.allowed-gpu-devices: '{rp_gpu_agd_list}'.")
 
       if "yarn.nodemanager.resource-plugins.gpu.docker-plugin" in services["configurations"]["yarn-site"]["properties"]:
         rp_gpu_dp = services["configurations"]["yarn-site"]["properties"]["yarn.nodemanager.resource-plugins.gpu.docker-plugin"]
         rp_gpu_dp_list = rp_gpu_dp.split(',') if len(rp_gpu_dp) > 1 else rp_gpu_dp.split()
-        self.logger.info("new what is yarn.nodemanager.resource-plugins.gpu.docker-plugin: '{0}'.".format(rp_gpu_dp_list))
+        self.logger.info(f"new what is yarn.nodemanager.resource-plugins.gpu.docker-plugin: '{rp_gpu_dp_list}'.")
 
       if "yarn.nodemanager.resource-plugins.gpu.docker-plugin.nvidiadocker-v1.endpoint" in services["configurations"]["yarn-site"]["properties"]:
         rp_gpu_dp_nv1_ep = services["configurations"]["yarn-site"]["properties"]["yarn.nodemanager.resource-plugins.gpu.docker-plugin.nvidiadocker-v1.endpoint"]
         rp_gpu_dp_nv1_ep_list = rp_gpu_dp_nv1_ep.split(',') if len(rp_gpu_dp_nv1_ep) > 1 else rp_gpu_dp_nv1_ep.split()
-        self.logger.info("new what is yarn.nodemanager.resource-plugins.gpu.docker-plugin.nvidiadocker-v1.endpoint: '{0}'.".format(rp_gpu_dp_nv1_ep_list))
+        self.logger.info(f"new what is yarn.nodemanager.resource-plugins.gpu.docker-plugin.nvidiadocker-v1.endpoint: '{rp_gpu_dp_nv1_ep_list}'.")
 
     if gpu_module_enabled and gpu_module_enabled.lower() == 'true':
       # put yarn.io/gpu if it is absent in resource-types.xml
@@ -960,7 +960,7 @@ class YARNRecommender(service_advisor.ServiceAdvisor):
       yarn_timeline_app_cache_size = 7
     elif host_mem >= 8192:
       yarn_timeline_app_cache_size = 10
-    self.logger.info("Calculated and returning 'yarn_timeline_app_cache_size' : {0}".format(yarn_timeline_app_cache_size))
+    self.logger.info(f"Calculated and returning 'yarn_timeline_app_cache_size' : {yarn_timeline_app_cache_size}")
     return yarn_timeline_app_cache_size
 
 
@@ -978,10 +978,10 @@ class YARNRecommender(service_advisor.ServiceAdvisor):
 
     if yarn_site_in_services and yarn_ats_app_cache_size_config in yarn_site_in_services:
       yarn_ats_app_cache_size = yarn_site_in_services[yarn_ats_app_cache_size_config]
-      self.logger.info("'yarn.scheduler.minimum-allocation-mb' read from services as : {0}".format(yarn_ats_app_cache_size))
+      self.logger.info(f"'yarn.scheduler.minimum-allocation-mb' read from services as : {yarn_ats_app_cache_size}")
 
     if not yarn_ats_app_cache_size:
-      self.logger.error("'{0}' was not found in the services".format(yarn_ats_app_cache_size_config))
+      self.logger.error(f"'{yarn_ats_app_cache_size_config}' was not found in the services")
 
     return yarn_ats_app_cache_size
 
@@ -995,7 +995,7 @@ class YARNRecommender(service_advisor.ServiceAdvisor):
         new_address = re.sub('[^:]+', timeline_hosts[0], old_address, 1)
         if old_address != new_address:
           putYarnProperty(property_name, new_address)
-          self.logger.info('Updated YARN config {0} to {1}'.format(property_name, new_address))
+          self.logger.info(f'Updated YARN config {property_name} to {new_address}')
 
   #region LLAP
   def updateLlapConfigs(self, configurations, services, hosts, llap_queue_name):
@@ -1023,7 +1023,7 @@ class YARNRecommender(service_advisor.ServiceAdvisor):
     is_cluster_create_opr = False
     if operation == self.CLUSTER_CREATE_OPERATION:
       is_cluster_create_opr = True
-    self.logger.info("Is cluster create operation ? = {0}".format(is_cluster_create_opr))
+    self.logger.info(f"Is cluster create operation ? = {is_cluster_create_opr}")
 
     putHiveInteractiveSiteProperty = self.putProperty(configurations, YARNRecommender.HIVE_INTERACTIVE_SITE, services)
     putHiveInteractiveSitePropertyAttribute = self.putPropertyAttribute(configurations, YARNRecommender.HIVE_INTERACTIVE_SITE)
@@ -1061,7 +1061,7 @@ class YARNRecommender(service_advisor.ServiceAdvisor):
     if capacity_scheduler_properties:
       # Get all leaf queues.
       leafQueueNames = self.getAllYarnLeafQueues(capacity_scheduler_properties)
-      self.logger.info("YARN leaf Queues = {0}".format(leafQueueNames))
+      self.logger.info(f"YARN leaf Queues = {leafQueueNames}")
       if len(leafQueueNames) == 0:
         self.logger.error("Queue(s) couldn't be retrieved from capacity-scheduler.")
         return
@@ -1082,7 +1082,7 @@ class YARNRecommender(service_advisor.ServiceAdvisor):
           putHiveInteractiveSiteProperty('hive.llap.daemon.queue.name', first_leaf_queue)
           putHiveInteractiveSiteProperty('hive.server2.tez.default.queues', first_leaf_queue)
           llap_named_queue_selected_in_curr_invocation = False
-      self.logger.info("DBG: llap_named_queue_selected_in_curr_invocation = {0}".format(llap_named_queue_selected_in_curr_invocation))
+      self.logger.info(f"DBG: llap_named_queue_selected_in_curr_invocation = {llap_named_queue_selected_in_curr_invocation}")
 
       if (len(leafQueueNames) == 2 and (llap_daemon_selected_queue_name and llap_daemon_selected_queue_name == llap_queue_name) or
             llap_named_queue_selected_in_curr_invocation) or \
@@ -1138,7 +1138,7 @@ class YARNRecommender(service_advisor.ServiceAdvisor):
     if not changed_configs_in_hive_int_env and not llap_concurrency_in_changed_configs and \
         not llap_daemon_queue_in_changed_configs and services["changed-configurations"]:
       self.logger.info("DBG: LLAP parameters not modified. Not adjusting LLAP configs.")
-      self.logger.info("DBG: Current 'changed-configuration' received is : {0}".format(services["changed-configurations"]))
+      self.logger.info(f"DBG: Current 'changed-configuration' received is : {services['changed-configurations']}")
       return
 
     self.logger.info("\nDBG: Performing LLAP config calculations ......")
@@ -1195,7 +1195,7 @@ class YARNRecommender(service_advisor.ServiceAdvisor):
 
     mem_per_thread_for_llap = float(mem_per_thread_for_llap)
 
-    self.logger.info("DBG: selected_queue_is_ambari_managed_llap = {0}".format(selected_queue_is_ambari_managed_llap))
+    self.logger.info(f"DBG: selected_queue_is_ambari_managed_llap = {selected_queue_is_ambari_managed_llap}")
     if not selected_queue_is_ambari_managed_llap:
       llap_daemon_selected_queue_cap = self.__getSelectedQueueTotalCap(capacity_scheduler_properties, llap_daemon_selected_queue_name, total_cluster_capacity)
 
@@ -1215,7 +1215,7 @@ class YARNRecommender(service_advisor.ServiceAdvisor):
                   "yarn_nm_mem_in_mb_normalized : {2}".format(num_llap_nodes_requested, total_llap_mem_normalized, yarn_nm_mem_in_mb_normalized))
       # Pouplate the 'num_llap_nodes_requested' in config 'num_llap_nodes', a read only config for non-Ambari managed queue case.
       putHiveInteractiveEnvProperty('num_llap_nodes', num_llap_nodes_requested)
-      self.logger.info("Setting config 'num_llap_nodes' as : {0}".format(num_llap_nodes_requested))
+      self.logger.info(f"Setting config 'num_llap_nodes' as : {num_llap_nodes_requested}")
       queue_am_fraction_perc = float(self.__getQueueAmFractionFromCapacityScheduler(capacity_scheduler_properties, llap_daemon_selected_queue_name))
       hive_tez_am_cap_available = queue_am_fraction_perc * total_llap_mem_normalized
       self.logger.info("DBG: Calculated 'hive_tez_am_cap_available' : {0}, using following: queue_am_fraction_perc : {1}, "
@@ -1239,17 +1239,17 @@ class YARNRecommender(service_advisor.ServiceAdvisor):
 
       # What percent is 'total_llap_mem' of 'total_cluster_capacity' ?
       llap_named_queue_cap_fraction = ceil(total_llap_mem_normalized / total_cluster_capacity * 100)
-      self.logger.info("DBG: Calculated '{0}' queue capacity percent = {1}.".format(llap_queue_name, llap_named_queue_cap_fraction))
+      self.logger.info(f"DBG: Calculated '{llap_queue_name}' queue capacity percent = {llap_named_queue_cap_fraction}.")
 
       if llap_named_queue_cap_fraction > 100:
-        self.logger.warning("Calculated '{0}' queue size = {1}. Cannot be > 100.".format(llap_queue_name, llap_named_queue_cap_fraction))
+        self.logger.warning(f"Calculated '{llap_queue_name}' queue size = {llap_named_queue_cap_fraction}. Cannot be > 100.")
         self.recommendDefaultLlapConfiguration(configurations, services, hosts)
         return
 
       # Adjust capacity scheduler for the 'llap' named queue.
       self.checkAndManageLlapQueue(services, configurations, hosts, llap_queue_name, llap_named_queue_cap_fraction)
       hive_tez_am_cap_available = total_llap_mem_normalized
-      self.logger.info("DBG: hive_tez_am_cap_available : {0}".format(hive_tez_am_cap_available))
+      self.logger.info(f"DBG: hive_tez_am_cap_available : {hive_tez_am_cap_available}")
 
     # Common calculations now, irrespective of the queue selected.
 
@@ -1268,7 +1268,7 @@ class YARNRecommender(service_advisor.ServiceAdvisor):
     # Read 'hive.server2.tez.sessions.per.default.queue' prop if it's in changed-configs, else calculate it.
     if not llap_concurrency_in_changed_configs:
       if max_executors_per_node <= 0:
-        self.logger.warning("Calculated 'max_executors_per_node' = {0}. Expected value >= 1.".format(max_executors_per_node))
+        self.logger.warning(f"Calculated 'max_executors_per_node' = {max_executors_per_node}. Expected value >= 1.")
         self.recommendDefaultLlapConfiguration(configurations, services, hosts)
         return
 
@@ -1297,7 +1297,7 @@ class YARNRecommender(service_advisor.ServiceAdvisor):
                     .format(llap_concurrency, llap_concurrency, normalized_tez_am_container_size, hive_tez_am_cap_available))
 
         if llap_concurrency <= 0:
-          self.logger.warning("DBG: Calculated 'LLAP Concurrent Queries' = {0}. Expected value >= 1.".format(llap_concurrency))
+          self.logger.warning(f"DBG: Calculated 'LLAP Concurrent Queries' = {llap_concurrency}. Expected value >= 1.")
           self.recommendDefaultLlapConfiguration(configurations, services, hosts)
           return
         self.logger.info("DBG: Adjusted 'llap_concurrency' : {0}, using following: hive_tez_am_cap_available : {1}, normalized_tez_am_container_size: "
@@ -1307,10 +1307,10 @@ class YARNRecommender(service_advisor.ServiceAdvisor):
       if 'hive.server2.tez.sessions.per.default.queue' in hsi_site:
         llap_concurrency = int(hsi_site['hive.server2.tez.sessions.per.default.queue'])
         if llap_concurrency <= 0:
-          self.logger.warning("'hive.server2.tez.sessions.per.default.queue' current value : {0}. Expected value : >= 1".format(llap_concurrency))
+          self.logger.warning(f"'hive.server2.tez.sessions.per.default.queue' current value : {llap_concurrency}. Expected value : >= 1")
           self.recommendDefaultLlapConfiguration(configurations, services, hosts)
           return
-        self.logger.info("DBG: Read 'llap_concurrency' : {0}".format(llap_concurrency ))
+        self.logger.info(f"DBG: Read 'llap_concurrency' : {llap_concurrency}")
       else:
         llap_concurrency = 1
         self.logger.warning("Couldn't retrieve Hive Server interactive's 'hive.server2.tez.sessions.per.default.queue' config. Setting default value 1.")
@@ -1362,7 +1362,7 @@ class YARNRecommender(service_advisor.ServiceAdvisor):
     else:
       # All good. We have a proper value for memoryPerNode.
       num_llap_nodes = num_llap_nodes_requested
-      self.logger.info("DBG: num_llap_nodes : {0}".format(num_llap_nodes))
+      self.logger.info(f"DBG: num_llap_nodes : {num_llap_nodes}")
 
     # Make sure we have enough memory on each node to run AMs.
     # If nodes vs nodes_requested is different - AM memory is already factored in.
@@ -1391,7 +1391,7 @@ class YARNRecommender(service_advisor.ServiceAdvisor):
 
     num_executors_per_node_max = self.get_max_executors_per_node(yarn_nm_mem_in_mb_normalized, cpu_per_nm_host, mem_per_thread_for_llap)
     if num_executors_per_node_max < 1:
-      self.logger.warning("Calculated 'Max. Executors per Node' = {0}. Expected values >= 1.".format(num_executors_per_node_max))
+      self.logger.warning(f"Calculated 'Max. Executors per Node' = {num_executors_per_node_max}. Expected values >= 1.")
       self.recommendDefaultLlapConfiguration(configurations, services, hosts)
       return
     self.logger.info("DBG: Calculated 'num_executors_per_node_max' : {0}, using following : yarn_nm_mem_in_mb_normalized : {1}, cpu_per_nm_host : {2}, "
@@ -1400,7 +1400,7 @@ class YARNRecommender(service_advisor.ServiceAdvisor):
     # NumExecutorsPerNode is not necessarily max - since some capacity would have been reserved for AMs, if this value were based on mem.
     num_executors_per_node = min(floor(llap_daemon_mem_per_node / mem_per_thread_for_llap), num_executors_per_node_max)
     if num_executors_per_node <= 0:
-      self.logger.warning("Calculated 'Number of Executors Per Node' = {0}. Expected value >= 1".format(num_executors_per_node))
+      self.logger.warning(f"Calculated 'Number of Executors Per Node' = {num_executors_per_node}. Expected value >= 1")
       self.recommendDefaultLlapConfiguration(configurations, services, hosts)
       return
     self.logger.info("DBG: Calculated 'num_executors_per_node' : {0}, using following : llap_daemon_mem_per_node : {1}, num_executors_per_node_max : {2}, "
@@ -1419,7 +1419,7 @@ class YARNRecommender(service_advisor.ServiceAdvisor):
 
     # Calculate value for prop 'llap_heap_size'
     llap_xmx = max(total_mem_for_executors_per_node * 0.8, total_mem_for_executors_per_node - self.get_llap_headroom_space(services, configurations))
-    self.logger.info("DBG: Calculated llap_app_heap_size : {0}, using following : total_mem_for_executors : {1}".format(llap_xmx, total_mem_for_executors_per_node))
+    self.logger.info(f"DBG: Calculated llap_app_heap_size : {llap_xmx}, using following : total_mem_for_executors : {total_mem_for_executors_per_node}")
 
     # Calculate 'hive_heapsize' for Hive2/HiveServer2 (HSI)
     hive_server_interactive_heapsize = None
@@ -1439,7 +1439,7 @@ class YARNRecommender(service_advisor.ServiceAdvisor):
     if is_cluster_create_opr or changed_configs_has_enable_hive_int:
       normalized_tez_am_container_size = int(normalized_tez_am_container_size)
       putTezInteractiveSiteProperty('tez.am.resource.memory.mb', normalized_tez_am_container_size)
-      self.logger.info("DBG: Setting 'tez.am.resource.memory.mb' config value as : {0}".format(normalized_tez_am_container_size))
+      self.logger.info(f"DBG: Setting 'tez.am.resource.memory.mb' config value as : {normalized_tez_am_container_size}")
 
     if not llap_concurrency_in_changed_configs:
       putHiveInteractiveSiteProperty('hive.server2.tez.sessions.per.default.queue', max(int(num_executors_per_node/16), 1))
@@ -1450,16 +1450,16 @@ class YARNRecommender(service_advisor.ServiceAdvisor):
     putHiveInteractiveEnvPropertyAttribute('num_llap_nodes', "maximum", node_manager_cnt)
     #TODO A single value is not being set for numNodes in case of a custom queue. Also the attribute is set to non-visible, so the UI likely ends up using an old cached value
     if (num_llap_nodes != num_llap_nodes_requested):
-      self.logger.info("DBG: User requested num_llap_nodes : {0}, but used/adjusted value for calculations is : {1}".format(num_llap_nodes_requested, num_llap_nodes))
+      self.logger.info(f"DBG: User requested num_llap_nodes : {num_llap_nodes_requested}, but used/adjusted value for calculations is : {num_llap_nodes}")
     else:
-      self.logger.info("DBG: Used num_llap_nodes for calculations : {0}".format(num_llap_nodes_requested))
+      self.logger.info(f"DBG: Used num_llap_nodes for calculations : {num_llap_nodes_requested}")
 
     # Safeguard for not adding "num_llap_nodes_for_llap_daemons" if it doesnt exist in hive-interactive-site.
     # This can happen if we upgrade from Ambari 2.4 (with HDP 2.5) to Ambari 2.5, as this config is from 2.6 stack onwards only.
     if "hive-interactive-env" in services["configurations"] and \
         "num_llap_nodes_for_llap_daemons" in services["configurations"]["hive-interactive-env"]["properties"]:
       putHiveInteractiveEnvProperty('num_llap_nodes_for_llap_daemons', num_llap_nodes)
-      self.logger.info("DBG: Setting config 'num_llap_nodes_for_llap_daemons' as : {0}".format(num_llap_nodes))
+      self.logger.info(f"DBG: Setting config 'num_llap_nodes_for_llap_daemons' as : {num_llap_nodes}")
 
     llap_container_size = int(llap_daemon_mem_per_node)
     putHiveInteractiveSiteProperty('hive.llap.daemon.yarn.container.mb', llap_container_size)
@@ -1471,7 +1471,7 @@ class YARNRecommender(service_advisor.ServiceAdvisor):
     if is_cluster_create_opr or changed_configs_has_enable_hive_int:
       mem_per_thread_for_llap = int(mem_per_thread_for_llap)
       putHiveInteractiveSiteProperty('hive.tez.container.size', mem_per_thread_for_llap)
-      self.logger.info("DBG: Setting 'hive.tez.container.size' config value as : {0}".format(mem_per_thread_for_llap))
+      self.logger.info(f"DBG: Setting 'hive.tez.container.size' config value as : {mem_per_thread_for_llap}")
 
     putTezInteractiveSiteProperty('tez.runtime.io.sort.mb', tez_runtime_io_sort_mb)
     if "tez-site" in services["configurations"] and "tez.runtime.sorter.class" in services["configurations"]["tez-site"]["properties"]:
@@ -1482,7 +1482,7 @@ class YARNRecommender(service_advisor.ServiceAdvisor):
     putHiveInteractiveSiteProperty('hive.auto.convert.join.noconditionaltask.size', hive_auto_convert_join_noconditionaltask_size)
 
     num_executors_per_node = int(num_executors_per_node)
-    self.logger.info("DBG: Putting num_executors_per_node as {0}".format(num_executors_per_node))
+    self.logger.info(f"DBG: Putting num_executors_per_node as {num_executors_per_node}")
     putHiveInteractiveSiteProperty('hive.llap.daemon.num.executors', num_executors_per_node)
     putHiveInteractiveSitePropertyAttribute('hive.llap.daemon.num.executors', "minimum", 1)
     putHiveInteractiveSitePropertyAttribute('hive.llap.daemon.num.executors', "maximum", int(num_executors_per_node_max))
@@ -1577,7 +1577,7 @@ class YARNRecommender(service_advisor.ServiceAdvisor):
     elif hsi_env and 'num_llap_nodes' in hsi_env:
       num_llap_nodes = hsi_env['num_llap_nodes']
     else:
-      self.logger.error("Couldn't retrieve Hive Server 'num_llap_nodes' config. Setting value to {0}".format(num_llap_nodes))
+      self.logger.error(f"Couldn't retrieve Hive Server 'num_llap_nodes' config. Setting value to {num_llap_nodes}")
 
     return float(num_llap_nodes)
 
@@ -1604,10 +1604,10 @@ class YARNRecommender(service_advisor.ServiceAdvisor):
       else:
         calculated_hive_tez_container_size = 4096
 
-      self.logger.info("DBG: Calculated and returning 'hive_tez_container_size' : {0}".format(calculated_hive_tez_container_size))
+      self.logger.info(f"DBG: Calculated and returning 'hive_tez_container_size' : {calculated_hive_tez_container_size}")
       return calculated_hive_tez_container_size
     else:
-      self.logger.info("DBG: Returning 'hive_tez_container_size' : {0}".format(hive_tez_container_size))
+      self.logger.info(f"DBG: Returning 'hive_tez_container_size' : {hive_tez_container_size}")
       return hive_tez_container_size
 
   def get_hive_tez_container_size(self, services):
@@ -1641,13 +1641,13 @@ class YARNRecommender(service_advisor.ServiceAdvisor):
     # Check if 'llap_headroom_space' is modified in current SA invocation.
     if 'hive-interactive-env' in configurations and 'llap_headroom_space' in configurations['hive-interactive-env']['properties']:
       hive_container_size = float(configurations['hive-interactive-env']['properties']['llap_headroom_space'])
-      self.logger.info("'llap_headroom_space' read from configurations as : {0}".format(llap_headroom_space))
+      self.logger.info(f"'llap_headroom_space' read from configurations as : {llap_headroom_space}")
 
     if llap_headroom_space is None:
       # Check if 'llap_headroom_space' is input in services array.
       if 'llap_headroom_space' in services['configurations']['hive-interactive-env']['properties']:
         llap_headroom_space = float(services['configurations']['hive-interactive-env']['properties']['llap_headroom_space'])
-        self.logger.info("'llap_headroom_space' read from services as : {0}".format(llap_headroom_space))
+        self.logger.info(f"'llap_headroom_space' read from services as : {llap_headroom_space}")
     if not llap_headroom_space or llap_headroom_space < 1:
       llap_headroom_space = 6144 # 6GB
       self.logger.info("Couldn't read 'llap_headroom_space' from services or configurations. Returing default value : 6144 bytes")
@@ -1775,8 +1775,8 @@ yarn.scheduler.capacity.root.{0}.maximum-am-resource-percent=1""".format(llap_qu
             self.logger.info("Created YARN Queue : '{0}' with capacity : {1}%. Adjusted 'default' queue capacity to : {2}%" \
                         .format(llap_queue_name, llap_queue_cap_perc, adjusted_default_queue_cap))
           else: # Queue existed, only adjustments done.
-            self.logger.info("Adjusted YARN Queue : '{0}'. Current capacity : {1}%. State: RUNNING.".format(llap_queue_name, llap_queue_cap_perc))
-            self.logger.info("Adjusted 'default' queue capacity to : {0}%".format(adjusted_default_queue_cap))
+            self.logger.info(f"Adjusted YARN Queue : '{llap_queue_name}'. Current capacity : {llap_queue_cap_perc}%. State: RUNNING.")
+            self.logger.info(f"Adjusted 'default' queue capacity to : {adjusted_default_queue_cap}%")
 
           # Update Hive 'hive.llap.daemon.queue.name' prop to use 'llap' queue.
           putHiveInteractiveSiteProperty('hive.llap.daemon.queue.name', llap_queue_name)
@@ -1784,7 +1784,7 @@ yarn.scheduler.capacity.root.{0}.maximum-am-resource-percent=1""".format(llap_qu
           # Update 'hive.llap.daemon.queue.name' prop combo entries and llap capacity YARN Service visibility.
           self.setLlapDaemonQueuePropAttributes(services, configurations)
       else:
-        self.logger.debug("Not creating/adjusting {0} queue. Current YARN queues : {1}".format(llap_queue_name, list(leafQueueNames)))
+        self.logger.debug(f"Not creating/adjusting {llap_queue_name} queue. Current YARN queues : {list(leafQueueNames)}")
     else:
       self.logger.error("Couldn't retrieve 'capacity-scheduler' properties while doing YARN queue adjustment for Hive Server Interactive.")
 
@@ -1812,7 +1812,7 @@ yarn.scheduler.capacity.root.{0}.maximum-am-resource-percent=1""".format(llap_qu
         if 'yarn.scheduler.capacity.root.'+llap_queue_name+'.state' in capacity_scheduler_properties.keys():
           currLlapQueueState = capacity_scheduler_properties.get('yarn.scheduler.capacity.root.'+llap_queue_name+'.state')
         else:
-          self.logger.error("{0} queue 'state' property not present in capacity scheduler. Skipping adjusting queues.".format(llap_queue_name))
+          self.logger.error(f"{llap_queue_name} queue 'state' property not present in capacity scheduler. Skipping adjusting queues.")
           return
         if currLlapQueueState == 'RUNNING':
           DEFAULT_MAX_CAPACITY = '100'
@@ -1842,7 +1842,7 @@ yarn.scheduler.capacity.root.{0}.maximum-am-resource-percent=1""".format(llap_qu
               elif prop.startswith('yarn.'):
                 updated_llap_queue_configs = updated_llap_queue_configs + prop + "=" + val + "\n"
         else:
-          self.logger.debug("{0} queue state is : {1}. Skipping adjusting queues.".format(llap_queue_name, currLlapQueueState))
+          self.logger.debug(f"{llap_queue_name} queue state is : {currLlapQueueState}. Skipping adjusting queues.")
           return
 
         if updated_default_queue_configs and updated_llap_queue_configs:
@@ -1854,7 +1854,7 @@ yarn.scheduler.capacity.root.{0}.maximum-am-resource-percent=1""".format(llap_qu
           putHiveInteractiveSiteProperty('hive.llap.daemon.queue.name', YARNRecommender.YARN_ROOT_DEFAULT_QUEUE_NAME)
           putHiveInteractiveSiteProperty('hive.server2.tez.default.queues', YARNRecommender.YARN_ROOT_DEFAULT_QUEUE_NAME)
       else:
-        self.logger.debug("Not removing '{0}' queue as number of Queues not equal to 2. Current YARN queues : {1}".format(llap_queue_name, list(leafQueueNames)))
+        self.logger.debug(f"Not removing '{llap_queue_name}' queue as number of Queues not equal to 2. Current YARN queues : {list(leafQueueNames)}")
     else:
       self.logger.error("Couldn't retrieve 'capacity-scheduler' properties while doing YARN queue adjustment for Hive Server Interactive.")
 
@@ -1886,9 +1886,9 @@ yarn.scheduler.capacity.root.{0}.maximum-am-resource-percent=1""".format(llap_qu
                         "count(configurations['capacity-scheduler']['properties']['capacity-scheduler']) = "
                         "{0}".format(len(capacity_scheduler_properties)))
           else:
-            self.logger.info("Read configurations['capacity-scheduler']['properties']['capacity-scheduler'] is : {0}".format(cap_sched_props_as_str))
+            self.logger.info(f"Read configurations['capacity-scheduler']['properties']['capacity-scheduler'] is : {cap_sched_props_as_str}")
         else:
-          self.logger.info("configurations['capacity-scheduler']['properties']['capacity-scheduler'] : {0}.".format(cap_sched_props_as_str))
+          self.logger.info(f"configurations['capacity-scheduler']['properties']['capacity-scheduler'] : {cap_sched_props_as_str}.")
 
       # if 'capacity_scheduler_properties' is empty, implies we may have 'capacity-scheduler' configs as dictionary
       # in configurations, if 'capacity-scheduler' changed in current invocation.
@@ -1897,7 +1897,7 @@ yarn.scheduler.capacity.root.{0}.maximum-am-resource-percent=1""".format(llap_qu
           capacity_scheduler_properties = cap_sched_props_as_dict
           self.logger.info("'capacity-scheduler' changed in current Stack Advisor invocation. Retrieved the configs as dictionary from configurations.")
         else:
-          self.logger.info("Read configurations['capacity-scheduler']['properties'] is : {0}".format(cap_sched_props_as_dict))
+          self.logger.info(f"Read configurations['capacity-scheduler']['properties'] is : {cap_sched_props_as_dict}")
     else:
       self.logger.info("'capacity-scheduler' not modified in the current Stack Advisor invocation.")
 
@@ -1914,7 +1914,7 @@ yarn.scheduler.capacity.root.{0}.maximum-am-resource-percent=1""".format(llap_qu
       leafQueues = [{"label": str(queueName), "value": queueName} for queueName in leafQueueNames]
       leafQueues = sorted(leafQueues, key=lambda q: q['value'])
       putHiveInteractiveSitePropertyAttribute("hive.llap.daemon.queue.name", "entries", leafQueues)
-      self.logger.info("'hive.llap.daemon.queue.name' config Property Attributes set to : {0}".format(leafQueues))
+      self.logger.info(f"'hive.llap.daemon.queue.name' config Property Attributes set to : {leafQueues}")
     else:
       self.logger.error("Problem retrieving YARN queues. Skipping updating HIVE Server Interactve "
                    "'hive.server2.tez.default.queues' property attributes.")
@@ -1944,15 +1944,15 @@ yarn.scheduler.capacity.root.{0}.maximum-am-resource-percent=1""".format(llap_qu
     # Check if services["changed-configurations"] is empty and 'yarn.scheduler.minimum-allocation-mb' is modified in current ST invocation.
     if not services["changed-configurations"] and yarn_site and yarn_min_allocation_property in yarn_site:
       yarn_min_container_size = yarn_site[yarn_min_allocation_property]
-      self.logger.info("DBG: 'yarn.scheduler.minimum-allocation-mb' read from output as : {0}".format(yarn_min_container_size))
+      self.logger.info(f"DBG: 'yarn.scheduler.minimum-allocation-mb' read from output as : {yarn_min_container_size}")
 
     # Check if 'yarn.scheduler.minimum-allocation-mb' is input in services array.
     elif yarn_site_properties and yarn_min_allocation_property in yarn_site_properties:
       yarn_min_container_size = yarn_site_properties[yarn_min_allocation_property]
-      self.logger.info("DBG: 'yarn.scheduler.minimum-allocation-mb' read from services as : {0}".format(yarn_min_container_size))
+      self.logger.info(f"DBG: 'yarn.scheduler.minimum-allocation-mb' read from services as : {yarn_min_container_size}")
 
     if not yarn_min_container_size:
-      self.logger.error("{0} was not found in the configuration".format(yarn_min_allocation_property))
+      self.logger.error(f"{yarn_min_allocation_property} was not found in the configuration")
 
     return yarn_min_container_size
 
@@ -1992,7 +1992,7 @@ yarn.scheduler.capacity.root.{0}.maximum-am-resource-percent=1""".format(llap_qu
       yarn_nm_mem_in_mb = float(yarn_site['yarn.nodemanager.resource.memory-mb'])
 
     if yarn_nm_mem_in_mb <= 0.0:
-      self.logger.warning("'yarn.nodemanager.resource.memory-mb' current value : {0}. Expected value : > 0".format(yarn_nm_mem_in_mb))
+      self.logger.warning(f"'yarn.nodemanager.resource.memory-mb' current value : {yarn_nm_mem_in_mb}. Expected value : > 0")
 
     return yarn_nm_mem_in_mb
 
@@ -2012,10 +2012,10 @@ yarn.scheduler.capacity.root.{0}.maximum-am-resource-percent=1""".format(llap_qu
       elif total_cluster_capacity > 98304:
         calculated_tez_am_resource_memory_mb = 4096
 
-      self.logger.info("DBG: Calculated and returning 'tez_am_resource_memory_mb' as : {0}".format(calculated_tez_am_resource_memory_mb))
+      self.logger.info(f"DBG: Calculated and returning 'tez_am_resource_memory_mb' as : {calculated_tez_am_resource_memory_mb}")
       return float(calculated_tez_am_resource_memory_mb)
     else:
-      self.logger.info("DBG: Returning 'tez_am_resource_memory_mb' as : {0}".format(tez_am_resource_memory_mb))
+      self.logger.info(f"DBG: Returning 'tez_am_resource_memory_mb' as : {tez_am_resource_memory_mb}")
       return float(tez_am_resource_memory_mb)
 
   def get_tez_am_resource_memory_mb(self, services):
@@ -2094,10 +2094,10 @@ yarn.scheduler.capacity.root.{0}.maximum-am-resource-percent=1""".format(llap_qu
     for key in cap_sched_keys:
       if key.endswith("." + llap_daemon_selected_queue_name+".maximum-am-resource-percent"):
         llap_selected_queue_am_percent_key = key
-        self.logger.info("AM percent key got for '{0}' queue is : '{1}'".format(llap_daemon_selected_queue_name, llap_selected_queue_am_percent_key))
+        self.logger.info(f"AM percent key got for '{llap_daemon_selected_queue_name}' queue is : '{llap_selected_queue_am_percent_key}'")
         break
     if llap_selected_queue_am_percent_key is None:
-      self.logger.info("Returning default AM percent value : '0.1' for queue : {0}".format(llap_daemon_selected_queue_name))
+      self.logger.info(f"Returning default AM percent value : '0.1' for queue : {llap_daemon_selected_queue_name}")
       return 0.1 # Default value to use if we couldn't retrieve queue's corresponding AM Percent key.
     else:
       llap_selected_queue_am_percent = capacity_scheduler_properties.get(llap_selected_queue_am_percent_key)
@@ -2110,7 +2110,7 @@ yarn.scheduler.capacity.root.{0}.maximum-am-resource-percent=1""".format(llap_qu
     """
     Calculates the total available capacity for the passed-in YARN queue of any level based on the percentages.
     """
-    self.logger.info("Entered __getSelectedQueueTotalCap fn() with llap_daemon_selected_queue_name= '{0}'.".format(llap_daemon_selected_queue_name))
+    self.logger.info(f"Entered __getSelectedQueueTotalCap fn() with llap_daemon_selected_queue_name= '{llap_daemon_selected_queue_name}'.")
     available_capacity = total_cluster_capacity
     queue_cap_key = self.__getQueueCapacityKeyFromCapacityScheduler(capacity_scheduler_properties, llap_daemon_selected_queue_name)
     if queue_cap_key:
@@ -2120,13 +2120,13 @@ yarn.scheduler.capacity.root.{0}.maximum-am-resource-percent=1""".format(llap_qu
         queue_path = queue_cap_key[24:]  # Strip from beginning 'yarn.scheduler.capacity.'
         queue_path = queue_path[0:-9]  # Strip from end '.capacity'
         queues_list = queue_path.split('.')
-        self.logger.info("Queue list : {0}".format(queues_list))
+        self.logger.info(f"Queue list : {queues_list}")
         if queues_list:
           for queue in queues_list:
             queue_cap_key = self.__getQueueCapacityKeyFromCapacityScheduler(capacity_scheduler_properties, queue)
             queue_cap_perc = float(capacity_scheduler_properties.get(queue_cap_key))
             available_capacity = queue_cap_perc / 100 * available_capacity
-            self.logger.info("Total capacity available for queue {0} is : {1}".format(queue, available_capacity))
+            self.logger.info(f"Total capacity available for queue {queue} is : {available_capacity}")
 
     # returns the capacity calculated for passed-in queue in 'llap_daemon_selected_queue_name'.
     return available_capacity
@@ -2332,7 +2332,7 @@ class YARNValidator(service_advisor.ServiceAdvisor):
     item = {"level": "ERROR|WARN", "message": "value"}
     '''
     validationItems.append({"config-name": "my_config_property_name",
-                            "item": self.getErrorItem("My custom message in method %s" % inspect.stack()[0][3])})
+                            "item": self.getErrorItem(f"My custom message in method {inspect.stack()[0][3]}")})
     return self.toConfigurationValidationProblems(validationItems, "hadoop-env")
 
   def validateYARNSiteConfigurationsFromHDP206(self, properties, recommendedDefaults, configurations, services, hosts):
@@ -2376,7 +2376,7 @@ class YARNValidator(service_advisor.ServiceAdvisor):
     if services["configurations"]["yarn-site"]["properties"]["yarn.log.server.web-service.url"] != propertyValue:
       validationItems = [
                       {"config-name": "yarn.log.server.web-service.url",
-                       "item": self.getWarnItem("Value should be %s" % propertyValue)}]
+                       "item": self.getWarnItem(f"Value should be {propertyValue}")}]
 
     if "yarn_hierarchy" in services["configurations"]["container-executor"]["properties"] \
               and "yarn.nodemanager.linux-container-executor.cgroups.hierarchy" in services["configurations"]["yarn-site"]["properties"]:
@@ -2468,7 +2468,7 @@ class MAPREDUCE2Validator(service_advisor.ServiceAdvisor):
     item = {"level": "ERROR|WARN", "message": "value"}
     '''
     validationItems.append({"config-name": "my_config_property_name",
-                            "item": self.getErrorItem("My custom message in method %s" % inspect.stack()[0][3])})
+                            "item": self.getErrorItem(f"My custom message in method {inspect.stack()[0][3]}")})
     return self.toConfigurationValidationProblems(validationItems, "hadoop-env")
 
   def validateMapReduce2SiteConfigurationsFromHDP206(self, properties, recommendedDefaults, configurations, services, hosts):
@@ -2505,20 +2505,20 @@ class MAPREDUCE2Validator(service_advisor.ServiceAdvisor):
       mapreduceMapJavaOpts = self.formatXmxSizeToBytes(self.getXmxSize(properties['mapreduce.map.java.opts'])) / (1024.0 * 1024)
       mapreduceMapMemoryMb = self.to_number(properties['mapreduce.map.memory.mb'])
       if mapreduceMapJavaOpts > mapreduceMapMemoryMb:
-        validationItems.append({"config-name": 'mapreduce.map.java.opts', "item": self.getWarnItem("mapreduce.map.java.opts Xmx should be less than mapreduce.map.memory.mb ({0})".format(mapreduceMapMemoryMb))})
+        validationItems.append({"config-name": 'mapreduce.map.java.opts', "item": self.getWarnItem(f"mapreduce.map.java.opts Xmx should be less than mapreduce.map.memory.mb ({mapreduceMapMemoryMb})")})
 
     if 'mapreduce.reduce.java.opts' in properties and \
         self.checkXmxValueFormat(properties['mapreduce.reduce.java.opts']):
       mapreduceReduceJavaOpts = self.formatXmxSizeToBytes(self.getXmxSize(properties['mapreduce.reduce.java.opts'])) / (1024.0 * 1024)
       mapreduceReduceMemoryMb = self.to_number(properties['mapreduce.reduce.memory.mb'])
       if mapreduceReduceJavaOpts > mapreduceReduceMemoryMb:
-        validationItems.append({"config-name": 'mapreduce.reduce.java.opts', "item": self.getWarnItem("mapreduce.reduce.java.opts Xmx should be less than mapreduce.reduce.memory.mb ({0})".format(mapreduceReduceMemoryMb))})
+        validationItems.append({"config-name": 'mapreduce.reduce.java.opts', "item": self.getWarnItem(f"mapreduce.reduce.java.opts Xmx should be less than mapreduce.reduce.memory.mb ({mapreduceReduceMemoryMb})")})
 
     if 'yarn.app.mapreduce.am.command-opts' in properties and \
         self.checkXmxValueFormat(properties['yarn.app.mapreduce.am.command-opts']):
       yarnAppMapreduceAmCommandOpts = self.formatXmxSizeToBytes(self.getXmxSize(properties['yarn.app.mapreduce.am.command-opts'])) / (1024.0 * 1024)
       yarnAppMapreduceAmResourceMb = self.to_number(properties['yarn.app.mapreduce.am.resource.mb'])
       if yarnAppMapreduceAmCommandOpts > yarnAppMapreduceAmResourceMb:
-        validationItems.append({"config-name": 'yarn.app.mapreduce.am.command-opts', "item": self.getWarnItem("yarn.app.mapreduce.am.command-opts Xmx should be less than yarn.app.mapreduce.am.resource.mb ({0})".format(yarnAppMapreduceAmResourceMb))})
+        validationItems.append({"config-name": 'yarn.app.mapreduce.am.command-opts', "item": self.getWarnItem(f"yarn.app.mapreduce.am.command-opts Xmx should be less than yarn.app.mapreduce.am.resource.mb ({yarnAppMapreduceAmResourceMb})")})
 
     return self.toConfigurationValidationProblems(validationItems, "mapred-site")

@@ -50,14 +50,14 @@ class TestBootstrap:#(TestCase):
     utime2 = 12345
     bootstrap_obj.getUtime = MagicMock(return_value=utime1)
     remote1 = bootstrap_obj.getRemoteName("/tmp/setupAgent.sh")
-    self.assertEqual(remote1, "/tmp/setupAgent{0}.sh".format(utime1))
+    self.assertEqual(remote1, f"/tmp/setupAgent{utime1}.sh")
 
     bootstrap_obj.getUtime.return_value=utime2
     remote1 = bootstrap_obj.getRemoteName("/tmp/setupAgent.sh")
-    self.assertEqual(remote1, "/tmp/setupAgent{0}.sh".format(utime1))
+    self.assertEqual(remote1, f"/tmp/setupAgent{utime1}.sh")
 
     remote2 = bootstrap_obj.getRemoteName("/tmp/host_pass")
-    self.assertEqual(remote2, "/tmp/host_pass{0}".format(utime2))
+    self.assertEqual(remote2, f"/tmp/host_pass{utime2}")
 
 
   # TODO: Test bootstrap timeout

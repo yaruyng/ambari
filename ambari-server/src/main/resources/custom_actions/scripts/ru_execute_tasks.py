@@ -55,12 +55,12 @@ class ExecuteTask:
   def __str__(self):
     inner = []
     if self.type:
-      inner.append("Type: %s" % str(self.type))
+      inner.append(f"Type: {str(self.type)}")
     if self.script and self.function:
-      inner.append("Script: %s - Function: %s" % (str(self.script), str(self.function)))
+      inner.append(f"Script: {str(self.script)} - Function: {str(self.function)}")
     elif self.command:
-      inner.append("Command: %s" % str(self.command))
-    return "Task. %s" % ", ".join(inner)
+      inner.append(f"Command: {str(self.command)}")
+    return f"Task. {', '.join(inner)}"
 
 
 def replace_variables(cmd, host_name, version):
@@ -78,7 +78,7 @@ def resolve_ambari_config():
     if os.path.exists(config_path):
       agent_config.read(config_path)
     else:
-      raise Exception("No config found at %s" % str(config_path))
+      raise Exception(f"No config found at {str(config_path)}")
   except Exception as err:
     traceback.print_exc()
     Logger.warning(err)
@@ -140,7 +140,7 @@ class ExecuteUpgradeTasks(Script):
 
           script_path = os.path.join(base_dir, task.script)
           if not os.path.exists(script_path):
-            message = "Script %s does not exist" % str(script_path)
+            message = f"Script {str(script_path)} does not exist"
             raise Fail(message)
 
           # Notice that the script_path is now the fully qualified path, and the

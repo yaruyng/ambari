@@ -114,7 +114,7 @@ class HdfsLine():
     try:
       factor = self.MEMORY_SUFFIX.index(multiplier_type)
     except ValueError:
-      raise AmbariException("Failed to memory value [%s %s]" % (memorySize, multiplier_type))
+      raise AmbariException(f"Failed to memory value [{memorySize} {multiplier_type}]")
     
     return float(memorySize) * (1024 ** factor)
   def toJson(self):

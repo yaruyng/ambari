@@ -79,10 +79,10 @@ class UsageException(Exception):
 def api_accessor(host, login, password, protocol, port, unsafe=None):
   def do_request(api_url, request_type=GET_REQUEST_TYPE, request_body=None):
     try:
-      url = '{0}://{1}:{2}{3}'.format(protocol, host, port, api_url)
-      admin_auth = base64.encodebytes(('%s:%s' % (login, password)).encode()).decode().replace('\n', '')
+      url = f'{protocol}://{host}:{port}{api_url}'
+      admin_auth = base64.encodebytes(f'{login}:{password}'.encode()).decode().replace('\n', '')
       request = urllib.request.Request(url)
-      request.add_header('Authorization', 'Basic %s' % admin_auth)
+      request.add_header('Authorization', f'Basic {admin_auth}')
       request.add_header('X-Requested-By', 'ambari')
       request.data=request_body
       request.get_method = lambda: request_type
@@ -98,7 +98,7 @@ def api_accessor(host, login, password, protocol, port, unsafe=None):
       response_body = response.read()
       response_body = response_body.decode('utf-8') if isinstance(response_body, bytes) else response_body
     except Exception as exc:
-      raise Exception('Problem with accessing api. Reason: {0}'.format(exc))
+      raise Exception(f'Problem with accessing api. Reason: {exc}')
     return response_body
   return do_request
 
@@ -108,7 +108,7 @@ def get_config_tag(cluster, config_type, accessor):
     desired_tags = json.loads(response)
     current_config_tag = desired_tags[CLUSTERS][DESIRED_CONFIGS][config_type][TAG]
   except Exception as exc:
-    raise Exception('"{0}" not found in server response. Response:\n{1}'.format(config_type, response))
+    raise Exception(f'"{config_type}" not found in server response. Response:\n{response}')
   return current_config_tag
 
 def create_new_desired_config(cluster, config_type, properties, attributes, accessor, version_note):
@@ -127,15 +127,15 @@ def create_new_desired_config(cluster, config_type, properties, attributes, acce
     new_config[CLUSTERS][DESIRED_CONFIGS][ATTRIBUTES] = attributes
   request_body = json.dumps(new_config)
   request_body = request_body.encode('utf-8') if isinstance(request_body, str) else request_body
-  new_file = 'doSet_{0}.json'.format(new_tag)
-  logger.info('### PUTting json into: {0}'.format(new_file))
+  new_file = f'doSet_{new_tag}.json'
+  logger.info(f'### PUTting json into: {new_file}')
   output_to_file(new_file)(new_config)
   accessor(CLUSTERS_URL.format(cluster), PUT_REQUEST_TYPE, request_body)
-  logger.info('### NEW Site:{0}, Tag:{1}'.format(config_type, new_tag))
+  logger.info(f'### NEW Site:{config_type}, Tag:{new_tag}')
 
 def get_current_config(cluster, config_type, accessor):
   config_tag = get_config_tag(cluster, config_type, accessor)
-  logger.info("### on (Site:{0}, Tag:{1})".format(config_type, config_tag))
+  logger.info(f"### on (Site:{config_type}, Tag:{config_tag})")
   response = accessor(CONFIGURATION_URL.format(cluster, config_type, config_tag))
   config_by_tag = json.loads(response, object_pairs_hook=OrderedDict)
   current_config = config_by_tag[ITEMS][0]
@@ -171,13 +171,13 @@ def read_xml_data_to_map(path):
     if name != None:
       name_text = name.text if name.text else ""
     else:
-      logger.warn("No name is found for one of the properties in {0}, ignoring it".format(path))
+      logger.warn(f"No name is found for one of the properties in {path}, ignoring it")
       continue
 
     if value != None:
       value_text = value.text if value.text else ""
     else:
-      logger.warn("No value is found for \"{0}\" in {1}, using empty string for it".format(name_text, path))
+      logger.warn(f"No value is found for \"{name_text}\" in {path}, using empty string for it")
       value_text = ""
 
     if final != None:
@@ -193,14 +193,14 @@ def update_from_file(config_file):
       with open(config_file) as in_file:
         file_content = in_file.read()
     except Exception as e:
-      raise Exception('Cannot find file "{0}" to PUT'.format(config_file))
+      raise Exception(f'Cannot find file "{config_file}" to PUT')
     try:
       file_properties = json.loads(file_content)
     except Exception as e:
-      raise Exception('File "{0}" should be in the following JSON format ("properties_attributes" is optional):\n{1}'.format(config_file, FILE_FORMAT))
+      raise Exception(f'File "{config_file}" should be in the following JSON format ("properties_attributes" is optional):\n{FILE_FORMAT}')
     new_properties = file_properties.get(PROPERTIES, {})
     new_attributes = file_properties.get(ATTRIBUTES, {})
-    logger.info('### PUTting file: "{0}"'.format(config_file))
+    logger.info(f'### PUTting file: "{config_file}"')
     return new_properties, new_attributes
   return update
 
@@ -240,14 +240,14 @@ def set_properties(cluster, config_type, args, accessor, version_note):
     elif ext == ".json":
       updater = update_from_file(config_file)
     else:
-      logger.error("File extension {0} is not supported".format(ext))
+      logger.error(f"File extension {ext} is not supported")
       return -1
-    logger.info('### from file {0}'.format(config_file))
+    logger.info(f'### from file {config_file}')
   else:
     config_name = args[0]
     config_value = args[1]
     updater = update_specific_property(config_name, config_value)
-    logger.info('### new property - "{0}":"{1}"'.format(config_name, config_value))
+    logger.info(f'### new property - "{config_name}":"{config_value}"')
   update_config(cluster, config_type, updater, accessor, version_note)
   return 0
 
@@ -258,7 +258,7 @@ def delete_properties(cluster, config_type, args, accessor, version_note):
     return -1
 
   config_name = args[0]
-  logger.info('### on property "{0}"'.format(config_name))
+  logger.info(f'### on property "{config_name}"')
   update_config(cluster, config_type, delete_specific_property(config_name), accessor, version_note)
   return 0
 
@@ -268,7 +268,7 @@ def get_properties(cluster, config_type, args, accessor):
   if len(args) > 0:
     filename = args[0]
     output = output_to_file(filename)
-    logger.info('### to file "{0}"'.format(filename))
+    logger.info(f'### to file "{filename}"')
   else:
     output = output_to_console
   get_config(cluster, config_type, accessor, output)
@@ -323,13 +323,13 @@ def main():
             user = login_lines[0]
             password = login_lines[1]
           else:
-            logger.error("Incorrect content of {0} file. File should contain Ambari username and password separated by new line.".format(options.credentials_file))
+            logger.error(f"Incorrect content of {options.credentials_file} file. File should contain Ambari username and password separated by new line.")
             return -1
       except Exception as e:
-        logger.error("You don't have permissions to {0} file".format(options.credentials_file))
+        logger.error(f"You don't have permissions to {options.credentials_file} file")
         return -1
     else:
-      logger.error("File {0} doesn't exist or you don't have permissions.".format(options.credentials_file))
+      logger.error(f"File {options.credentials_file} doesn't exist or you don't have permissions.")
       return -1
   else:
     user = options.user
@@ -373,7 +373,7 @@ def main():
       action_args = [options.key]
     return delete_properties(cluster, config_type, action_args, accessor, version_note)
   else:
-    logger.error('Action "{0}" is not supported. Supported actions: "get", "set", "delete".'.format(action))
+    logger.error(f'Action "{action}" is not supported. Supported actions: "get", "set", "delete".')
     return -1
 
 if __name__ == "__main__":

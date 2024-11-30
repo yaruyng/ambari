@@ -175,7 +175,7 @@ class ServiceAdvisor(DefaultStackAdvisor):
                                                                                                   componentDisplayName)
         elif "ALL" == cardinality:
           if componentHostsCount != hostsCount:
-            message = "{0} component should be installed on all hosts in cluster.".format(componentDisplayName)
+            message = f"{componentDisplayName} component should be installed on all hosts in cluster."
         else:
           if componentHostsCount != int(cardinality):
             message = "exactly {0} {1} components should be installed in cluster.".format(int(cardinality),

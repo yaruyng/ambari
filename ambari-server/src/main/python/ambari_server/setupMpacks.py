@@ -129,7 +129,7 @@ def download_mpack(mpack_path):
   archive_filename = os.path.basename(mpack_path)
   tmp_archive_path = os.path.join(tmpdir, archive_filename)
 
-  print_info_msg("Download management pack to temp location {0}".format(tmp_archive_path))
+  print_info_msg(f"Download management pack to temp location {tmp_archive_path}")
   if os.path.exists(tmp_archive_path):
     os.remove(tmp_archive_path)
   if os.path.exists(mpack_path):
@@ -154,7 +154,7 @@ def expand_mpack(archive_path):
 
   # Expand management pack in temp directory
   tmp_root_dir = os.path.join(tmpdir, archive_root_dir)
-  print_info_msg("Expand management pack at temp location {0}".format(tmp_root_dir))
+  print_info_msg(f"Expand management pack at temp location {tmp_root_dir}")
   if os.path.exists(tmp_root_dir):
     sudo.rmtree(tmp_root_dir)
 
@@ -222,7 +222,7 @@ def _get_mpack_name_version(mpack_path):
   # Read mpack metadata
   mpack_metadata = read_mpack_metadata(tmp_root_dir)
   if not mpack_metadata:
-    raise FatalException(-1, 'Malformed management pack {0}. Metadata file missing!'.format(mpack_path))
+    raise FatalException(-1, f'Malformed management pack {mpack_path}. Metadata file missing!')
 
   return (mpack_metadata.name, mpack_metadata.version)
 
@@ -270,12 +270,12 @@ def remove_symlinks(stack_location, extension_location, service_definitions_loca
       for name in files:
         file = os.path.join(root, name)
         if os.path.islink(file) and staged_mpack_dir in os.path.realpath(file):
-          print_info_msg("Removing symlink {0}".format(file))
+          print_info_msg(f"Removing symlink {file}")
           sudo.unlink(file)
       for name in dirs:
         dir = os.path.join(root, name)
         if os.path.islink(dir) and staged_mpack_dir in os.path.realpath(dir):
-          print_info_msg("Removing symlink {0}".format(dir))
+          print_info_msg(f"Removing symlink {dir}")
           sudo.unlink(dir)
 
 def run_mpack_install_checker(options, mpack_stacks):
@@ -451,7 +451,7 @@ def create_dashboard_symlinks(src_service_dir, service_name, dashboard_location,
     dest_grafana_dashboards_dir = os.path.join(dashboard_location, GRAFANA_DASHBOARDS_DIRNAME)
     dest_service_dashboards_link = os.path.join(dest_grafana_dashboards_dir, service_name)
     if os.path.exists(dest_service_dashboards_link):
-      message = "Grafana dashboards already exist for service {0}.".format(service_name)
+      message = f"Grafana dashboards already exist for service {service_name}."
       print_warning_msg(message)
     else:
       create_symlink_using_path(src_grafana_dashboards_dir, dest_service_dashboards_link, options.force)
@@ -461,7 +461,7 @@ def create_dashboard_symlinks(src_service_dir, service_name, dashboard_location,
   if os.path.exists(src_metrics_file):
     dest_metrics_dir = os.path.join(dashboard_location, SERVICE_METRICS_DIRNAME)
     if os.path.exists(os.path.join(dest_metrics_dir, service_metrics_filename)):
-      message = "Service metrics already exist for service {0}.".format(service_name)
+      message = f"Service metrics already exist for service {service_name}."
       print_warning_msg(message)
     else:
       create_symlink(src_metrics_dir, dest_metrics_dir, service_metrics_filename, options.force)
@@ -577,7 +577,7 @@ def search_mpacks(mpack_name, max_mpack_version=None):
       if os.path.isdir(staged_mpack_dir):
         staged_mpack_metadata = read_mpack_metadata(staged_mpack_dir)
         if not staged_mpack_metadata:
-          print_error_msg("Skipping malformed management pack in directory {0}.".format(staged_mpack_dir))
+          print_error_msg(f"Skipping malformed management pack in directory {staged_mpack_dir}.")
           continue
         staged_mpack_name = staged_mpack_metadata.name
         staged_mpack_version = staged_mpack_metadata.version
@@ -603,7 +603,7 @@ def _uninstall_mpack(mpack_name, mpack_version):
   :param mpack_name: Management pack name
   :param mpack_version: Management pack version
   """
-  print_info_msg("Uninstalling management pack {0}-{1}".format(mpack_name, mpack_version))
+  print_info_msg(f"Uninstalling management pack {mpack_name}-{mpack_version}")
   # Get ambari mpack properties
   stack_location, extension_location, service_definitions_location, mpacks_staging_location, dashboard_location = get_mpack_properties()
   found = False
@@ -622,15 +622,15 @@ def _uninstall_mpack(mpack_name, mpack_version):
         staged_mpack_name = staged_mpack_metadata.name
         staged_mpack_version = staged_mpack_metadata.version
         if mpack_name == staged_mpack_name and compare_versions(staged_mpack_version, mpack_version, format=True) == 0:
-          print_info_msg("Removing management pack staging location {0}".format(staged_mpack_dir))
+          print_info_msg(f"Removing management pack staging location {staged_mpack_dir}")
           sudo.rmtree(staged_mpack_dir)
           remove_symlinks(stack_location, extension_location, service_definitions_location, dashboard_location, staged_mpack_dir)
           found = True
           break
   if not found:
-    print_error_msg("Management pack {0}-{1} is not installed!".format(mpack_name, mpack_version))
+    print_error_msg(f"Management pack {mpack_name}-{mpack_version} is not installed!")
   else:
-    print_info_msg("Management pack {0}-{1} successfully uninstalled!".format(mpack_name, mpack_version))
+    print_info_msg(f"Management pack {mpack_name}-{mpack_version} successfully uninstalled!")
 
 def validate_mpack_prerequisites(mpack_metadata):
   """
@@ -688,7 +688,7 @@ def _install_mpack(options, replay_mode=False, is_upgrade=False):
     print_error_msg("Management pack not specified!")
     raise FatalException(-1, 'Management pack not specified!')
 
-  print_info_msg("Installing management pack {0}".format(mpack_path))
+  print_info_msg(f"Installing management pack {mpack_path}")
 
   # Download management pack to a temp location
   tmp_archive_path = download_mpack(mpack_path)
@@ -702,7 +702,7 @@ def _install_mpack(options, replay_mode=False, is_upgrade=False):
   # Read mpack metadata
   mpack_metadata = read_mpack_metadata(tmp_root_dir)
   if not mpack_metadata:
-    raise FatalException(-1, 'Malformed management pack {0}. Metadata file missing!'.format(mpack_path))
+    raise FatalException(-1, f'Malformed management pack {mpack_path}. Metadata file missing!')
 
   # Validate management pack prerequisites
   # Skip validation in replay mode
@@ -767,10 +767,10 @@ def _install_mpack(options, replay_mode=False, is_upgrade=False):
           mpack_name, mpack_version, mpack_staging_dir))
   if os.path.exists(mpack_staging_dir):
     if options.force:
-      print_info_msg("Force removing previously installed management pack from {0}".format(mpack_staging_dir))
+      print_info_msg(f"Force removing previously installed management pack from {mpack_staging_dir}")
       sudo.rmtree(mpack_staging_dir)
     else:
-      error_msg = "Management pack {0}-{1} already installed!".format(mpack_name, mpack_version)
+      error_msg = f"Management pack {mpack_name}-{mpack_version} already installed!"
       print_error_msg(error_msg)
       raise FatalException(-1, error_msg)
   shutil.move(tmp_root_dir, mpack_staging_dir)
@@ -797,7 +797,7 @@ def _install_mpack(options, replay_mode=False, is_upgrade=False):
     elif artifact.type == STACK_ADDON_SERVICE_DEFINITIONS_ARTIFACT_NAME:
       process_stack_addon_service_definitions_artifact(artifact, artifact_source_dir, options)
     else:
-      print_info_msg("Unknown artifact {0} of type {1}".format(artifact_name, artifact_type))
+      print_info_msg(f"Unknown artifact {artifact_name} of type {artifact_type}")
 
   ambari_user = read_ambari_user()
 
@@ -809,17 +809,17 @@ def _install_mpack(options, replay_mode=False, is_upgrade=False):
       mod = pack[1]
       user = pack[2].format(ambari_user)
       recursive = pack[3]
-      logger.info("Setting file permissions: {0} {1} {2} {3}".format(file, mod, user, recursive))
+      logger.info(f"Setting file permissions: {file} {mod} {user} {recursive}")
       set_file_permissions(file, mod, user, recursive)
 
     for pack in change_ownership_list:
       path = pack[0]
       user = pack[1].format(ambari_user)
       recursive = pack[2]
-      logger.info("Changing ownership: {0} {1} {2}".format(path, user, recursive))
+      logger.info(f"Changing ownership: {path} {user} {recursive}")
       change_owner(path, user, recursive)
 
-  print_info_msg("Management pack {0}-{1} successfully installed! Please restart ambari-server.".format(mpack_name, mpack_version))
+  print_info_msg(f"Management pack {mpack_name}-{mpack_version} successfully installed! Please restart ambari-server.")
   return mpack_metadata, mpack_name, mpack_version, mpack_staging_dir, mpack_archive_path
 
 # TODO
@@ -830,7 +830,7 @@ def _execute_hook(mpack_metadata, hook_name, base_dir):
       if hook_name == hook.name:
         hook_script = os.path.join(base_dir, hook.script)
         if os.path.exists(hook_script):
-          print_info_msg("Executing {0} hook script : {1}".format(hook_name, hook_script))
+          print_info_msg(f"Executing {hook_name} hook script : {hook_script}")
           if hook.type == PYTHON_HOOK_TYPE:
             command = ["/usr/bin/ambari-python-wrap", hook_script]
           elif hook.type == SHELL_HOOK_TYPE:
@@ -872,7 +872,7 @@ def add_replay_log(mpack_command, mpack_archive_path, purge, purge_list, force, 
   replay_log_file = get_replay_log_file()
   log = { 'mpack_command' : mpack_command, 'mpack_path' : mpack_archive_path, 'purge' : purge, 'purge_list': purge_list, 'force' : force, 'verbose' : verbose }
   with open(replay_log_file, "a") as replay_log:
-    replay_log.write("{0}\n".format(log))
+    replay_log.write(f"{log}\n")
 
 def remove_replay_logs(mpack_name):
   replay_log_file = get_replay_log_file()
@@ -887,7 +887,7 @@ def remove_replay_logs(mpack_name):
           logs.append(log)
     with open(replay_log_file, "w") as replay_log:
       for log in logs:
-        replay_log.write("{0}\n".format(log))
+        replay_log.write(f"{log}\n")
 
 def install_mpack(options, replay_mode=False):
   """
@@ -927,7 +927,7 @@ def uninstall_mpack(options, replay_mode=False):
 
   _uninstall_mpacks(mpack_name)
 
-  print_info_msg("Management pack {0} successfully uninstalled!".format(mpack_name))
+  print_info_msg(f"Management pack {mpack_name} successfully uninstalled!")
   if not replay_mode:
     remove_replay_logs(mpack_name)
 
@@ -950,7 +950,7 @@ def upgrade_mpack(options, replay_mode=False):
     print_error_msg("No management packs found that can be upgraded!")
     raise FatalException(-1, 'No management packs found that can be upgraded!')
 
-  print_info_msg("Upgrading management pack {0}".format(mpack_path))
+  print_info_msg(f"Upgrading management pack {mpack_path}")
 
   # Force install new management pack version
   options.force = True
@@ -962,7 +962,7 @@ def upgrade_mpack(options, replay_mode=False):
   # Execute post upgrade hook
   _execute_hook(mpack_metadata, AFTER_UPGRADE_HOOK_NAME, mpack_staging_dir)
 
-  print_info_msg("Management pack {0}-{1} successfully upgraded!".format(mpack_name, mpack_version))
+  print_info_msg(f"Management pack {mpack_name}-{mpack_version} successfully upgraded!")
   if not replay_mode:
     add_replay_log(UPGRADE_MPACK_ACTION, mpack_archive_path, False, [], options.force, options.verbose)
 
@@ -987,7 +987,7 @@ def replay_mpack_logs():
         elif replay_options.mpack_command == UPGRADE_MPACK_ACTION:
           upgrade_mpack(replay_options, replay_mode=True)
         else:
-          error_msg = "Invalid mpack command {0} in mpack replay log {1}!".format(replay_options.mpack_command, replay_log_file)
+          error_msg = f"Invalid mpack command {replay_options.mpack_command} in mpack replay log {replay_log_file}!"
           print_error_msg(error_msg)
           raise FatalException(-1, error_msg)
   else:

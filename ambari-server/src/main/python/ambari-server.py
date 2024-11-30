@@ -287,11 +287,11 @@ def setup_security(args):
     iAction = 0
     for actionDesc in actions:
       iAction += 1
-      print('  [{0}] {1}'.format(iAction, actionDesc[1]))
+      print(f'  [{iAction}] {actionDesc[1]}')
     print('=' * 75)
 
-    choice_prompt = 'Enter choice, (1-{0}): '.format(iAction)
-    choice_re = '[1-{0}]'.format(iAction)
+    choice_prompt = f'Enter choice, (1-{iAction}): '
+    choice_re = f'[1-{iAction}]'
     choice = get_validated_string_input(choice_prompt, '0', choice_re,
                                         'Invalid choice', False, False)
 
@@ -358,13 +358,11 @@ def print_action_arguments_help(action):
       required_options = _action_option_dependence_map[action][0]
     optional_options = _action_option_dependence_map[action][1]
     if required_options or optional_options:
-      print("Options used by action {0}:".format(action))
+      print(f"Options used by action {action}:")
     if required_options:
-      print("  required:{0}".format(
-          ";".join([print_opt for print_opt, _ in required_options])))
+      print(f"  required:{';'.join([print_opt for print_opt, _ in required_options])}")
     if optional_options:
-      print("  optional:{0}".format(
-            ";".join([print_opt for print_opt, _ in optional_options])))
+      print(f"  optional:{';'.join([print_opt for print_opt, _ in optional_options])}")
 
 @OsFamilyFuncImpl(OSConst.WINSRV_FAMILY)
 def init_action_parser(action, parser):
@@ -439,7 +437,7 @@ def init_action_parser(action, parser):
   default_purge_resources = ",".join([STACK_DEFINITIONS_RESOURCE_NAME, MPACKS_RESOURCE_NAME])
   add_parser_options('--purge-list',
       default=default_purge_resources,
-      help="Comma separated list of resources to purge ({0}). By default ({1}) will be purged.".format(purge_resources, default_purge_resources),
+      help=f"Comma separated list of resources to purge ({purge_resources}). By default ({default_purge_resources}) will be purged.",
       dest="purge_list",
       parser=parser,
       optional_for_actions=[INSTALL_MPACK_ACTION]
@@ -560,7 +558,7 @@ def init_ldap_setup_parser_options(parser):
   parser.add_option('--ldap-secondary-host', action="callback", callback=check_ldap_url_options, type='str', default=None, help="Secondary Host for LDAP (must not be used together with --ldap-secondary-url)", dest="ldap_secondary_host")
   parser.add_option('--ldap-secondary-port', action="callback", callback=check_ldap_url_options, type='int', default=None, help="Secondary Port for LDAP (must not be used together with --ldap-secondary-url)", dest="ldap_secondary_port")
   parser.add_option('--ldap-ssl', default=None, help="Use SSL [true/false] for LDAP", dest="ldap_ssl")
-  parser.add_option('--ldap-type', default=None, help="Specify ldap type [{}] for offering defaults for missing options.".format("/".join(LDAP_TYPES)), dest="ldap_type")
+  parser.add_option('--ldap-type', default=None, help=f"Specify ldap type [{'/'.join(LDAP_TYPES)}] for offering defaults for missing options.", dest="ldap_type")
   parser.add_option('--ldap-user-class', default=None, help="User Attribute Object Class for LDAP", dest="ldap_user_class")
   parser.add_option('--ldap-user-attr', default=None, help="User Attribute Name for LDAP", dest="ldap_user_attr")
   parser.add_option('--ldap-user-group-member-attr', default=None, help="User Group Member Attribute for LDAP", dest="ldap_user_group_member_attr")
@@ -683,7 +681,7 @@ def init_install_mpack_parser_options(parser):
   default_purge_resources = ",".join([STACK_DEFINITIONS_RESOURCE_NAME, MPACKS_RESOURCE_NAME])
 
   parser.add_option('--purge-list', default=default_purge_resources,
-                    help="Comma separated list of resources to purge ({0}). By default ({1}) will be purged.".format(purge_resources, default_purge_resources),
+                    help=f"Comma separated list of resources to purge ({purge_resources}). By default ({default_purge_resources}) will be purged.",
                     dest="purge_list")
   parser.add_option('--force', action="store_true", default=False, help="Force install management pack", dest="force")
 
@@ -924,7 +922,7 @@ def setup_logging(logger, filename, logging_level):
 
   logging.basicConfig(format=formatstr, level=logging_level, filename=filename)
   logger.setLevel(logging_level)
-  logger.info("loglevel=logging.{0}".format(logging._levelToName[logging_level]))
+  logger.info(f"loglevel=logging.{logging._levelToName[logging_level]}")
 
 def init_logging():
   # init logger
@@ -999,7 +997,7 @@ def main(options, args, parser):
     possible_args = ' or '.join(str(x) for x in action_obj.possible_args_numbers)
     parser.error("Invalid number of arguments. Entered: " + str(len(args)) + ", required: " + possible_args)
 
-  options.exit_message = "Ambari Server '%s' completed successfully." % action
+  options.exit_message = f"Ambari Server '{action}' completed successfully."
   options.exit_code = None
 
   try:
@@ -1007,7 +1005,7 @@ def main(options, args, parser):
       required, optional = _action_option_dependence_map[action]
       for opt_str, opt_dest in required:
         if hasattr(options, opt_dest) and getattr(options, opt_dest) is None:
-          print("Missing option {0} for action {1}".format(opt_str, action))
+          print(f"Missing option {opt_str} for action {action}")
           print_action_arguments_help(action)
           print("Run ambari-server.py --help to see detailed description of each option")
           raise FatalException(1, "Missing option")
@@ -1023,15 +1021,15 @@ def main(options, args, parser):
       for warning in options.warnings:
         print_warning_msg(warning)
         pass
-      options.exit_message = "Ambari Server '%s' completed with warnings." % action
+      options.exit_message = f"Ambari Server '{action}' completed with warnings."
       pass
   except FatalException as e:
     if e.reason is not None:
-      print_error_msg("Exiting with exit code {0}. \nREASON: {1}".format(e.code, e.reason))
+      print_error_msg(f"Exiting with exit code {e.code}. \nREASON: {e.reason}")
       logger.exception(str(e))
     sys.exit(e.code)
   except NonFatalException as e:
-    options.exit_message = "Ambari Server '%s' completed with warnings." % action
+    options.exit_message = f"Ambari Server '{action}' completed with warnings."
     if e.reason is not None:
       print_warning_msg(e.reason)
 
@@ -1069,7 +1067,7 @@ def mainBody():
     try:
       main(options, args, parser)
     except Exception as e:
-      print_error_msg("Unexpected {0}: {1}".format((e).__class__.__name__, str(e)) +\
+      print_error_msg(f"Unexpected {e.__class__.__name__}: {str(e)}" +\
       "\nFor more info run ambari-server with -v or --verbose option")
       sys.exit(1)     
 

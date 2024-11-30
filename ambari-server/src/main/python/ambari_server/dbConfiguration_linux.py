@@ -368,7 +368,7 @@ class PGConfig(LinuxDBMSConfig):
       versioned_script_path = glob.glob("/usr/pgsql-*/bin/postgresql*-setup")
       # versioned version of psql
       if versioned_script_path:
-        PG_INITDB_CMD = "{0} initdb".format(versioned_script_path[0])
+        PG_INITDB_CMD = f"{versioned_script_path[0]} initdb"
 
         psql_service_file = glob.glob("/usr/lib/systemd/system/postgresql-*.service")
         if psql_service_file:
@@ -378,17 +378,17 @@ class PGConfig(LinuxDBMSConfig):
         raise FatalException(1, "Cannot find postgresql-setup script.")
 
     SERVICE_CMD = "/usr/bin/env systemctl"
-    PG_ST_CMD = "%s status %s" % (SERVICE_CMD, PG_SERVICE_NAME)
+    PG_ST_CMD = f"{SERVICE_CMD} status {PG_SERVICE_NAME}"
 
-    PG_START_CMD = AMBARI_SUDO_BINARY + " %s start %s" % (SERVICE_CMD, PG_SERVICE_NAME)
-    PG_RESTART_CMD = AMBARI_SUDO_BINARY + " %s restart %s" % (SERVICE_CMD, PG_SERVICE_NAME)
-    PG_HBA_RELOAD_CMD = AMBARI_SUDO_BINARY + " %s reload %s" % (SERVICE_CMD, PG_SERVICE_NAME)
+    PG_START_CMD = AMBARI_SUDO_BINARY + f" {SERVICE_CMD} start {PG_SERVICE_NAME}"
+    PG_RESTART_CMD = AMBARI_SUDO_BINARY + f" {SERVICE_CMD} restart {PG_SERVICE_NAME}"
+    PG_HBA_RELOAD_CMD = AMBARI_SUDO_BINARY + f" {SERVICE_CMD} reload {PG_SERVICE_NAME}"
   else:
     SERVICE_CMD = "/usr/bin/env service"
     if os.path.isfile("/usr/bin/postgresql-setup"):
       PG_INITDB_CMD = "/usr/bin/postgresql-setup initdb"
     else:
-      PG_INITDB_CMD = "%s %s initdb" % (SERVICE_CMD, PG_SERVICE_NAME)
+      PG_INITDB_CMD = f"{SERVICE_CMD} {PG_SERVICE_NAME} initdb"
 
       if OSCheck.is_suse_family() and not is_service_exist(PG_SERVICE_NAME):
         versioned_script_paths = glob.glob("/usr/pgsql-*/bin/postgresql*-setup")
@@ -396,18 +396,18 @@ class PGConfig(LinuxDBMSConfig):
           versioned_script_path_tps = [(re.search(r'postgresql-([0-9]+\.?[0-9]*)', path).group(1), path) for path in versioned_script_paths]
           versioned_script_path_tps.sort(key = lambda t: float(t[0]), reverse = True)
           for versioned_script_path_tp in versioned_script_path_tps:
-            pgsql_service_file_name = "postgresql-%s" % versioned_script_path_tp[0]
+            pgsql_service_file_name = f"postgresql-{versioned_script_path_tp[0]}"
             if is_service_exist(pgsql_service_file_name):
               PG_SERVICE_NAME = pgsql_service_file_name
-              PG_INITDB_CMD = "%s initdb" % versioned_script_path_tp[1]
-              PG_HBA_DIR = "/var/lib/pgsql/%s/data" % versioned_script_path_tp[0]
+              PG_INITDB_CMD = f"{versioned_script_path_tp[1]} initdb"
+              PG_HBA_DIR = f"/var/lib/pgsql/{versioned_script_path_tp[0]}/data"
               break
 
-    PG_ST_CMD = "%s %s status" % (SERVICE_CMD, PG_SERVICE_NAME)
+    PG_ST_CMD = f"{SERVICE_CMD} {PG_SERVICE_NAME} status"
 
-    PG_START_CMD = AMBARI_SUDO_BINARY + " %s %s start" % (SERVICE_CMD, PG_SERVICE_NAME)
-    PG_RESTART_CMD = AMBARI_SUDO_BINARY + " %s %s restart" % (SERVICE_CMD, PG_SERVICE_NAME)
-    PG_HBA_RELOAD_CMD = AMBARI_SUDO_BINARY + " %s %s reload" % (SERVICE_CMD, PG_SERVICE_NAME)
+    PG_START_CMD = AMBARI_SUDO_BINARY + f" {SERVICE_CMD} {PG_SERVICE_NAME} start"
+    PG_RESTART_CMD = AMBARI_SUDO_BINARY + f" {SERVICE_CMD} {PG_SERVICE_NAME} restart"
+    PG_HBA_RELOAD_CMD = AMBARI_SUDO_BINARY + f" {SERVICE_CMD} {PG_SERVICE_NAME} reload"
 
   PG_HBA_CONF_FILE = None
   PG_HBA_CONF_FILE_BACKUP = None
@@ -473,7 +473,7 @@ class PGConfig(LinuxDBMSConfig):
       if is_root():
         (pg_status, retcode, out, err) = PGConfig._check_postgre_up()
         if not retcode == 0:
-          err = 'Unable to start PostgreSQL server. Status {0}. {1}. Exiting'.format(pg_status, err)
+          err = f'Unable to start PostgreSQL server. Status {pg_status}. {err}. Exiting'
           raise FatalException(retcode, err)
       else:
         print("Unable to check PostgreSQL server status when starting " \
@@ -539,7 +539,7 @@ class PGConfig(LinuxDBMSConfig):
       default = "no"
 
     # Run automatic reset only for embedded DB
-    okToRun = get_YN_input("Confirm server reset [yes/no]({0})? ".format(default), get_silent())
+    okToRun = get_YN_input(f"Confirm server reset [yes/no]({default})? ", get_silent())
     if not okToRun:
       err = "Ambari Server 'reset' cancelled"
       raise FatalException(1, err)
@@ -687,7 +687,7 @@ class PGConfig(LinuxDBMSConfig):
         out, err = process.communicate()
         retcode = process.returncode
 
-        print_info_msg("Waiting for postgres to start at port {0}...".format(PG_PORT))
+        print_info_msg(f"Waiting for postgres to start at port {PG_PORT}...")
         wait_for_port_opened('127.0.0.1', PG_PORT, PG_PORT_CHECK_TRIES_COUNT, PG_PORT_CHECK_INTERVAL)
 
         pg_status, retcode, out, err = PGConfig._get_postgre_status()
@@ -893,7 +893,7 @@ Make sure that all tables returned by following SQL are owned by {user}:
                                                            "\" OWNER TO \""+self.database_username+"\"",
                                                            self.database_name, False)
         if retcode != 0 or "ALTER TABLE" not in stdout:
-          print_error_msg("Failed to change owner of table:{0} to user:{1}".format(tbl, owner))
+          print_error_msg(f"Failed to change owner of table:{tbl} to user:{owner}")
           return False
 
     return True

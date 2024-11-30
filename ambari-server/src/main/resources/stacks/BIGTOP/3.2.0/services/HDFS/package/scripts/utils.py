@@ -52,7 +52,7 @@ def safe_zkfc_op(action, env):
   :param action: start or stop
   :param env: environment
   """
-  Logger.info("Performing action {0} on zkfc.".format(action))
+  Logger.info(f"Performing action {action} on zkfc.")
   zkfc = None
   if action == "start":
     try:
@@ -96,7 +96,7 @@ def initiate_safe_zkfc_failover():
     Logger.info(format("Standby NameNode id: {standby_namenode_id}"))
   if unknown_namenodes:
     for unknown_namenode in unknown_namenodes:
-      Logger.info("NameNode HA state for {0} is unknown".format(unknown_namenode[0]))
+      Logger.info(f"NameNode HA state for {unknown_namenode[0]} is unknown")
 
   if params.namenode_id == active_namenode_id and params.other_namenode_id == standby_namenode_id:
     # Failover if this NameNode is active and other NameNode is up and in standby (i.e. ready to become active on failover)
@@ -105,7 +105,7 @@ def initiate_safe_zkfc_failover():
     failover_command = format("hdfs haadmin -ns {dfs_ha_nameservices} -failover {namenode_id} {other_namenode_id}")
     check_standby_cmd = format("hdfs haadmin -ns {dfs_ha_nameservices} -getServiceState {namenode_id} | grep standby")
 
-    msg = "Rolling Upgrade - Initiating a ZKFC failover on active NameNode host {0}.".format(params.hostname)
+    msg = f"Rolling Upgrade - Initiating a ZKFC failover on active NameNode host {params.hostname}."
     Logger.info(msg)
     code, out = shell.call(failover_command, user=params.hdfs_user, logoutput=True)
     Logger.info(format("Rolling Upgrade - failover command returned {code}"))
@@ -133,7 +133,7 @@ def initiate_safe_zkfc_failover():
               try_sleep=6,
               logoutput=True)
   else:
-    msg = "Rolling Upgrade - Skipping ZKFC failover on NameNode host {0}.".format(params.hostname)
+    msg = f"Rolling Upgrade - Skipping ZKFC failover on NameNode host {params.hostname}."
     Logger.info(msg)
 
 def kill_zkfc(zkfc_user):
@@ -320,7 +320,7 @@ def get_jmx_data(nn_address, modeler_type, metric, encrypted=False, security_ena
     nn_address = nn_address + "/"
 
   nn_address = nn_address + "jmx"
-  Logger.info("Retrieve modeler: %s, metric: %s from JMX endpoint %s" % (modeler_type, metric, nn_address))
+  Logger.info(f"Retrieve modeler: {modeler_type}, metric: {metric} from JMX endpoint {nn_address}")
 
   if security_enabled:
     import params

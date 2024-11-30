@@ -52,7 +52,7 @@ def pre_rolling_upgrade_shutdown(hdfs_binary):
   if code != 0:
     # Due to bug HDFS-7533, DataNode may not always shutdown during stack upgrade, and it is necessary to kill it.
     if output is not None and re.search("Shutdown already in progress", output):
-      Logger.error("Due to a known issue in DataNode, the command {0} did not work, so will need to shutdown the datanode forcefully.".format(command))
+      Logger.error(f"Due to a known issue in DataNode, the command {command} did not work, so will need to shutdown the datanode forcefully.")
       return False
   return True
 
@@ -112,10 +112,10 @@ def _check_datanode_startup(hdfs_binary):
     hostname = params.hostname.lower()
     hostname_ip =  socket.gethostbyname(params.hostname.lower())
     if hostname in hdfs_output.lower() or hostname_ip in hdfs_output.lower():
-      Logger.info("DataNode {0} reports that it has rejoined the cluster.".format(params.hostname))
+      Logger.info(f"DataNode {params.hostname} reports that it has rejoined the cluster.")
       return
     else:
-      raise Fail("DataNode {0} was not found in the list of live DataNodes".format(params.hostname))
+      raise Fail(f"DataNode {params.hostname} was not found in the list of live DataNodes")
 
   # return_code is not 0, fail
-  raise Fail("Unable to determine if the DataNode has started after upgrade (result code {0})".format(str(return_code)))
+  raise Fail(f"Unable to determine if the DataNode has started after upgrade (result code {str(return_code)})")

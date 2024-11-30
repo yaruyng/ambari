@@ -220,7 +220,7 @@ class Bootstrap(threading.Thread):
     return _call
 
   def try_to_execute(self, action):
-    last_retcode = {"exitstatus": 177, "log":"Try to execute '{0}'".format(str(action)), "errormsg":"Execute of '{0}' failed".format(str(action))}
+    last_retcode = {"exitstatus": 177, "log":f"Try to execute '{str(action)}'", "errormsg":f"Execute of '{str(action)}' failed"}
     try:
       retcode = action()
       if isinstance(retcode, int):
@@ -289,7 +289,7 @@ class BootstrapWindows(Bootstrap):
     self.host_log.write("==========================\n")
     self.host_log.write("Creating target directory...")
     command = os.path.join(self.shared_state.script_dir, self.CREATE_REMOTING_DIR_SCRIPT_NAME)
-    psr = PSR(command, self.host, self.host_log, params="{0} {1}".format(self.host, self.getTempFolder()))
+    psr = PSR(command, self.host, self.host_log, params=f"{self.host} {self.getTempFolder()}")
     retcode = psr.run()
     self.host_log.write("\n")
     return retcode
@@ -300,7 +300,7 @@ class BootstrapWindows(Bootstrap):
     self.host_log.write("==========================\n")
     self.host_log.write("Unzipping bootstrap archive...")
     command = os.path.join(self.shared_state.script_dir, self.UNZIP_REMOTING_SCRIPT_NAME)
-    psr = PSR(command, self.host, self.host_log, params="{0} {1} {2}".format(self.host, zipFile, self.getTempFolder()))
+    psr = PSR(command, self.host, self.host_log, params=f"{self.host} {zipFile} {self.getTempFolder()}")
     result = psr.run()
     self.host_log.write("\n")
     return result
@@ -312,7 +312,7 @@ class BootstrapWindows(Bootstrap):
     self.host_log.write("==========================\n")
     self.host_log.write("Copying bootstrap archive...")
     command = os.path.join(self.shared_state.script_dir, self.SEND_REMOTING_FILE_SCRIPT_NAME)
-    psr = PSR(command, self.host, self.host_log, params="{0} {1} {2}".format(self.host, fileToCopy, target))
+    psr = PSR(command, self.host, self.host_log, params=f"{self.host} {fileToCopy} {target}")
     result = psr.run()
     self.host_log.write("\n")
     return result
@@ -324,7 +324,7 @@ class BootstrapWindows(Bootstrap):
     self.host_log.write("==========================\n")
     self.host_log.write("Copying chocolatey config file...")
     command = os.path.join(self.shared_state.script_dir, self.SEND_REMOTING_FILE_SCRIPT_NAME)
-    psr = PSR(command, self.host, self.host_log, params="{0} {1} {2}".format(self.host, fileToCopy, target))
+    psr = PSR(command, self.host, self.host_log, params=f"{self.host} {fileToCopy} {target}")
     result = psr.run()
     self.host_log.write("\n")
     return result
@@ -334,7 +334,7 @@ class BootstrapWindows(Bootstrap):
     self.host_log.write("Running configure chocolatey script...")
     tmpConfig = os.path.join(self.getTempFolder(), self.CHOCOLATEY_CONFIG_FILENAME)
     command = os.path.join(self.shared_state.script_dir, self.CONFIGURE_CHOCOLATEY_SCRIPT_NAME)
-    psr = PSR(command, self.host, self.host_log, params="{0} {1}".format(self.host, tmpConfig))
+    psr = PSR(command, self.host, self.host_log, params=f"{self.host} {tmpConfig}")
     result = psr.run()
     self.host_log.write("\n")
     return result
@@ -351,7 +351,7 @@ class BootstrapWindows(Bootstrap):
     self.host_log.write("==========================\n")
     self.host_log.write("Running setup agent script...")
     command = os.path.join(self.shared_state.script_dir, self.RUN_REMOTING_SCRIPT_NAME)
-    psr = PSR(command, self.host, self.host_log, params="{0} \"{1}\"".format(self.host, self.getRunSetupCommand(self.host)))
+    psr = PSR(command, self.host, self.host_log, params=f"{self.host} \"{self.getRunSetupCommand(self.host)}\"")
     retcode = psr.run()
     self.host_log.write("\n")
     return retcode
@@ -429,7 +429,7 @@ class BootstrapDefault(Bootstrap):
     elif OSCheck.is_ubuntu_family():
       return "/etc/apt/sources.list.d"
     else:
-      raise Exception("Unsupported OS family '{0}'".format(OSCheck.get_os_family()))
+      raise Exception(f"Unsupported OS family '{OSCheck.get_os_family()}'")
 
   def getRepoFile(self):
     """ Ambari repo file for Ambari."""
@@ -508,12 +508,12 @@ class BootstrapDefault(Bootstrap):
     return result
 
   def getMoveRepoFileWithPasswordCommand(self, targetDir):
-    return "{sudo} -S mv ".format(sudo=AMBARI_SUDO) + str(self.getRemoteName(self.AMBARI_REPO_FILENAME)) \
+    return f"{AMBARI_SUDO} -S mv " + str(self.getRemoteName(self.AMBARI_REPO_FILENAME)) \
            + " " + os.path.join(str(targetDir), self.AMBARI_REPO_FILENAME) + \
            " < " + str(self.getPasswordFile())
 
   def getMoveRepoFileWithoutPasswordCommand(self, targetDir):
-    return "{sudo} mv ".format(sudo=AMBARI_SUDO) + str(self.getRemoteName(self.AMBARI_REPO_FILENAME)) \
+    return f"{AMBARI_SUDO} mv " + str(self.getRemoteName(self.AMBARI_REPO_FILENAME)) \
            + " " + os.path.join(str(targetDir), self.AMBARI_REPO_FILENAME)
 
   def getMoveRepoFileCommand(self, targetDir):
@@ -527,7 +527,7 @@ class BootstrapDefault(Bootstrap):
           (AMBARI_SUDO, "sources.list.d", self.AMBARI_REPO_FILENAME)
           
   def getRepoFileChmodCommand(self):
-    return "{0} chmod 644 {1}".format(AMBARI_SUDO, self.getRepoFile())
+    return f"{AMBARI_SUDO} chmod 644 {self.getRepoFile()}"
 
   def copyNeededFiles(self):
     # get the params
@@ -578,7 +578,7 @@ class BootstrapDefault(Bootstrap):
     else:
       self.host_log.write("==========================\n")
       self.host_log.write("Copying required files...")
-      self.host_log.write("Ambari repo file not found: {0}".format(self.getRepoFile()))
+      self.host_log.write(f"Ambari repo file not found: {self.getRepoFile()}")
       retcode = -1
       pass
 
@@ -609,7 +609,7 @@ class BootstrapDefault(Bootstrap):
     version = self.getAmbariVersion()
     port = self.getAmbariPort()
     passwordFile = self.getPasswordFile()
-    return "{sudo} -S python3 ".format(sudo=AMBARI_SUDO) + str(setupFile) + " " + str(expected_hostname) + \
+    return f"{AMBARI_SUDO} -S python3 " + str(setupFile) + " " + str(expected_hostname) + \
            " " + str(passphrase) + " " + str(server)+ " " + quote_bash_args(str(user_run_as)) + " " + str(version) + \
            " " + str(port) + " < " + str(passwordFile)
 
@@ -620,7 +620,7 @@ class BootstrapDefault(Bootstrap):
     user_run_as = self.shared_state.user_run_as
     version=self.getAmbariVersion()
     port=self.getAmbariPort()
-    return "{sudo} python3 ".format(sudo=AMBARI_SUDO) + str(setupFile) + " " + str(expected_hostname) + \
+    return f"{AMBARI_SUDO} python3 " + str(setupFile) + " " + str(expected_hostname) + \
            " " + str(passphrase) + " " + str(server)+ " " + quote_bash_args(str(user_run_as)) + " " + str(version) + \
            " " + str(port)
 

@@ -309,7 +309,7 @@ class AmbariLDAPConfiguration:
     '''
     ldap_host = self.get_server_host()
     ldap_port = self.get_server_port()
-    return None if ldap_host is None or ldap_port is None else '{}:{}'.format(ldap_host,ldap_port)
+    return None if ldap_host is None or ldap_port is None else f'{ldap_host}:{ldap_port}'
 
   def get_secondary_server_host(self):
     '''
@@ -330,7 +330,7 @@ class AmbariLDAPConfiguration:
     '''
     ldap_host = self.get_secondary_server_host()
     ldap_port = self.get_secondary_server_port()
-    return None if ldap_host is None or ldap_port is None else '{}:{}'.format(ldap_host,ldap_port)
+    return None if ldap_host is None or ldap_port is None else f'{ldap_host}:{ldap_port}'
 
   def is_use_ssl(self):
     '''

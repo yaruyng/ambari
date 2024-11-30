@@ -105,7 +105,7 @@ class RangerAdmin(Script):
                   logoutput = True
                   )
         except ExecutionFailed as execution_exception:
-          Logger.error("Error adding field to Ranger Audits Solr Collection. Kindly check Infra Solr service to be up and running {0}".format(execution_exception))
+          Logger.error(f"Error adding field to Ranger Audits Solr Collection. Kindly check Infra Solr service to be up and running {execution_exception}")
 
   def start(self, env, upgrade_type=None):
     import params
@@ -241,7 +241,7 @@ class RangerAdmin(Script):
     if stack_select_packages is None:
       raise Fail("Unable to get packages for stack-select")
 
-    Logger.info("RANGER_ADMIN component will be stack-selected to version {0} using a {1} orchestration".format(params.version, orchestration.upper()))
+    Logger.info(f"RANGER_ADMIN component will be stack-selected to version {params.version} using a {orchestration.upper()} orchestration")
 
     for stack_select_package_name in stack_select_packages:
       stack_select.select(stack_select_package_name, params.version)

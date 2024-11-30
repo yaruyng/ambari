@@ -131,7 +131,7 @@ class RMFTestCase(TestCase):
         Script.repository_util = RepositoryUtil(self.config_dict)
         method = RMFTestCase._get_attr(script_class_inst, command)
     except IOError as err:
-      raise RuntimeError("Cannot load class %s from %s: %s" % (classname, norm_path, err.message))
+      raise RuntimeError(f"Cannot load class {classname} from {norm_path}: {err.message}")
     
     # Reload params import, otherwise it won't change properties during next import
     if 'params' in sys.modules:  
@@ -264,7 +264,7 @@ class RMFTestCase(TestCase):
   def _get_attr(module, attr):
     module_methods = dir(module)
     if not attr in module_methods:
-      raise RuntimeError("'{0}' has no attribute '{1}'".format(module, attr))
+      raise RuntimeError(f"'{module}' has no attribute '{attr}'")
     method = getattr(module, attr)
     return method
   
@@ -285,8 +285,7 @@ class RMFTestCase(TestCase):
   def printResources(self, intendation=4):
     print
     for resource in RMFTestCase.env.resource_list:
-      s = "'{0}', {1},".format(
-        resource.__class__.__name__, self._ppformat(resource.name))
+      s = f"'{resource.__class__.__name__}', {self._ppformat(resource.name)},"
       has_arguments = False
       for k,v in resource.arguments.items():
         has_arguments = True
@@ -296,7 +295,7 @@ class RMFTestCase(TestCase):
         elif  isinstance( v, UnknownConfiguration):
           val = "UnknownConfigurationMock()"
         elif hasattr(v, '__call__') and hasattr(v, '__name__'):
-          val = "FunctionMock('{0}')".format(v.__name__)
+          val = f"FunctionMock('{v.__name__}')"
         else:
           val = self._ppformat(v)
         # If value is multiline, format it
@@ -306,7 +305,7 @@ class RMFTestCase(TestCase):
           nextlines = "\n".join(lines [1:])
           nextlines = self.reindent(nextlines, 2)
           val = "\n".join([firstLine, nextlines])
-        param_str="{0} = {1},".format(k, val)
+        param_str=f"{k} = {val},"
         s+="\n" + self.reindent(param_str, intendation)
       # Decide whether we want bracket to be at next line
       if has_arguments:
@@ -314,7 +313,7 @@ class RMFTestCase(TestCase):
       else:
         before_bracket = ""
       # Add assertion
-      s = "self.assertResourceCalled({0}{1})".format(s, before_bracket)
+      s = f"self.assertResourceCalled({s}{before_bracket})"
       # Intendation
       s = self.reindent(s, intendation)
       print(s)
@@ -362,14 +361,14 @@ class RMFTestCase(TestCase):
         actual_value = kwargs.get(key, '')
         if self.isstring(resource_value):
           self.assertRegex(resource_value, actual_value,
-                                   msg="Key '%s': '%s' does not match with '%s'" % (key, resource_value, actual_value))
+                                   msg=f"Key '{key}': '{resource_value}' does not match with '{actual_value}'")
         else: # check only the type of a custom object
           self.assertEqual(resource_value.__class__.__name__, actual_value.__class__.__name__)
 
   def assertRegexpMatches(self, value, pattern, msg=None):
     if not re.match(pattern, value):
       if msg is None:
-        raise AssertionError('pattern %s does not match %s' % (pattern, value))
+        raise AssertionError(f'pattern {pattern} does not match {value}')
 
   def isstring(self, s):
     if (sys.version_info[0] == 3):

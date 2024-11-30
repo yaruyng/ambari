@@ -107,16 +107,16 @@ class KafkaBroker(Script):
     try:
       pid = int(sudo.read_file(params.kafka_pid_file))
     except:
-      Logger.info("Pid file {0} does not exist or does not contain a process id number".format(params.kafka_pid_file))
+      Logger.info(f"Pid file {params.kafka_pid_file} does not exist or does not contain a process id number")
       return
 
     max_wait = 120
     for i in range(max_wait):
-      Logger.info("Waiting for Kafka Broker stop, current pid: {0}, seconds: {1}s".format(pid, i + 1))
+      Logger.info(f"Waiting for Kafka Broker stop, current pid: {pid}, seconds: {i + 1}s")
       try:
         sudo.kill(pid, signal.SIGTERM.value)
       except OSError as e:
-        Logger.info("Kafka Broker is not running, delete pid file: {0}".format(params.kafka_pid_file))
+        Logger.info(f"Kafka Broker is not running, delete pid file: {params.kafka_pid_file}")
         File(params.kafka_pid_file, action = "delete")
         return
         
@@ -128,7 +128,7 @@ class KafkaBroker(Script):
         File(params.kafka_pid_file, action = "delete")
         return
     
-    raise Fail("Cannot stop Kafka Broker after {0} seconds".format(max_wait))
+    raise Fail(f"Cannot stop Kafka Broker after {max_wait} seconds")
 
 
   def disable_security(self, env):
@@ -140,7 +140,7 @@ class KafkaBroker(Script):
       Logger.info("The zookeeper.set.acl is false. Skipping reverting ACL")
       return
     Execute(
-      "{0} --zookeeper.connect {1} --zookeeper.acl=unsecure".format(params.kafka_security_migrator, params.zookeeper_connect), \
+      f"{params.kafka_security_migrator} --zookeeper.connect {params.zookeeper_connect} --zookeeper.acl=unsecure", \
       user=params.kafka_user, \
       environment={ 'JAVA_HOME': params.java64_home }, \
       logoutput=True, \

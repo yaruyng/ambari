@@ -233,7 +233,7 @@ def get_conf_dir():
     return conf_dir
   except KeyError:
     default_conf_dir = AmbariPath.get("/etc/ambari-server/conf")
-    print_info_msg("{0} is not set, using default {1}".format(AMBARI_CONF_VAR, default_conf_dir))
+    print_info_msg(f"{AMBARI_CONF_VAR} is not set, using default {default_conf_dir}")
     return default_conf_dir
 
 def find_properties_file():
@@ -244,7 +244,7 @@ def find_properties_file():
     print_error_msg (err)
     raise FatalException(1, err)
   else:
-    print_info_msg('Loading properties from {0}'.format(conf_file))
+    print_info_msg(f'Loading properties from {conf_file}')
   return conf_file
 
 # Load ambari properties and return dict with values
@@ -259,7 +259,7 @@ def get_ambari_properties():
     with open(conf_file) as hfR:
       properties.load(hfR)
   except (Exception) as e:
-    print_error_msg ('Could not read "%s": %s' % (conf_file, str(e)))
+    print_error_msg (f'Could not read "{conf_file}": {str(e)}')
     return -1
 
   # Try to replace $ROOT with the value from the OS environment.
@@ -276,7 +276,7 @@ def get_ambari_properties():
       properties.__dict__[k] = v.replace("$ROOT", root)
       properties._props[k] = v.replace("$ROOT", root)
   except (Exception) as e:
-    print_error_msg('Could not replace %s in "%s": %s' %(conf_file, root_env, str(e)))
+    print_error_msg(f'Could not replace {conf_file} in "{root_env}": {str(e)}')
   return properties
 
 class ServerDatabaseType(object):
@@ -442,10 +442,10 @@ class ServerConfigDefaults(object):
           os.makedirs(directory, 0o755)
         except Exception as ex:
           # permission denied here is expected when ambari runs as non-root
-          print_error_msg("Could not create {0}. Reason: {1}".format(directory, str(ex)))
+          print_error_msg(f"Could not create {directory}. Reason: {str(ex)}")
       
       if not os.path.isdir(directory) or not os.access(directory, os.W_OK):
-        raise FatalException(-1, "Unable to access {0} directory. Confirm the directory is created and is writable by Ambari Server user account '{1}'".format(directory, getpass.getuser()))
+        raise FatalException(-1, f"Unable to access {directory} directory. Confirm the directory is created and is writable by Ambari Server user account '{getpass.getuser()}'")
 
 @OsFamilyImpl(os_family=OSConst.WINSRV_FAMILY)
 class ServerConfigDefaultsWindows(ServerConfigDefaults):
@@ -846,14 +846,14 @@ def update_database_name_property(upgrade=False):
     if properties == -1:
       err = "Error getting ambari properties"
       raise FatalException(-1, err)
-    print_warning_msg("{0} property isn't set in {1} . Setting it to default value - {2}".format(JDBC_DATABASE_NAME_PROPERTY, AMBARI_PROPERTIES_FILE, configDefaults.DEFAULT_DB_NAME))
+    print_warning_msg(f"{JDBC_DATABASE_NAME_PROPERTY} property isn't set in {AMBARI_PROPERTIES_FILE} . Setting it to default value - {configDefaults.DEFAULT_DB_NAME}")
     properties.process_pair(JDBC_DATABASE_NAME_PROPERTY, configDefaults.DEFAULT_DB_NAME)
     conf_file = find_properties_file()
     try:
       with open(conf_file, "w") as hfW:
         properties.store(hfW)
     except Exception as e:
-      err = 'Could not write ambari config file "%s": %s' % (conf_file, e)
+      err = f'Could not write ambari config file "{conf_file}": {e}'
       raise FatalException(-1, err)
 
 
@@ -923,9 +923,9 @@ def read_passwd_for_alias(alias, masterKey="", options=None):
     command = SECURITY_PROVIDER_GET_CMD.format(get_java_exe_path(),
                                                serverClassPath.get_full_ambari_classpath_escaped_for_shell(), alias, tempFilePath, masterKey)
     (retcode, stdout, stderr) = run_os_command(command)
-    print_info_msg("Return code from credential provider get passwd: {0}".format(str(retcode)))
+    print_info_msg(f"Return code from credential provider get passwd: {str(retcode)}")
     if retcode != 0:
-      print_error_msg ('ERROR: Unable to read password from store. alias = {0}'.format(alias))
+      print_error_msg (f'ERROR: Unable to read password from store. alias = {alias}')
     else:
       with open(tempFilePath, 'r') as hfRTemp:
         passwd = hfRTemp.read()
@@ -963,7 +963,7 @@ def save_passwd_for_alias(alias, passwd, masterKey=""):
     command = SECURITY_PROVIDER_PUT_CMD.format(get_java_exe_path(),
                                                serverClassPath.get_full_ambari_classpath_escaped_for_shell(), alias, passwd, masterKey)
     (retcode, stdout, stderr) = run_os_command(command)
-    print_info_msg("Return code from credential provider save passwd: {0}".format(str(retcode)))
+    print_info_msg(f"Return code from credential provider save passwd: {str(retcode)}")
     return retcode
   else:
     print_error_msg("Alias or password is unreadable.")
@@ -993,7 +993,7 @@ def remove_password_file(filename):
     try:
       os.remove(passFilePath)
     except Exception as e:
-      print_warning_msg('Unable to remove password file: {0}'.format(str(e)))
+      print_warning_msg(f'Unable to remove password file: {str(e)}')
       return 1
   pass
   return 0
@@ -1129,9 +1129,9 @@ def update_krb_jaas_login_properties():
     # restore original file, destination arg for rename func shouldn't exists
     os.remove(conf_file)
     os.rename(prev_conf_file, conf_file)
-    print_warning_msg("Original file %s kept" % AMBARI_KRB_JAAS_LOGIN_FILE)
+    print_warning_msg(f"Original file {AMBARI_KRB_JAAS_LOGIN_FILE} kept")
   except OSError as e:
-    print_error_msg ("Couldn't move %s file: %s" % (prev_conf_file, str(e)))
+    print_error_msg (f"Couldn't move {prev_conf_file} file: {str(e)}")
     return -1
 
   return 0
@@ -1150,9 +1150,9 @@ def update_ambari_env():
     if env_file is not None:
       os.remove(env_file)
       os.rename(prev_env_file, env_file)
-      print(("INFO: Original file %s kept") % (AMBARI_ENV_FILE))
+      print(f"INFO: Original file {AMBARI_ENV_FILE} kept")
   except OSError as e:
-    print_error_msg ( "Couldn't move %s file: %s" % (prev_env_file, str(e)))
+    print_error_msg ( f"Couldn't move {prev_env_file} file: {str(e)}")
     return -1
 
   return 0
@@ -1192,12 +1192,12 @@ def update_ambari_properties():
 
   # Previous config file does not exist
   if (not prev_conf_file) or (prev_conf_file is None):
-    print_warning_msg("Can not find %s file from previous version, skipping import of settings" % configDefaults.AMBARI_PROPERTIES_BACKUP_FILE)
+    print_warning_msg(f"Can not find {configDefaults.AMBARI_PROPERTIES_BACKUP_FILE} file from previous version, skipping import of settings")
     return 0
 
   # ambari.properties file does not exists
   if conf_file is None:
-    print_error_msg("Can't find %s file" % AMBARI_PROPERTIES_FILE)
+    print_error_msg(f"Can't find {AMBARI_PROPERTIES_FILE} file")
     return -1
 
   with open(prev_conf_file) as hfOld:
@@ -1205,7 +1205,7 @@ def update_ambari_properties():
       old_properties = Properties()
       old_properties.load(hfOld)
     except Exception as e:
-      print_error_msg ('Could not read "%s": %s' % (prev_conf_file, str(e)))
+      print_error_msg (f'Could not read "{prev_conf_file}": {str(e)}')
       return -1
 
   try:
@@ -1239,7 +1239,7 @@ def update_ambari_properties():
       new_properties.store(hfW)
 
   except Exception as e:
-    print_error_msg ('Could not write "%s": %s' % (conf_file, str(e)))
+    print_error_msg (f'Could not write "{conf_file}": {str(e)}')
     return -1
 
   timestamp = datetime.datetime.now()
@@ -1248,7 +1248,7 @@ def update_ambari_properties():
   try:
     os.rename(prev_conf_file, new_conf_file)
   except Exception as e:
-    print_error_msg ('Could not rename "%s" to "%s": %s' % (prev_conf_file, new_conf_file, str(e)))
+    print_error_msg (f'Could not rename "{prev_conf_file}" to "{new_conf_file}": {str(e)}')
     #Not critical, move on
 
   return 0
@@ -1264,7 +1264,7 @@ def update_properties(propertyMap):
       with open(conf_file, 'r') as file:
         properties.load(file)
     except (Exception) as e:
-      print_error_msg('Could not read "%s": %s' % (conf_file, e))
+      print_error_msg(f'Could not read "{conf_file}": {e}')
       return -1
 
     for key in propertyMap.keys():
@@ -1302,14 +1302,14 @@ def write_property(key, value):
     with open(conf_file, "r") as hfR:
       properties.load(hfR)
   except Exception as e:
-    print_error_msg('Could not read ambari config file "%s": %s' % (conf_file, e))
+    print_error_msg(f'Could not read ambari config file "{conf_file}": {e}')
     return -1
   properties.process_pair(key, value)
   try:
     with open(conf_file, 'w') as hfW:
       properties.store(hfW)
   except Exception as e:
-    print_error_msg('Could not write ambari config file "%s": %s' % (conf_file, e))
+    print_error_msg(f'Could not write ambari config file "{conf_file}": {e}')
     return -1
   return 0
 
@@ -1455,20 +1455,20 @@ def find_jdk():
   if jdkPath:
     if validate_jdk(jdkPath):
       return jdkPath
-  print("INFO: Looking for available JDKs at {0}".format(configDefaults.JDK_INSTALL_DIR))
+  print(f"INFO: Looking for available JDKs at {configDefaults.JDK_INSTALL_DIR}")
   jdks = glob.glob(os.path.join(configDefaults.JDK_INSTALL_DIR, configDefaults.JDK_SEARCH_PATTERN))
   #[fbarca] Use the newest JDK
   jdks.sort(reverse=True)
-  print_info_msg("Found: {0}".format(str(jdks)))
+  print_info_msg(f"Found: {str(jdks)}")
   if len(jdks) == 0:
     return
   for jdkPath in jdks:
-    print("INFO: Trying to use JDK {0}".format(jdkPath))
+    print(f"INFO: Trying to use JDK {jdkPath}")
     if validate_jdk(jdkPath):
-      print("INFO: Selected JDK {0}".format(jdkPath))
+      print(f"INFO: Selected JDK {jdkPath}")
       return jdkPath
     else:
-      print_error_msg ("JDK {0} is invalid".format(jdkPath))
+      print_error_msg (f"JDK {jdkPath} is invalid")
   return
 
 def get_java_exe_path():

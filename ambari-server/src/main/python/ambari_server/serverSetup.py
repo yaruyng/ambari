@@ -166,7 +166,7 @@ def check_selinux():
         raise FatalException(1, None)
       return 0
   except OSError:
-    print_warning_msg("Could not run {0}: OK".format(GET_SE_LINUX_ST_CMD))
+    print_warning_msg(f"Could not run {GET_SE_LINUX_ST_CMD}: OK")
   return 0
 
 
@@ -227,10 +227,10 @@ class AmbariUserChecks(object):
 
       adjust_directory_permissions(self.user)
     except OSError as e:
-      print_error_msg("Failed: %s" % str(e))
+      print_error_msg(f"Failed: {str(e)}")
       return 4
     except Exception as e:
-      print_error_msg("Unexpected error %s" % str(e))
+      print_error_msg(f"Unexpected error {str(e)}")
       return 1
     return 0
 
@@ -252,7 +252,7 @@ class AmbariUserChecksWindows(AmbariUserChecks):
 
   def _create_custom_user(self):
     user = get_validated_string_input(
-      "Enter user account for ambari-server service ({0}):".format(self.user),
+      f"Enter user account for ambari-server service ({self.user}):",
       self.user, None,
       "Invalid username.",
       False
@@ -264,7 +264,7 @@ class AmbariUserChecksWindows(AmbariUserChecks):
     if get_silent():
       password = self.password
     else:
-      password = get_validated_string_input("Enter password for user {0}:".format(user), "", None, "Password", True, False)
+      password = get_validated_string_input(f"Enter password for user {user}:", "", None, "Password", True, False)
 
     from ambari_commons.os_windows import UserHelper
 
@@ -280,7 +280,7 @@ class AmbariUserChecksWindows(AmbariUserChecks):
                        "skipping user creation".format(user))
 
       elif status == UserHelper.ACTION_FAILED:  # fail
-        print_warning_msg("Can't create user {0}. Failed with message {1}".format(user, message))
+        print_warning_msg(f"Can't create user {user}. Failed with message {message}")
         return UserHelper.ACTION_FAILED
 
     self.password = password
@@ -289,12 +289,12 @@ class AmbariUserChecksWindows(AmbariUserChecks):
     #This is unconditional
     status, message = uh.add_user_privilege('SeServiceLogonRight')
     if status == UserHelper.ACTION_FAILED:
-      print_warning_msg("Can't add SeServiceLogonRight to user {0}. Failed with message {1}".format(user, message))
+      print_warning_msg(f"Can't add SeServiceLogonRight to user {user}. Failed with message {message}")
       return UserHelper.ACTION_FAILED
 
     status, message = uh.add_user_privilege('SeBatchLogonRight')
     if status == UserHelper.ACTION_FAILED:
-      print_warning_msg("Can't add SeBatchLogonRight to user {0}. Failed with message {1}".format(user, message))
+      print_warning_msg(f"Can't add SeBatchLogonRight to user {user}. Failed with message {message}")
       return UserHelper.ACTION_FAILED
 
     print_info_msg("User configuration is done.")
@@ -322,19 +322,18 @@ class AmbariUserChecksLinux(AmbariUserChecks):
 
   def _create_custom_user(self):
     user = get_validated_string_input(
-      "Enter user account for ambari-server daemon ({0}):".format(self.user),
+      f"Enter user account for ambari-server daemon ({self.user}):",
       self.user,
       "^[a-z_][a-z0-9_-]{1,31}$",
       "Invalid username.",
       False
     )
 
-    print_info_msg("Trying to create user {0}".format(user))
+    print_info_msg(f"Trying to create user {user}")
     command = self.NR_USERADD_CMD.format(user, self.NR_USER_COMMENT)
     retcode, out, err = run_os_command(command)
     if retcode == 9:  # 9 = username already in use
-      print_info_msg("User {0} already exists, "
-                     "skipping user creation".format(user))
+      print_info_msg(f"User {user} already exists, skipping user creation")
 
     elif retcode != 0:  # fail
       print_warning_msg("Can't create user {0}. Command {1} "
@@ -520,7 +519,7 @@ class JDKSetup(object):
     elif properties[JDK_DOWNLOAD_SUPPORTED_PROPERTY].upper() == "FALSE":
       print("ERROR: Oracle JDK is not found in {1}. JDK download is not supported in this distribution. Please download Oracle JDK " \
             "archive ({0}) manually from Oracle site, place it into {1} and re-run this script.".format(jdk_cfg.dest_file, dest_file))
-      print("NOTE: If you have already downloaded the file, please verify if the name is exactly same as {0}.".format(jdk_cfg.dest_file))
+      print(f"NOTE: If you have already downloaded the file, please verify if the name is exactly same as {jdk_cfg.dest_file}.")
       print('Exiting...')
       sys.exit(1)
     else:
@@ -544,7 +543,7 @@ class JDKSetup(object):
     try:
       (retcode, out, java_home_dir) = self._install_jdk(dest_file, jdk_cfg)
     except Exception as e:
-      print("Installation of JDK has failed: %s\n" % str(e))
+      print(f"Installation of JDK has failed: {str(e)}\n")
       file_exists = os.path.isfile(dest_file)
       if file_exists:
         ok = get_YN_input("JDK found at " + dest_file + ". "
@@ -563,7 +562,7 @@ class JDKSetup(object):
           try:
             (retcode, out) = self._install_jdk(dest_file, jdk_cfg)
           except Exception as e:
-            print("Installation of JDK was failed: %s\n" % str(e))
+            print(f"Installation of JDK was failed: {str(e)}\n")
             err = "Unable to install JDK. Please remove JDK, file found at " + \
                   dest_file + " and re-run Ambari Server setup"
             raise FatalException(1, err)
@@ -595,7 +594,7 @@ class JDKSetup(object):
       print(err_msg_stdout)
       print_error_msg("Failed to download JCE policy files:")
       if e.reason is not None:
-        print_error_msg("\nREASON: {0}".format(e.reason))
+        print_error_msg(f"\nREASON: {e.reason}")
         # TODO: We don't fail installation if _download_jce_policy fails. Is it OK?
 
     print('Installing JCE policy...')
@@ -607,7 +606,7 @@ class JDKSetup(object):
       print(err_msg_stdout)
       print_error_msg("Failed to install JCE policy files:")
       if e.reason is not None:
-        print_error_msg("\nREASON: {0}".format(e.reason))
+        print_error_msg(f"\nREASON: {e.reason}")
         # TODO: We don't fail installation if _download_jce_policy fails. Is it OK?
 
   @staticmethod
@@ -725,7 +724,7 @@ class JDKSetupWindows(JDKSetup):
 
   def _install_jdk(self, java_inst_file, jdk_cfg):
     jdk_inst_dir = jdk_cfg.inst_dir
-    print("Installing JDK to {0}".format(jdk_inst_dir))
+    print(f"Installing JDK to {jdk_inst_dir}")
 
     if not os.path.exists(jdk_inst_dir):
       os.makedirs(jdk_inst_dir)
@@ -752,14 +751,14 @@ class JDKSetupWindows(JDKSetup):
 
     if retcode == 1603:
       # JDK already installed
-      print("JDK already installed in {0}".format(jdk_inst_dir))
+      print(f"JDK already installed in {jdk_inst_dir}")
       retcode = 0
     else:
       if retcode != 0:
-        err = "Installation of JDK returned exit code %s" % retcode
+        err = f"Installation of JDK returned exit code {retcode}"
         raise FatalException(retcode, err)
 
-      print("Successfully installed JDK to {0}".format(jdk_inst_dir))
+      print(f"Successfully installed JDK to {jdk_inst_dir}")
 
     # Don't forget to adjust the JAVA_HOME env var
 
@@ -768,11 +767,11 @@ class JDKSetupWindows(JDKSetup):
   def _ensure_java_home_env_var_is_set(self, java_home_dir):
     if JAVA_HOME not in os.environ or os.environ[JAVA_HOME] != java_home_dir:
       java_home_dir_unesc = compress_backslashes(java_home_dir)
-      retcode, out, err = run_os_command("SETX {0} {1} /M".format(JAVA_HOME, java_home_dir_unesc))
+      retcode, out, err = run_os_command(f"SETX {JAVA_HOME} {java_home_dir_unesc} /M")
       if retcode != 0:
         print_warning_msg("SETX output: " + out)
         print_warning_msg("SETX error output: " + err)
-        err = "Setting JAVA_HOME failed. Exit code={0}".format(retcode)
+        err = f"Setting JAVA_HOME failed. Exit code={retcode}"
         raise FatalException(1, err)
 
       os.environ[JAVA_HOME] = java_home_dir
@@ -804,7 +803,7 @@ class JDKSetupLinux(JDKSetup):
 
   def _install_jdk(self, java_inst_file, jdk_cfg):
     jdk_inst_dir = jdk_cfg.inst_dir
-    print("Installing JDK to {0}".format(jdk_inst_dir))
+    print(f"Installing JDK to {jdk_inst_dir}")
 
     retcode, out, err = run_os_command(self.CREATE_JDK_DIR_CMD.format(jdk_inst_dir))
     retcode, out, err = run_os_command(self.CHMOD_JDK_DIR_CMD.format(jdk_inst_dir))
@@ -821,13 +820,13 @@ class JDKSetupLinux(JDKSetup):
       os.chdir(savedPath)
 
     if retcode != 0:
-      err = "Installation of JDK returned exit code %s" % retcode
+      err = f"Installation of JDK returned exit code {retcode}"
       raise FatalException(retcode, err)
 
     jdk_version = re.search(jdk_cfg.reg_exp, out).group(1)
     java_home_dir = os.path.join(jdk_inst_dir, jdk_version)
 
-    print("Successfully installed JDK to {0}".format(jdk_inst_dir))
+    print(f"Successfully installed JDK to {jdk_inst_dir}")
     return (retcode, out, java_home_dir)
 
   def _ensure_java_home_env_var_is_set(self, java_home_dir):
@@ -854,7 +853,7 @@ class JDKSetupLinux(JDKSetup):
     (stdoutdata, stderrdata) = process.communicate()
 
     if process.returncode != 0:
-      print_warning_msg("Failed to change jce permissions. {0}\n{1}".format(stderrdata, stdoutdata))
+      print_warning_msg(f"Failed to change jce permissions. {stderrdata}\n{stdoutdata}")
 
 def download_and_install_jdk(options):
   properties = get_ambari_properties()
@@ -916,11 +915,11 @@ def _check_jdbc_options(options):
 
 def setup_jdbc(args):
   if not os.path.isfile(args.jdbc_driver):
-    err = "File {0} does not exist!".format(args.jdbc_driver)
+    err = f"File {args.jdbc_driver} does not exist!"
     raise FatalException(1, err)
 
   if args.jdbc_db not in JDBC_DB_OPTION_VALUES:
-    err = "Unsupported database name {0}. Please see help for more information.".format(args.jdbc_db)
+    err = f"Unsupported database name {args.jdbc_db}. Please see help for more information."
     raise FatalException(1, err)
 
   _cache_jdbc_driver(args)
@@ -960,7 +959,7 @@ def _cache_jdbc_driver(args):
 
   try:
     shutil.copy(args.jdbc_driver, dest)
-    print("Copying {0} to {1}".format(args.jdbc_driver, dest))
+    print(f"Copying {args.jdbc_driver} to {dest}")
   except Exception as e:
     err = "Cannot copy file {0} to {1} due to: {2} . Please check file " \
           "permissions and free disk space.".format(args.jdbc_driver, dest, str(e))
@@ -971,7 +970,7 @@ def _cache_jdbc_driver(args):
       if os.path.isfile(symlink_name):
         os.remove(symlink_name)
       os.symlink(dest, symlink_name)
-      print("Creating symlink {0} to {1}".format(dest, symlink_name))
+      print(f"Creating symlink {dest} to {symlink_name}")
   except Exception as e:
     err = "Cannot create symlink {0} to {1} due to: {2} . Please check file " \
           "permissions and free disk space.".format(dest, symlink_name, str(e))
@@ -1118,10 +1117,10 @@ def expand_jce_zip_file(jce_zip_path, jdk_security_path):
       try:
         f.close()
       except Exception as e:
-        err = "Fail during the extraction of {0}.".format(jce_zip_path)
+        err = f"Fail during the extraction of {jce_zip_path}."
         raise FatalException(1, err)
   else:
-    err = "The path {0} or {1} is invalid.".format(jdk_security_path, jce_zip_path)
+    err = f"The path {jdk_security_path} or {jce_zip_path} is invalid."
     raise FatalException(1, err)
 
   if unziped_jce_path:
@@ -1183,7 +1182,7 @@ def setup(options):
   try:
     download_and_install_jdk(options)
   except FatalException as e:
-    err = 'Downloading or installing JDK failed: {0}. Exiting.'.format(e)
+    err = f'Downloading or installing JDK failed: {e}. Exiting.'
     raise FatalException(e.code, err)
 
   print('Checking GPL software agreement...')
@@ -1213,7 +1212,7 @@ def setup(options):
 
   json_url = get_json_url_from_repo_file()
   if json_url:
-    print("Ambari repo file contains latest json url {0}, updating stacks repoinfos with it...".format(json_url))
+    print(f"Ambari repo file contains latest json url {json_url}, updating stacks repoinfos with it...")
     properties = get_ambari_properties()
     stack_root = get_stack_location(properties)
     update_latest_in_repoinfos_for_stacks(stack_root, json_url)
@@ -1231,7 +1230,7 @@ def setup(options):
 def setup_jce_policy(args):
   logger.info("Setup JCE policy for ambari-server.")
   if not os.path.exists(args[1]):
-    err = "Can not run 'setup-jce'. Invalid path {0}.".format(args[1])
+    err = f"Can not run 'setup-jce'. Invalid path {args[1]}."
     raise FatalException(1, err)
 
   properties = get_ambari_properties()
@@ -1244,7 +1243,7 @@ def setup_jce_policy(args):
     try:
       shutil.copy(args[1], resources_dir)
     except Exception as e:
-      err = "Fail while trying to copy {0} to {1}. {2}".format(args[1], resources_dir, e)
+      err = f"Fail while trying to copy {args[1]} to {resources_dir}. {e}"
       raise FatalException(1, err)
 
   jdk_path = properties.get_property(JAVA_HOME_PROPERTY)
@@ -1259,7 +1258,7 @@ def setup_jce_policy(args):
   try:
     JDKSetup.unpack_jce_policy(jdk_path, resources_dir, zip_name)
   except FatalException as e:
-    err = 'Installing JCE failed: {0}. Exiting.'.format(e)
+    err = f'Installing JCE failed: {e}. Exiting.'
     raise FatalException(e.code, err)
 
   update_properties(properties)
@@ -1285,23 +1284,23 @@ def check_ambari_java_version_is_valid(java_home, java_bin, min_version, propert
                                )
     (out, err) = process.communicate()
     if process.returncode != 0:
-      err = "Checking JDK version command returned with exit code %s" % process.returncode
+      err = f"Checking JDK version command returned with exit code {process.returncode}"
       raise FatalException(process.returncode, err)
     else:
       actual_jdk_version = int(out)
-      print('JDK version found: {0}'.format(actual_jdk_version))
+      print(f'JDK version found: {actual_jdk_version}')
       if actual_jdk_version < min_version:
-        print('Minimum JDK version is {0} for Ambari. Setup JDK again only for Ambari Server.'.format(min_version))
+        print(f'Minimum JDK version is {min_version} for Ambari. Setup JDK again only for Ambari Server.')
         properties.process_pair(STACK_JAVA_VERSION, out)
         result = False
       else:
-        print('Minimum JDK version is {0} for Ambari. Skipping to setup different JDK for Ambari Server.'.format(min_version))
+        print(f'Minimum JDK version is {min_version} for Ambari. Skipping to setup different JDK for Ambari Server.')
 
   except FatalException as e:
-    err = 'Running java version check command failed: {0}. Exiting.'.format(e)
+    err = f'Running java version check command failed: {e}. Exiting.'
     raise FatalException(e.code, err)
   except Exception as e:
-    err = 'Running java version check command failed: {0}. Exiting.'.format(e)
+    err = f'Running java version check command failed: {e}. Exiting.'
     raise FatalException(1, err)
 
   return result

@@ -130,7 +130,7 @@ def _get_current_hiveserver_version():
     raise Fail('Unable to execute hive --version command to retrieve the hiveserver2 version.')
 
   if return_code != 0:
-    raise Fail('Unable to determine the current HiveServer2 version because of a non-zero return code of {0}'.format(str(return_code)))
+    raise Fail(f'Unable to determine the current HiveServer2 version because of a non-zero return code of {str(return_code)}')
 
   match = re.search('^(Hive) ([0-9]+.[0-9]+.\S+)', output, re.MULTILINE)
 
@@ -138,6 +138,6 @@ def _get_current_hiveserver_version():
     current_hive_server_version = match.group(2)
     return current_hive_server_version
   else:
-    raise Fail('The extracted hiveserver2 version "{0}" does not matching any known pattern'.format(output))
+    raise Fail(f'The extracted hiveserver2 version "{output}" does not matching any known pattern')
 
 

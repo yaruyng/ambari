@@ -120,7 +120,7 @@ def _get_warnings_for_partition(parameters, disk_usage):
     # Check absolute disk space value
     if disk_usage.free < min_free_space:
       result_code = 'WARNING'
-      label += '. Total free space is less than {0}'.format(_get_formatted_size(min_free_space))
+      label += f'. Total free space is less than {_get_formatted_size(min_free_space)}'
 
   return result_code, label
 
@@ -160,7 +160,7 @@ def _get_disk_usage(path='/'):
     total = disk_stats.f_blocks * disk_stats.f_frsize
     used = (disk_stats.f_blocks - disk_stats.f_bfree) * disk_stats.f_frsize
   else:
-    raise NotImplementedError("{0} is not a supported platform for this alert".format(platform.platform()))
+    raise NotImplementedError(f"{platform.platform()} is not a supported platform for this alert")
 
   return DiskInfo(total=total, used=used, free=free, path=path)
 
@@ -203,13 +203,13 @@ def _get_formatted_size(bytes):
   if bytes < 1000:
     return '%i' % bytes + ' B'
   elif 1000 <= bytes < 1000000:
-    return '%.1f' % (bytes / 1000.0) + ' KB'
+    return f'{bytes / 1000.0:.1f}' + ' KB'
   elif 1000000 <= bytes < 1000000000:
-    return '%.1f' % (bytes / 1000000.0) + ' MB'
+    return f'{bytes / 1000000.0:.1f}' + ' MB'
   elif 1000000000 <= bytes < 1000000000000:
-    return '%.1f' % (bytes / 1000000000.0) + ' GB'
+    return f'{bytes / 1000000000.0:.1f}' + ' GB'
   else:
-    return '%.1f' % (bytes / 1000000000000.0) + ' TB'
+    return f'{bytes / 1000000000000.0:.1f}' + ' TB'
 
 if __name__ == '__main__':
     print(_get_disk_usage(os.getcwd()))

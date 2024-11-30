@@ -277,7 +277,7 @@ class NameNodeDefault(NameNode):
 
     name_node_parameters = json.loads( params.name_node_params )
     threshold = name_node_parameters['threshold']
-    _print("Starting balancer with threshold = %s\n" % threshold)
+    _print(f"Starting balancer with threshold = {threshold}\n")
 
     rebalance_env = {'PATH': params.hadoop_bin_dir}
 
@@ -303,7 +303,7 @@ class NameNodeDefault(NameNode):
       try:
         division_result = current.bytesLeftToMove/first.bytesLeftToMove
       except ZeroDivisionError:
-        Logger.warning("Division by zero. Bytes Left To Move = {0}. Return 1.0".format(first.bytesLeftToMove))
+        Logger.warning(f"Division by zero. Bytes Left To Move = {first.bytesLeftToMove}. Return 1.0")
         return 1.0
       return 1.0 - division_result
 
@@ -319,7 +319,7 @@ class NameNodeDefault(NameNode):
       basedir = os.path.join(env.config.basedir, 'scripts', 'balancer-emulator')
       command = ['ambari-python-wrap','hdfs-command.py']
 
-    _print("Executing command %s\n" % command)
+    _print(f"Executing command {command}\n")
 
     parser = hdfs_rebalance.HdfsParser()
 
@@ -327,7 +327,7 @@ class NameNodeDefault(NameNode):
       if is_stderr:
         return
 
-      _print('[balancer] %s' % (line))
+      _print(f'[balancer] {line}')
       pl = parser.parseLine(line)
       if pl:
         res = pl.toJson()
@@ -335,7 +335,7 @@ class NameNodeDefault(NameNode):
 
         self.put_structured_out(res)
       elif parser.state == 'PROCESS_FINISED' :
-        _print('[balancer] %s' % ('Process is finished' ))
+        _print(f'[balancer] Process is finished')
         self.put_structured_out({'completePercent' : 1})
         return
 
@@ -379,25 +379,25 @@ class NameNodeWindows(NameNode):
 
     name_node_parameters = json.loads( params.name_node_params )
     threshold = name_node_parameters['threshold']
-    _print("Starting balancer with threshold = %s\n" % threshold)
+    _print(f"Starting balancer with threshold = {threshold}\n")
 
     def calculateCompletePercent(first, current):
       return 1.0 - current.bytesLeftToMove/first.bytesLeftToMove
 
     def startRebalancingProcess(threshold):
-      rebalanceCommand = 'hdfs balancer -threshold %s' % threshold
+      rebalanceCommand = f'hdfs balancer -threshold {threshold}'
       return ['cmd', '/C', rebalanceCommand]
 
     command = startRebalancingProcess(threshold)
     basedir = os.path.join(env.config.basedir, 'scripts')
 
-    _print("Executing command %s\n" % command)
+    _print(f"Executing command {command}\n")
 
     parser = hdfs_rebalance.HdfsParser()
     returncode, stdout, err = run_os_command_impersonated(' '.join(command), hdfs_username, Script.get_password(params.hdfs_user), hdfs_domain)
 
     for line in stdout.split('\n'):
-      _print('[balancer] %s %s' % (str(datetime.now()), line ))
+      _print(f'[balancer] {str(datetime.now())} {line}')
       pl = parser.parseLine(line)
       if pl:
         res = pl.toJson()
@@ -405,7 +405,7 @@ class NameNodeWindows(NameNode):
 
         self.put_structured_out(res)
       elif parser.state == 'PROCESS_FINISED' :
-        _print('[balancer] %s %s' % (str(datetime.now()), 'Process is finished' ))
+        _print(f'[balancer] {str(datetime.now())} Process is finished')
         self.put_structured_out({'completePercent' : 1})
         break
 

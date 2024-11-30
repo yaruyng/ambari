@@ -51,7 +51,7 @@ class AmsGrafana(Script):
     if not sudo.path_exists(pidfile):
       Logger.warning("Pid file doesn't exist after starting of the component.")
     else:
-      Logger.info("Grafana Server has started with pid: {0}".format(sudo.read_file(pidfile).strip()))
+      Logger.info(f"Grafana Server has started with pid: {sudo.read_file(pidfile).strip()}")
 
     from metrics_grafana_util import create_ams_datasource, create_ams_dashboards, create_grafana_admin_pwd
 

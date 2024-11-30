@@ -145,7 +145,7 @@ class DBMSConfig(object):
     return result
 
   def setup_database(self):
-    print('Configuring {0} database...'.format(self.db_title))
+    print(f'Configuring {self.db_title} database...')
 
     #DB setup should be done last after doing any setup.
     if self._is_local_database():
@@ -175,7 +175,7 @@ class DBMSConfig(object):
     # check driver is present by default driver path
     default_driver_path = self._get_default_driver_path(properties)
     if default_driver_path and os.path.isfile(default_driver_path):
-      ambari_should_use_existing_default_jdbc = get_YN_input("Should ambari use existing default jdbc {0} [y/n] (y)? ".format(default_driver_path), True)
+      ambari_should_use_existing_default_jdbc = get_YN_input(f"Should ambari use existing default jdbc {default_driver_path} [y/n] (y)? ", True)
       if ambari_should_use_existing_default_jdbc:
         properties.process_pair(JDBC_DRIVER_PATH_PROPERTY, default_driver_path)
         update_properties(properties)
@@ -190,15 +190,15 @@ class DBMSConfig(object):
         custom_jdbc_name = os.path.basename(path_to_custom_jdbc_driver)
         if not path_to_custom_jdbc_driver == os.path.join(configDefaults.JAVA_SHARE_PATH, custom_jdbc_name):
           if os.path.isfile(os.path.join(configDefaults.JAVA_SHARE_PATH, custom_jdbc_name)):
-            replace_jdbc_in_share_dir = get_YN_input("You already have file {0} in /usr/share/java/. Should it be replaced? [y/n] (y)? ".format(custom_jdbc_name), True)
+            replace_jdbc_in_share_dir = get_YN_input(f"You already have file {custom_jdbc_name} in /usr/share/java/. Should it be replaced? [y/n] (y)? ", True)
             if replace_jdbc_in_share_dir:
               try:
                 os.remove(os.path.join(configDefaults.JAVA_SHARE_PATH, custom_jdbc_name))
               except Exception as ee:
-                err = 'ERROR: Could not remove jdbc file. %s' % os.path.join(configDefaults.JAVA_SHARE_PATH, custom_jdbc_name)
+                err = f'ERROR: Could not remove jdbc file. {os.path.join(configDefaults.JAVA_SHARE_PATH, custom_jdbc_name)}'
                 raise FatalException(1, err)
           shutil.copy(path_to_custom_jdbc_driver, configDefaults.JAVA_SHARE_PATH)
-          print("Copying {0} to {1}".format(path_to_custom_jdbc_driver, configDefaults.JAVA_SHARE_PATH))
+          print(f"Copying {path_to_custom_jdbc_driver} to {configDefaults.JAVA_SHARE_PATH}")
       except Exception as e:
         err = "Can not copy file {0} to {1} due to: {2} . Please check file " \
           "permissions and free disk space.".format(path_to_custom_jdbc_driver, configDefaults.JAVA_SHARE_PATH, str(e))
@@ -465,7 +465,7 @@ class DBMSConfigFactoryLinux(DBMSConfigFactory):
       dbms_choices = ''
       for desc in self.DBMS_LIST:
         if len(desc.storage_name) > 0:
-          dbms_storage = " ({0})".format(desc.storage_name)
+          dbms_storage = f" ({desc.storage_name})"
         else:
           dbms_storage = ""
         dbms_choice_prompt += self.DBMS_PROMPT_PATTERN.format(n_dbms, desc.dbms_name, dbms_storage)

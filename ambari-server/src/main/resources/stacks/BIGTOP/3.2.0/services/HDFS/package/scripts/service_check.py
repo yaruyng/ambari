@@ -137,16 +137,16 @@ class HdfsServiceCheckWindows(HdfsServiceCheck):
     tmp_file = dir + '/' + unique
 
     #commands for execution
-    hadoop_cmd = "cmd /C %s" % (os.path.join(params.hadoop_home, "bin", "hadoop.cmd"))
-    create_dir_cmd = "%s fs -mkdir %s" % (hadoop_cmd, dir)
-    own_dir = "%s fs -chmod 777 %s" % (hadoop_cmd, dir)
-    test_dir_exists = "%s fs -test -e %s" % (hadoop_cmd, dir)
-    cleanup_cmd = "%s fs -rm %s" % (hadoop_cmd, tmp_file)
-    create_file_cmd = "%s fs -put %s %s" % (hadoop_cmd, os.path.join(params.hadoop_conf_dir, "core-site.xml"), tmp_file)
-    test_cmd = "%s fs -test -e %s" % (hadoop_cmd, tmp_file)
+    hadoop_cmd = f"cmd /C {os.path.join(params.hadoop_home, 'bin', 'hadoop.cmd')}"
+    create_dir_cmd = f"{hadoop_cmd} fs -mkdir {dir}"
+    own_dir = f"{hadoop_cmd} fs -chmod 777 {dir}"
+    test_dir_exists = f"{hadoop_cmd} fs -test -e {dir}"
+    cleanup_cmd = f"{hadoop_cmd} fs -rm {tmp_file}"
+    create_file_cmd = f"{hadoop_cmd} fs -put {os.path.join(params.hadoop_conf_dir, 'core-site.xml')} {tmp_file}"
+    test_cmd = f"{hadoop_cmd} fs -test -e {tmp_file}"
 
-    hdfs_cmd = "cmd /C %s" % (os.path.join(params.hadoop_home, "bin", "hdfs.cmd"))
-    safemode_command = "%s dfsadmin -safemode get | %s OFF" % (hdfs_cmd, params.grep_exe)
+    hdfs_cmd = f"cmd /C {os.path.join(params.hadoop_home, 'bin', 'hdfs.cmd')}"
+    safemode_command = f"{hdfs_cmd} dfsadmin -safemode get | {params.grep_exe} OFF"
 
     Execute(safemode_command, logoutput=True, try_sleep=3, tries=20)
     Execute(create_dir_cmd, user=params.hdfs_user,logoutput=True, ignore_failures=True)

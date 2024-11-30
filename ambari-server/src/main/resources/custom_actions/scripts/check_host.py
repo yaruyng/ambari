@@ -197,7 +197,7 @@ class CheckHost(Script):
         error_message += "Check {0} was unsuccessful. Exit code: {1}.".format(check_name, \
                                                                              structured_output[check_name]["exit_code"])
         if "message" in structured_output[check_name]:
-          error_message += " Message: {0}".format(structured_output[check_name]["message"])
+          error_message += f" Message: {structured_output[check_name]['message']}"
         error_message += "\n"
 
     Logger.info("Host checks completed.")

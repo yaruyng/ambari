@@ -371,7 +371,7 @@ if stack_supports_ranger_kerberos and not has_namenode:
 
     core_site_auth_to_local_property = ''
     for item in range(len(rule_dict)):
-      rule_line = 'RULE:[2:$1@$0]({0}@{1})s/.*/{2}/\n'.format(rule_dict[item]['principal'], realm, rule_dict[item]['user'])
+      rule_line = f"RULE:[2:$1@$0]({rule_dict[item]['principal']}@{realm})s/.*/{rule_dict[item]['user']}/\n"
       core_site_auth_to_local_property = rule_line + core_site_auth_to_local_property
 
     core_site_auth_to_local_property = core_site_auth_to_local_property + 'DEFAULT'

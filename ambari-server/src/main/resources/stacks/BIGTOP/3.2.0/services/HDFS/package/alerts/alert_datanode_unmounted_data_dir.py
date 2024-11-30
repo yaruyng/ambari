@@ -66,18 +66,18 @@ def execute(configurations={}, parameters={}, host_name=None):
 
   # Check required properties
   if DFS_DATA_DIR not in configurations:
-    return (RESULT_STATE_UNKNOWN, ['{0} is a required parameter for the script'.format(DFS_DATA_DIR)])
+    return (RESULT_STATE_UNKNOWN, [f'{DFS_DATA_DIR} is a required parameter for the script'])
 
   dfs_data_dir = configurations[DFS_DATA_DIR]
 
   if dfs_data_dir is None:
-    return (RESULT_STATE_UNKNOWN, ['{0} is a required parameter for the script and the value is null'.format(DFS_DATA_DIR)])
+    return (RESULT_STATE_UNKNOWN, [f'{DFS_DATA_DIR} is a required parameter for the script and the value is null'])
 
   # This follows symlinks and will return False for a broken link (even in the middle of the linked list)
   data_dir_mount_file_exists = True
   if not os.path.exists(DATA_DIR_MOUNT_FILE):
     data_dir_mount_file_exists = False
-    warnings.append("{0} was not found.".format(DATA_DIR_MOUNT_FILE))
+    warnings.append(f"{DATA_DIR_MOUNT_FILE} was not found.")
 
   normalized_data_dirs = set()            # data dirs that have been normalized
   data_dirs_not_exist = set()        # data dirs that do not exist

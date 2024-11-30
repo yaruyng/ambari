@@ -148,7 +148,7 @@ def resolve_paths_to_import_from_common_services(metainfo_file, base_stack_folde
       if os.path.isdir(inherited_from_older_version_path):
         paths_to_import += resolve_paths_to_import_from_common_services(metainfo_file, inherited_from_older_version_path, common_services_parent_dir, service)
   else:
-    print("Service %s. Could not get extract <extends></extends> from metainfo file: %s. This may prevent modules from being imported." % (service, str(metainfo_file)))
+    print(f"Service {service}. Could not get extract <extends></extends> from metainfo file: {str(metainfo_file)}. This may prevent modules from being imported.")
 
   return paths_to_import
 
@@ -212,7 +212,7 @@ def stack_test_executor(base_folder, service, stack, test_mask, executor_result)
   except:
     executor_result.put({'exit_code': 1,
                          'tests_run': 0,
-                         'errors': [("Failed to load test files {0}".format(str(modules)), traceback.format_exc(), "ERROR")],
+                         'errors': [(f"Failed to load test files {str(modules)}", traceback.format_exc(), "ERROR")],
                          'failures': []})
     executor_result.put(1)
     return
@@ -350,14 +350,14 @@ def main():
 
     for failed_tests in [test_errors,test_failures]:
       for err in failed_tests:
-        sys.stderr.write("{0}: {1}\n".format(err[2],err[0]))
+        sys.stderr.write(f"{err[2]}: {err[0]}\n")
         sys.stderr.write("----------------------------------------------------------------------\n")
-        sys.stderr.write("{0}\n".format(err[1]))
+        sys.stderr.write(f"{err[1]}\n")
 
   sys.stderr.write("----------------------------------------------------------------------\n")
-  sys.stderr.write("Total run:{0}\n".format(test_runs))
-  sys.stderr.write("Total errors:{0}\n".format(len(test_errors)))
-  sys.stderr.write("Total failures:{0}\n".format(len(test_failures)))
+  sys.stderr.write(f"Total run:{test_runs}\n")
+  sys.stderr.write(f"Total errors:{len(test_errors)}\n")
+  sys.stderr.write(f"Total failures:{len(test_failures)}\n")
 
   try:
     shutil.rmtree(newtmpdirpath)

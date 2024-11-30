@@ -28,9 +28,9 @@ class HbaseMasterUpgrade(Script):
   def take_snapshot(self, env):
     import params
 
-    snap_cmd = "echo 'snapshot_all' | {0} shell".format(params.hbase_cmd)
+    snap_cmd = f"echo 'snapshot_all' | {params.hbase_cmd} shell"
 
-    exec_cmd = "{0} {1}".format(params.kinit_cmd, snap_cmd)
+    exec_cmd = f"{params.kinit_cmd} {snap_cmd}"
 
     Execute(exec_cmd, user=params.hbase_user)
 

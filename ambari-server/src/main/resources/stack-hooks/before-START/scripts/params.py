@@ -95,7 +95,7 @@ jce_policy_zip = default("/ambariLevelParams/jce_name", None) # None when jdk is
 unlimited_key_jce_required = default("/componentLevelParams/unlimited_key_jce_required", False)
 jdk_name = default("/ambariLevelParams/jdk_name", None)
 java_home = default("/ambariLevelParams/java_home", None)
-java_exec = "{0}/bin/java".format(java_home) if java_home is not None else "/bin/java"
+java_exec = f"{java_home}/bin/java" if java_home is not None else "/bin/java"
 
 #users and groups
 has_hadoop_env = 'hadoop-env' in config['configurations']

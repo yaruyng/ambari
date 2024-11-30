@@ -170,7 +170,7 @@ class Properties(object):
       if hasattr(self._props, name):
         return getattr(self._props, name)
       else:
-        raise NotImplementedError("The method '{}' is not implemented.".format(name))
+        raise NotImplementedError(f"The method '{name}' is not implemented.")
 
   def __contains__(self, key):
     return key in self._props

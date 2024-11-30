@@ -142,15 +142,15 @@ def execute(configurations={}, parameters={}, host_name=None):
   if host_port is not None:
     if ":" in host_port:
       uri_host, uri_port = host_port.split(':')
-      host_port = '{0}:{1}'.format(host_name, uri_port)
+      host_port = f'{host_name}:{uri_port}'
     else:
       host_port = host_name
 
   # some yarn-site structures don't have the web ui address
   if host_port is None:
-    host_port = '{0}:{1}'.format(host_name, NODEMANAGER_DEFAULT_PORT)
+    host_port = f'{host_name}:{NODEMANAGER_DEFAULT_PORT}'
 
-  query = "{0}://{1}/ws/v1/node/info".format(scheme, host_port)
+  query = f"{scheme}://{host_port}/ws/v1/node/info"
 
   try:
     if kerberos_principal is not None and kerberos_keytab is not None and security_enabled:

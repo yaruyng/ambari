@@ -81,11 +81,11 @@ def prepare_upgrade_enter_safe_mode(hdfs_binary):
     # Safe to call if already in Safe Mode
     desired_state = SafeMode.ON
     safemode_transition_successful, original_state = reach_safemode_state(params.hdfs_user, desired_state, params.dfs_ha_enabled, hdfs_binary)
-    Logger.info("Transition successful: {0}, original state: {1}".format(str(safemode_transition_successful), str(original_state)))
+    Logger.info(f"Transition successful: {str(safemode_transition_successful)}, original state: {str(original_state)}")
     if not safemode_transition_successful:
-      raise Fail("Could not transition to safemode state %s. Please check logs to make sure namenode is up." % str(desired_state))
+      raise Fail(f"Could not transition to safemode state {str(desired_state)}. Please check logs to make sure namenode is up.")
   except Exception as e:
-    message = "Could not enter safemode. Error: {0}. As the HDFS user, call this command: {1}".format(str(e), safe_mode_enter_cmd)
+    message = f"Could not enter safemode. Error: {str(e)}. As the HDFS user, call this command: {safe_mode_enter_cmd}"
     Logger.error(message)
     raise Fail(message)
 
@@ -115,7 +115,7 @@ def prepare_upgrade_backup_namenode_dir():
   i = 0
   failed_paths = []
   nn_name_dirs = params.dfs_name_dir.split(',')
-  backup_destination_root_dir = "{0}/{1}".format(params.namenode_backup_dir, params.stack_version_unformatted)
+  backup_destination_root_dir = f"{params.namenode_backup_dir}/{params.stack_version_unformatted}"
   if len(nn_name_dirs) > 0:
     Logger.info("Backup the NameNode name directory's CURRENT folder.")
   for nn_dir in nn_name_dirs:
@@ -123,7 +123,7 @@ def prepare_upgrade_backup_namenode_dir():
     namenode_current_image = os.path.join(nn_dir, "current")
     unique = get_unique_id_and_date() + "_" + str(i)
     # Note that /tmp may not be writeable.
-    backup_current_folder = "{0}/namenode_{1}/".format(backup_destination_root_dir, unique)
+    backup_current_folder = f"{backup_destination_root_dir}/namenode_{unique}/"
 
     if os.path.isdir(namenode_current_image) and not os.path.isdir(backup_current_folder):
       try:
@@ -154,7 +154,7 @@ def prepare_upgrade_finalize_previous_upgrades(hdfs_binary):
     if out:
       expected_substring = "there is no rolling upgrade in progress"
       if expected_substring not in out.lower():
-        Logger.warning('Finalize command did not contain substring: %s' % expected_substring)
+        Logger.warning(f'Finalize command did not contain substring: {expected_substring}')
     else:
       Logger.warning("Finalize command did not return any output.")
   except Exception as e:
@@ -170,7 +170,7 @@ def reach_safemode_state(user, safemode_state, in_ha, hdfs_binary):
   :return: Returns a tuple of (transition success, original state). If no change is needed, the indicator of
   success will be True
   """
-  Logger.info("Prepare to transition into safemode state %s" % safemode_state)
+  Logger.info(f"Prepare to transition into safemode state {safemode_state}")
   import params
   original_state = SafeMode.UNKNOWN
 
@@ -186,7 +186,7 @@ def reach_safemode_state(user, safemode_state, in_ha, hdfs_binary):
   if code == 0 and out is not None:
     Logger.info(out)
     re_pattern = r"Safe mode is (\S*)"
-    Logger.info("Pattern to search: {0}".format(re_pattern))
+    Logger.info(f"Pattern to search: {re_pattern}")
     m = re.search(re_pattern, out, re.IGNORECASE)
     if m and len(m.groups()) >= 1:
       original_state = m.group(1).upper()
@@ -222,7 +222,7 @@ def prepare_rolling_upgrade(hdfs_binary):
   import params
 
   if not params.upgrade_direction or params.upgrade_direction not in [Direction.UPGRADE, Direction.DOWNGRADE]:
-    raise Fail("Could not retrieve upgrade direction: %s" % str(params.upgrade_direction))
+    raise Fail(f"Could not retrieve upgrade direction: {str(params.upgrade_direction)}")
   Logger.info(format("Performing a(n) {params.upgrade_direction} of HDFS"))
 
   if params.security_enabled:
@@ -235,7 +235,7 @@ def prepare_rolling_upgrade(hdfs_binary):
       desired_state = SafeMode.OFF
       safemode_transition_successful, original_state = reach_safemode_state(params.hdfs_user, desired_state, True, hdfs_binary)
       if not safemode_transition_successful:
-        raise Fail("Could not transition to safemode state %s. Please check logs to make sure namenode is up." % str(desired_state))
+        raise Fail(f"Could not transition to safemode state {str(desired_state)}. Please check logs to make sure namenode is up.")
 
     dfsadmin_base_command = get_dfsadmin_base_command(hdfs_binary)
     prepare = dfsadmin_base_command + " -rollingUpgrade prepare"
@@ -299,7 +299,7 @@ def create_upgrade_marker():
     if not os.path.isfile(namenode_upgrade_in_progress_marker):
       File(namenode_upgrade_in_progress_marker)
   except:
-    Logger.warning("Unable to create NameNode upgrade marker file {0}".format(namenode_upgrade_in_progress_marker))
+    Logger.warning(f"Unable to create NameNode upgrade marker file {namenode_upgrade_in_progress_marker}")
 
 
 def delete_upgrade_marker():
@@ -317,7 +317,7 @@ def delete_upgrade_marker():
     if os.path.isfile(namenode_upgrade_in_progress_marker):
       File(namenode_upgrade_in_progress_marker, action='delete')
   except:
-    error_message = "Unable to remove NameNode upgrade marker file {0}".format(namenode_upgrade_in_progress_marker)
+    error_message = f"Unable to remove NameNode upgrade marker file {namenode_upgrade_in_progress_marker}"
     Logger.error(error_message)
     raise Fail(error_message)
 

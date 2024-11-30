@@ -120,11 +120,11 @@ class NamenodeHAState:
 
   def __str__(self):
     return "Namenode HA State: {\n" + \
-           ("IDs: %s\n"       % ", ".join(self.nn_unique_ids)) + \
-           ("Addresses: %s\n" % str(self.nn_unique_id_to_addresses)) + \
-           ("States: %s\n"    % str(self.namenode_state_to_hostnames)) + \
-           ("Encrypted: %s\n" % str(self.encrypted)) + \
-           ("Healthy: %s\n"   % str(self.is_healthy())) + \
+           f"IDs: {', '.join(self.nn_unique_ids)}\n" + \
+           f"Addresses: {str(self.nn_unique_id_to_addresses)}\n" + \
+           f"States: {str(self.namenode_state_to_hostnames)}\n" + \
+           f"Encrypted: {str(self.encrypted)}\n" + \
+           f"Healthy: {str(self.is_healthy())}\n" + \
            "}"
 
   def is_encrypted(self):

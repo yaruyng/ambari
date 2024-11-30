@@ -3860,7 +3860,7 @@ class TestAmbariServer(TestCase):
     self.assertFalse(remove_file_mock.called)
 
     self.assertTrue("Ambari-DDL-Postgres-CREATE.sql" in run_os_command_1_mock.call_args[0][0][3])
-    self.assertTrue("-U {0}".format(db_username) in run_os_command_1_mock.call_args[0][0][3])
+    self.assertTrue(f"-U {db_username}" in run_os_command_1_mock.call_args[0][0][3])
 
     #if DB user name was changed
     args = reset_mocks()
@@ -7511,7 +7511,7 @@ class TestAmbariServer(TestCase):
 
     sync_ldap(options)
 
-    url = '{0}://{1}:{2!s}{3}'.format('http', '127.0.0.1', '8080', '/api/v1/ldap_sync_events')
+    url = 'http://127.0.0.1:8080/api/v1/ldap_sync_events'
     request = urlopen_mock.call_args_list[0][0][0]
 
     self.assertEqual(url, str(request.get_full_url()))
@@ -7554,7 +7554,7 @@ class TestAmbariServer(TestCase):
 
     sync_ldap(options)
 
-    url = '{0}://{1}:{2!s}{3}'.format('http', '127.0.0.1', '8080', '/api/v1/ldap_sync_events')
+    url = 'http://127.0.0.1:8080/api/v1/ldap_sync_events'
     request = urlopen_mock.call_args_list[0][0][0]
 
     self.assertEqual(url, str(request.get_full_url()))
@@ -7788,7 +7788,7 @@ class TestAmbariServer(TestCase):
 
     sync_ldap(options)
 
-    url = '{0}://{1}:{2!s}{3}'.format('https', socket.getfqdn(), '8443', '/api/v1/ldap_sync_events')
+    url = f'https://{socket.getfqdn()}:8443/api/v1/ldap_sync_events'
     request = urlopen_mock.call_args_list[0][0][0]
 
     self.assertEqual(url, str(request.get_full_url()))

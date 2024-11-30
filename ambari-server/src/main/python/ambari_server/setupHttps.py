@@ -89,7 +89,7 @@ def get_and_persist_truststore_path(properties, options):
 
     while not truststore_path:
       truststore_path = get_validated_string_input(
-          "Path to TrustStore file {0}:".format(get_prompt_default(SSL_TRUSTSTORE_PATH_DEFAULT)),
+          f"Path to TrustStore file {get_prompt_default(SSL_TRUSTSTORE_PATH_DEFAULT)}:",
           SSL_TRUSTSTORE_PATH_DEFAULT, ".*", False, False, answer = options.trust_store_path)
 
     if truststore_path:
@@ -102,7 +102,7 @@ def get_and_persist_truststore_type(properties, options):
   if not truststore_type:
     SSL_TRUSTSTORE_TYPE_DEFAULT = get_value_from_properties(properties, SSL_TRUSTSTORE_TYPE_PROPERTY, "jks")
     truststore_type = get_validated_string_input(
-        "TrustStore type [jks/jceks/pkcs12] {0}:".format(get_prompt_default(SSL_TRUSTSTORE_TYPE_DEFAULT)),
+        f"TrustStore type [jks/jceks/pkcs12] {get_prompt_default(SSL_TRUSTSTORE_TYPE_DEFAULT)}:",
         SSL_TRUSTSTORE_TYPE_DEFAULT, "^(jks|jceks|pkcs12)?$", "Wrong type", False, answer = options.trust_store_type)
 
     if truststore_type:

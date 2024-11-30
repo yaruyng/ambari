@@ -46,7 +46,7 @@ def run_migration(env, upgrade_type):
     Logger.info("Skip running the Kafka ACL migration script since cluster security is not enabled.")
     return
 
-  Logger.info("Upgrade type: {0}, direction: {1}".format(str(upgrade_type), params.upgrade_direction))
+  Logger.info(f"Upgrade type: {str(upgrade_type)}, direction: {params.upgrade_direction}")
 
   # If the schema upgrade script exists in the version upgrading to, then attempt to upgrade/downgrade it while still using the present bits.
   kafka_acls_script = None
@@ -60,7 +60,7 @@ def run_migration(env, upgrade_type):
 
   if kafka_acls_script is not None:
     if os.path.exists(kafka_acls_script):
-      Logger.info("Found Kafka acls script: {0}".format(kafka_acls_script))
+      Logger.info(f"Found Kafka acls script: {kafka_acls_script}")
       if params.zookeeper_connect is None:
         raise Fail("Could not retrieve property kafka-broker/zookeeper.connect")
 
@@ -71,4 +71,4 @@ def run_migration(env, upgrade_type):
               user=params.kafka_user,
               logoutput=True)
     else:
-      Logger.info("Did not find Kafka acls script: {0}".format(kafka_acls_script))
+      Logger.info(f"Did not find Kafka acls script: {kafka_acls_script}")

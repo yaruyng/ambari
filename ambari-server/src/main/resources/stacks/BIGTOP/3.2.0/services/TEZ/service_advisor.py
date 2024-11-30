@@ -218,7 +218,7 @@ class TezRecommender(service_advisor.ServiceAdvisor):
     pass
 
     if has_tez_view:
-      tez_url = '{0}://{1}:{2}/#/main/view/TEZ/tez_cluster_instance'.format(server_protocol, server_host, server_port)
+      tez_url = f'{server_protocol}://{server_host}:{server_port}/#/main/view/TEZ/tez_cluster_instance'
       putTezProperty("tez.tez-ui.history-url.base", tez_url)
     pass
 
@@ -279,7 +279,7 @@ class TezRecommender(service_advisor.ServiceAdvisor):
     pass
 
     if has_tez_view:
-      tez_url = '{0}://{1}:{2}/#/main/view/TEZ/tez_cluster_instance'.format(server_protocol, server_host, server_port)
+      tez_url = f'{server_protocol}://{server_host}:{server_port}/#/main/view/TEZ/tez_cluster_instance'
       putTezProperty("tez.tez-ui.history-url.base", tez_url)
     pass
 
@@ -287,7 +287,7 @@ class TezRecommender(service_advisor.ServiceAdvisor):
     putTezProperty = self.putProperty(configurations, "tez-site")
     if "HIVE" in self.getServiceNames(services) and "hive-site" in services["configurations"] and "hive.metastore.warehouse.external.dir" in services["configurations"]["hive-site"]["properties"]:
       hive_metastore_warehouse_external_dir = services["configurations"]["hive-site"]["properties"]['hive.metastore.warehouse.external.dir']
-      putTezProperty("tez.history.logging.proto-base-dir", "{0}/sys.db".format(hive_metastore_warehouse_external_dir))
+      putTezProperty("tez.history.logging.proto-base-dir", f"{hive_metastore_warehouse_external_dir}/sys.db")
       putTezProperty("tez.history.logging.service.class", "org.apache.tez.dag.history.logging.proto.ProtoHistoryLoggingService")
       self.logger.info("Updated 'tez-site' config 'tez.history.logging.proto-base-dir' and 'tez.history.logging.service.class'")
 
@@ -331,11 +331,11 @@ class TezValidator(service_advisor.ServiceAdvisor):
       if int(tez_site[prop_name1]) > yarnMaxAllocationSize:
         validationItems.append({"config-name": prop_name1,
                                 "item": self.getWarnItem(
-                                  "{0} should be less than YARN max allocation size ({1})".format(prop_name1, yarnMaxAllocationSize))})
+                                  f"{prop_name1} should be less than YARN max allocation size ({yarnMaxAllocationSize})")})
       if int(tez_site[prop_name2]) > yarnMaxAllocationSize:
         validationItems.append({"config-name": prop_name2,
                                 "item": self.getWarnItem(
-                                  "{0} should be less than YARN max allocation size ({1})".format(prop_name2, yarnMaxAllocationSize))})
+                                  f"{prop_name2} should be less than YARN max allocation size ({yarnMaxAllocationSize})")})
 
     return self.toConfigurationValidationProblems(validationItems, "tez-site")
 

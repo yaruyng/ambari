@@ -37,7 +37,7 @@ def ensure_unit_for_memory(memory_size):
     if len(memory_size_unit) > 0:
       unit = memory_size_unit[0]
     if unit not in ['b', 'k', 'm', 'g', 't', 'p']:
-      raise Exception("Memory size unit error. %s - wrong unit" % unit)
-    return "%s%s" % (memory_size_values[0], unit)
+      raise Exception(f"Memory size unit error. {unit} - wrong unit")
+    return f"{memory_size_values[0]}{unit}"
   else:
     raise Exception('Memory size can not be calculated')

@@ -75,7 +75,7 @@ def execute(configurations={}, parameters={}, host_name=None):
 
   # hdfs-site is required
   if not HDFS_SITE_KEY in configurations:
-    return 'SKIPPED', ['{0} is a required parameter for the script'.format(HDFS_SITE_KEY)]
+    return 'SKIPPED', [f'{HDFS_SITE_KEY} is a required parameter for the script']
 
   if NN_HTTP_POLICY_KEY in configurations:
     http_policy = configurations[NN_HTTP_POLICY_KEY]
@@ -114,9 +114,9 @@ def execute(configurations={}, parameters={}, host_name=None):
       break
   if not uri:
     return 'SKIPPED', [
-      'NameNode on host {0} not found (namenode adresses = {1})'.format(host_name, ', '.join(nn_addresses))]
+      f"NameNode on host {host_name} not found (namenode adresses = {', '.join(nn_addresses)})"]
 
-  upgrade_finalized_qry = "{0}://{1}/jmx?qry=Hadoop:service=NameNode,name=NameNodeInfo".format(scheme, uri)
+  upgrade_finalized_qry = f"{scheme}://{uri}/jmx?qry=Hadoop:service=NameNode,name=NameNodeInfo"
 
   # start out assuming an OK status
   label = None

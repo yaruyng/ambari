@@ -283,7 +283,7 @@ class HBASERecommender(service_advisor.ServiceAdvisor):
       bucketcache_offheap_memory = regionserver_max_direct_memory_size - reserved_offheap_memory
       hbase_bucketcache_size = bucketcache_offheap_memory
       hbase_bucketcache_percentage_in_combinedcache = float(bucketcache_offheap_memory) / hbase_bucketcache_size
-      hbase_bucketcache_percentage_in_combinedcache_str = "{0:.4f}".format(math.ceil(hbase_bucketcache_percentage_in_combinedcache * 10000) / 10000.0)
+      hbase_bucketcache_percentage_in_combinedcache_str = f"{math.ceil(hbase_bucketcache_percentage_in_combinedcache * 10000) / 10000.0:.4f}"
 
       # Set values in hbase-site
       putHbaseSiteProperty('hfile.block.cache.size', hfile_block_cache_size)
@@ -513,9 +513,9 @@ class HBASERecommender(service_advisor.ServiceAdvisor):
       putHbaseSiteProperty('hbase.master.ui.readonly', 'true')
 
       phoenix_query_server_hosts = self.getPhoenixQueryServerHosts(services, hosts)
-      self.logger.debug("Calculated Phoenix Query Server hosts: %s" % str(phoenix_query_server_hosts))
+      self.logger.debug(f"Calculated Phoenix Query Server hosts: {str(phoenix_query_server_hosts)}")
       if phoenix_query_server_hosts:
-        self.logger.debug("Attempting to update hadoop.proxyuser.HTTP.hosts with %s" % str(phoenix_query_server_hosts))
+        self.logger.debug(f"Attempting to update hadoop.proxyuser.HTTP.hosts with {str(phoenix_query_server_hosts)}")
         # The PQS hosts we want to ensure are set
         new_value = ','.join(phoenix_query_server_hosts)
         # Update the proxyuser setting, deferring to out callback to merge results together
@@ -720,16 +720,16 @@ class HBASEValidator(service_advisor.ServiceAdvisor):
     if prop_name1 in hbase_site and not self.is_number(hbase_site[prop_name1]):
       validationItems.append({"config-name": prop_name1,
                               "item": self.getWarnItem(
-                                "{0} should be float value".format(prop_name1))})
+                                f"{prop_name1} should be float value")})
     elif prop_name2 in hbase_site and not self.is_number(hbase_site[prop_name2]):
       validationItems.append({"config-name": prop_name2,
                               "item": self.getWarnItem(
-                                "{0} should be float value".format(prop_name2))})
+                                f"{prop_name2} should be float value")})
     elif prop_name1 in hbase_site and prop_name2 in hbase_site and \
                             float(hbase_site[prop_name1]) + float(hbase_site[prop_name2]) > props_max_sum:
       validationItems.append({"config-name": prop_name1,
                               "item": self.getWarnItem(
-                                "{0} and {1} sum should not exceed {2}".format(prop_name1, prop_name2, props_max_sum))})
+                                f"{prop_name1} and {prop_name2} sum should not exceed {props_max_sum}")})
 
     # Validate bucket cache correct config
     prop_name = "hbase.bucketcache.ioengine"
@@ -747,11 +747,11 @@ class HBASEValidator(service_advisor.ServiceAdvisor):
     if prop_name1 in hbase_site and prop_name2 in hbase_site and hbase_site[prop_name1] and not hbase_site[prop_name2]:
       validationItems.append({"config-name": prop_name2,
                               "item": self.getWarnItem(
-                                "If bucketcache ioengine is enabled, {0} should be set".format(prop_name2))})
+                                f"If bucketcache ioengine is enabled, {prop_name2} should be set")})
     if prop_name1 in hbase_site and prop_name3 in hbase_site and hbase_site[prop_name1] and not hbase_site[prop_name3]:
       validationItems.append({"config-name": prop_name3,
                               "item": self.getWarnItem(
-                                "If bucketcache ioengine is enabled, {0} should be set".format(prop_name3))})
+                                f"If bucketcache ioengine is enabled, {prop_name3} should be set")})
 
     # Validate hbase.security.authentication.
     # Kerberos works only when security enabled.
@@ -778,7 +778,7 @@ class HBASEValidator(service_advisor.ServiceAdvisor):
     if prop_name1 in hbase_site_properties and prop_name in hbase_env and hbase_site_properties[prop_name1] and hbase_site_properties[prop_name1] == "offheap" and not hbase_env[prop_name]:
       validationItems.append({"config-name": prop_name,
                               "item": self.getWarnItem(
-                                "If bucketcache ioengine is enabled, {0} should be set".format(prop_name))})
+                                f"If bucketcache ioengine is enabled, {prop_name} should be set")})
 
     return self.toConfigurationValidationProblems(validationItems, "hbase-env")
 

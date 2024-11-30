@@ -121,7 +121,7 @@ def execute(configurations={}, parameters={}, host_name=None):
       uri = https_uri
 
   uri = str(host_name) + ":" + uri.split(":")[1]
-  live_nodemanagers_qry = "{0}://{1}/jmx?qry={2}".format(scheme, uri, QRY)
+  live_nodemanagers_qry = f"{scheme}://{uri}/jmx?qry={QRY}"
   convert_to_json_failed = False
   response_code = None
   try:
@@ -155,7 +155,7 @@ def execute(configurations={}, parameters={}, host_name=None):
 
     if kerberos_principal is not None and kerberos_keytab is not None and security_enabled:
       if response_code in [200, 307] and convert_to_json_failed:
-        return ('UNKNOWN', ['HTTP {0} response (metrics unavailable)'.format(str(response_code))])
+        return ('UNKNOWN', [f'HTTP {str(response_code)} response (metrics unavailable)'])
       elif convert_to_json_failed and response_code not in [200, 307]:
         raise Exception("[Alert][NodeManager Health Summary] Getting data from {0} failed with http code {1}".format(
           str(live_nodemanagers_qry), str(response_code)))
@@ -212,7 +212,7 @@ def find_value_in_jmx(data_dict, jmx_property, query):
     for jmx_prop_list_item in beans:
       if "name" in jmx_prop_list_item and jmx_prop_list_item["name"] == QRY:
         if jmx_property not in jmx_prop_list_item:
-          raise Exception("Unable to find {0} in JSON from {1} ".format(jmx_property, query))
+          raise Exception(f"Unable to find {jmx_property} in JSON from {query} ")
         json_data = jmx_prop_list_item
 
   return json_data[jmx_property]

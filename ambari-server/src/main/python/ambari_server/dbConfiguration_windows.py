@@ -110,7 +110,7 @@ class MSSQLConfig(DBMSConfig):
   def _prompt_db_properties(self):
     if self.must_set_database_options:
       #prompt for SQL Server host and instance name
-      hostname_prompt = "SQL Server host and instance for the {0} database: ({1}) ".format(self.db_title, self.database_host)
+      hostname_prompt = f"SQL Server host and instance for the {self.db_title} database: ({self.database_host}) "
       self.database_host = get_validated_string_input(hostname_prompt, self.database_host, None, None, False, True)
 
       #prompt for SQL Server authentication method
@@ -135,12 +135,12 @@ class MSSQLConfig(DBMSConfig):
       else:
         self.use_windows_authentication = False
 
-        user_prompt = "SQL Server user name for the {0} database: ({1}) ".format(self.db_title, self.database_username)
+        user_prompt = f"SQL Server user name for the {self.db_title} database: ({self.database_username}) "
         username = get_validated_string_input(user_prompt, self.database_username, None, "User name", False,
                                               False)
         self.database_username = username
 
-        user_prompt = "SQL Server password for the {0} database: ".format(self.db_title)
+        user_prompt = f"SQL Server password for the {self.db_title} database: "
         password = get_validated_string_input(user_prompt, "", None, "Password", True, False)
         self.database_password = password
 
@@ -170,12 +170,12 @@ class MSSQLConfig(DBMSConfig):
     pass
 
   def _setup_remote_database(self):
-    print('Populating the {0} database structure...'.format(self.db_title))
+    print(f'Populating the {self.db_title} database structure...')
 
     self._populate_database_structure()
 
   def _reset_remote_database(self):
-    print('Resetting the {0} database structure...'.format(self.db_title))
+    print(f'Resetting the {self.db_title} database structure...')
 
     self._populate_database_structure()
 
@@ -253,10 +253,10 @@ class MSSQLConfig(DBMSConfig):
     return driver_path
 
   def _build_sql_server_connection_string(self):
-    databaseUrl = "jdbc:sqlserver://{0}".format(ensure_double_backslashes(self.database_host))
+    databaseUrl = f"jdbc:sqlserver://{ensure_double_backslashes(self.database_host)}"
     if self.database_port is not None and self.database_port != "":
-      databaseUrl += ":{0}".format(self.database_port)
-    databaseUrl += ";databaseName={0}".format(self.database_name)
+      databaseUrl += f":{self.database_port}"
+    databaseUrl += f";databaseName={self.database_name}"
     if(self.use_windows_authentication):
       databaseUrl += ";integratedSecurity=true"
     #No need to append the username and password, the Ambari server adds them by itself when connecting to the database
@@ -293,10 +293,10 @@ class MSSQLConfig(DBMSConfig):
 
   @staticmethod
   def _execute_db_script(databaseHost, databaseScript, minReportedSeverityLevel=10):
-    dbCmd = 'sqlcmd -S {0} -b -V {1} -i {2}'.format(databaseHost, minReportedSeverityLevel, databaseScript)
+    dbCmd = f'sqlcmd -S {databaseHost} -b -V {minReportedSeverityLevel} -i {databaseScript}'
     retCode, outData, errData = run_os_command(['cmd', '/C', dbCmd])
     if not retCode == 0:
-      err = 'Running database create script failed. Error output: {0} Output: {1} Exiting.'.format(errData, outData)
+      err = f'Running database create script failed. Error output: {errData} Output: {outData} Exiting.'
       raise FatalException(retCode, err)
     print_info_msg("sqlcmd output:")
     print_info_msg(outData)

@@ -50,7 +50,7 @@ def setup_extensions():
   hadoop_custom_extensions_services = [ service.strip().upper() for service in hadoop_custom_extensions_services.split(",") ]
   hadoop_custom_extensions_services.append("YARN")
 
-  hadoop_custom_extensions_local_dir = "{0}/current/ext/hadoop".format(Script.get_stack_root())
+  hadoop_custom_extensions_local_dir = f"{Script.get_stack_root()}/current/ext/hadoop"
 
   if params.current_service in hadoop_custom_extensions_services:
     clean_extensions(hadoop_custom_extensions_local_dir)
@@ -75,7 +75,7 @@ def setup_hbase_extensions():
   hbase_custom_extensions_owner = default("/configurations/hbase-site/hbase.custom-extensions.owner", params.hdfs_user)
   hbase_custom_extensions_hdfs_dir = get_config_formatted_value(default("/configurations/hbase-site/hbase.custom-extensions.root",
                                                 DEFAULT_HADOOP_HBASE_EXTENSION_DIR.format(params.major_stack_version)))
-  hbase_custom_extensions_local_dir = "{0}/current/ext/hbase".format(Script.get_stack_root())
+  hbase_custom_extensions_local_dir = f"{Script.get_stack_root()}/current/ext/hbase"
 
   impacted_components = ['HBASE_MASTER', 'HBASE_REGIONSERVER', 'PHOENIX_QUERY_SERVER'];
   role = params.config.get('role','')
@@ -95,7 +95,7 @@ def setup_extensions_hive():
   hive_custom_extensions_owner = default("/configurations/hive-site/hive.custom-extensions.owner", params.hdfs_user)
   hive_custom_extensions_hdfs_dir = DEFAULT_HADOOP_HIVE_EXTENSION_DIR.format(params.major_stack_version)
 
-  hive_custom_extensions_local_dir = "{0}/current/ext/hive".format(Script.get_stack_root())
+  hive_custom_extensions_local_dir = f"{Script.get_stack_root()}/current/ext/hive"
 
   impacted_components = ['HIVE_SERVER', 'HIVE_CLIENT'];
   role = params.config.get('role','')
@@ -149,10 +149,10 @@ def download_extensions(owner_user, owner_group, hdfs_source_dir, local_target_d
 
     # Execute command is not quoting correctly.
     cmd = format("{sudo} mv {extensions_tmp_dir}/* {local_target_dir}")
-    only_if_cmd = "ls -d {extensions_tmp_dir}/*".format(extensions_tmp_dir=extensions_tmp_dir)
+    only_if_cmd = f"ls -d {extensions_tmp_dir}/*"
     Execute(cmd, only_if=only_if_cmd)
 
-    only_if_local = 'ls -d "{local_target_dir}"'.format(local_target_dir=local_target_dir)
+    only_if_local = f'ls -d "{local_target_dir}"'
     Execute(("chown", "-R", "root:root", local_target_dir),
             sudo=True,
             only_if=only_if_local)

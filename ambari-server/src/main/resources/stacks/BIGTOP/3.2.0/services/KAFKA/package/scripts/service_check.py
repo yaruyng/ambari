@@ -42,26 +42,26 @@ class ServiceCheck(Script):
     topic_exists_cmd_code, topic_exists_cmd_out = shell.call(topic_exists_cmd, logoutput=True, quiet=False, user=params.kafka_user)
 
     if topic_exists_cmd_code > 0:
-      raise Fail("Error encountered when attempting to list topics: {0}".format(topic_exists_cmd_out))
+      raise Fail(f"Error encountered when attempting to list topics: {topic_exists_cmd_out}")
 
     if not params.kafka_delete_topic_enable:
-      Logger.info('Kafka delete.topic.enable is not enabled. Skipping topic creation: %s' % topic)
+      Logger.info(f'Kafka delete.topic.enable is not enabled. Skipping topic creation: {topic}')
       return
 
       # run create topic command only if the topic doesn't exists
     if topic not in topic_exists_cmd_out:
       create_topic_cmd = format("{kafka_home}/bin/kafka-topics.sh --zookeeper {kafka_config[zookeeper.connect]} --create --topic {topic} --partitions 1 --replication-factor 1")
       command = source_cmd + " ; " + create_topic_cmd
-      Logger.info("Running kafka create topic command: %s" % command)
+      Logger.info(f"Running kafka create topic command: {command}")
       call_and_match_output(command, format("({create_topic_cmd_created_output})|({create_topic_cmd_exists_output})"), "Failed to check that topic exists", user=params.kafka_user)
 
     under_rep_cmd = format("{kafka_home}/bin/kafka-topics.sh --describe --zookeeper {kafka_config[zookeeper.connect]} --under-replicated-partitions")
     under_rep_cmd_code, under_rep_cmd_out = shell.call(under_rep_cmd, logoutput=True, quiet=False, user=params.kafka_user)
 
     if under_rep_cmd_code > 0:
-      raise Fail("Error encountered when attempting find under replicated partitions: {0}".format(under_rep_cmd_out))
+      raise Fail(f"Error encountered when attempting find under replicated partitions: {under_rep_cmd_out}")
     elif len(under_rep_cmd_out) > 0 and "Topic" in under_rep_cmd_out:
-      Logger.warning("Under replicated partitions found: {0}".format(under_rep_cmd_out))
+      Logger.warning(f"Under replicated partitions found: {under_rep_cmd_out}")
 
   def read_kafka_config(self):
     import params

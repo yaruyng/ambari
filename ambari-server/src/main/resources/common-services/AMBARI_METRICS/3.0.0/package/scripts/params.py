@@ -147,7 +147,7 @@ def get_ambari_version():
       f.close()
     except Exception as e:
       Logger.info('Unable to determine ambari version from version file.')
-      Logger.debug('Exception: %s' % str(e))
+      Logger.debug(f'Exception: {str(e)}')
       # No hostname script identified in the ambari agent conf
       pass
     pass
@@ -356,8 +356,8 @@ if security_enabled:
     ams_monitor_principal = config['configurations']['ams-hbase-security-site']['ams.monitor.principal']
 
   if ams_monitor_keytab and ams_monitor_principal:
-    monitor_kinit_cmd = '%s -kt %s %s' % (kinit_path_local, ams_monitor_keytab, ams_monitor_principal.replace('_HOST',_hostname_lowercase))
-    klist_cmd = '%s' % klist_path_local
+    monitor_kinit_cmd = f"{kinit_path_local} -kt {ams_monitor_keytab} {ams_monitor_principal.replace('_HOST', _hostname_lowercase)}"
+    klist_cmd = f'{klist_path_local}'
 
 #Ambari metrics log4j settings
 ams_hbase_log_maxfilesize = default('configurations/ams-hbase-log4j/ams_hbase_log_maxfilesize',256)

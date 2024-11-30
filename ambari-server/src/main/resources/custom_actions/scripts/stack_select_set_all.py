@@ -72,7 +72,7 @@ class UpgradeSetAll(Script):
     cmd = ('ambari-python-wrap', stack_selector_path, 'set', 'all', summary.associated_version)
     code, out = shell.call(cmd, sudo=True)
     if code != 0:
-      raise Exception("Command '{0}' exit code is nonzero".format(cmd))
+      raise Exception(f"Command '{cmd}' exit code is nonzero")
 
 
 def is_host_skippable(stack_selector_path, associated_version):
@@ -100,13 +100,13 @@ def is_host_skippable(stack_selector_path, associated_version):
 
   # check to see if the output is empty, indicating no versions installed
   if not out.strip():
-    Logger.info("{0} has no stack versions installed".format(socket.gethostname()))
+    Logger.info(f"{socket.gethostname()} has no stack versions installed")
     return True
 
   # some pre-prepped systems may have a version, so there may be a version, so
   # add the extra check if it is available
   if not associated_version in out:
-    Logger.info("{0} is not found in the list of versions {1}".format(associated_version, out))
+    Logger.info(f"{associated_version} is not found in the list of versions {out}")
     return True
 
   return False
