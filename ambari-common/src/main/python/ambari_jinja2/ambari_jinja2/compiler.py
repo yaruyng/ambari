@@ -899,7 +899,7 @@ class CodeGenerator(NodeVisitor):
       if not self.has_known_extends:
         self.writeline("if parent_template is not None:")
         self.indent()
-      self.writeline(f"raise TemplateRuntimeError(extended multiple times)")
+      self.writeline(f"raise TemplateRuntimeError('extended multiple times')")
       self.outdent()
 
       # if we have a known extends already we don't need that code here
